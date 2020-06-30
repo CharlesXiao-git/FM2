@@ -1,7 +1,7 @@
-package de.jonashackt.springbootvuejs.repository;
+package com.freightmate.harbour.repository;
 
 
-import de.jonashackt.springbootvuejs.domain.User;
+import com.freightmate.harbour.domain.User;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 

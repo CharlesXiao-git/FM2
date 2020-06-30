@@ -1,4 +1,4 @@
-package de.jonashackt.springbootvuejs.domain;
+package com.freightmate.harbour.domain;
 
 import javax.persistence.*;
 

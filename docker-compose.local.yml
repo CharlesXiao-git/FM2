@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  harbour:
+    build:
+      context: .
+      dockerfile: ./docker/harbour/Dockerfile
+    ports:
+      - "8098:8098"
+    links:
+      - database:database
+
+  database:
+    build:
+      context: ./docker/database
+    ports:
+      - "13308:3306"
+    environment:
+      - MYSQL_DATABASE=freightmate-core
+      - MYSQL_USER=freightmate
+      - MYSQL_PASSWORD=freightmate
+      - MYSQL_ROOT_PASSWORD=freightmatee
+

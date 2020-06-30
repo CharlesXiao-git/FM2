@@ -1,8 +1,8 @@
-package de.jonashackt.springbootvuejs.controller;
+package com.freightmate.harbour.controller;
 
-import de.jonashackt.springbootvuejs.domain.User;
-import de.jonashackt.springbootvuejs.exception.UserNotFoundException;
-import de.jonashackt.springbootvuejs.repository.UserRepository;
+import com.freightmate.harbour.domain.User;
+import com.freightmate.harbour.exception.UserNotFoundException;
+import com.freightmate.harbour.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

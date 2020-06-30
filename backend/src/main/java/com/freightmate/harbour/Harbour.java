@@ -1,4 +1,4 @@
-package de.jonashackt.springbootvuejs;
+package com.freightmate.harbour;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -7,6 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class Harbour {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SpringBootVuejsApplication.class, args);
+		SpringApplication.run(Harbour.class, args);
 	}
 }
