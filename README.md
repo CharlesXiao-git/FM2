@@ -65,7 +65,7 @@ So the only thing needed to get fast feedback development-cycle is to navigate t
 npm run serve
 ```
 And then each change made in the `.js/.ts` code will trigger a rebuild. 
-NOTE: This will spawn a new server at [http://localhost:8088/](http://localhost:8088/) and for API responses you will also need to run the Spring Boot server
+NOTE: This will spawn a new server at [http://localhost:8098/](http://localhost:8098/) and for API responses you will also need to run the Spring Boot server
 
 
 ## Browser developer tools extension
