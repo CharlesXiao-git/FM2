@@ -1,6 +1,6 @@
 package com.freightmate.harbour.controller;
 
-import com.freightmate.harbour.domain.User;
+import com.freightmate.harbour.model.User;
 import com.freightmate.harbour.exception.UserNotFoundException;
 import com.freightmate.harbour.repository.UserRepository;
 import org.slf4j.Logger;
@@ -30,7 +30,7 @@ public class BackendController {
     @RequestMapping(path = "/user/{lastName}/{firstName}", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public long addNewUser (@PathVariable("lastName") String lastName, @PathVariable("firstName") String firstName) {
-        User savedUser = userRepository.save(new User(firstName, lastName));
+        User savedUser = userRepository.save(User.builder().firstName(firstName).lastName(lastName).build());
 
         LOG.info(savedUser.toString() + " successfully saved into DB");
 

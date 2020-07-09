@@ -9,15 +9,16 @@ services:
       - "8098:8098"
     links:
       - database:database
-
   database:
     build:
-      context: ./docker/database
+      context: .
+      dockerfile: ./docker/database/Dockerfile
     ports:
-      - "13308:3306"
+      - "3307:3306"
+    #    volumes:ß
+    #      - ./docker/database/volume:/var/lib/mysql
     environment:
       - MYSQL_DATABASE=freightmate-core
       - MYSQL_USER=freightmate
       - MYSQL_PASSWORD=freightmate
-      - MYSQL_ROOT_PASSWORD=freightmatee
-
+      - MYSQL_ROOT_PASSWORD=freightmate
