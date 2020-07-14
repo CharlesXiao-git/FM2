@@ -4,15 +4,13 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZonedDateTime;
-import java.util.Collection;
-import java.util.Date;
+import java.util.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -77,11 +75,10 @@ public class User implements UserDetails {
     Integer createdBy;
     Integer updatedBy;
 
-
-
+    // Attempting to keep authorization as simple as possible, lets just use the roles rather than privs
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return Collections.singletonList(new SimpleGrantedAuthority(this.userRole.name()));
     }
 
     @Override

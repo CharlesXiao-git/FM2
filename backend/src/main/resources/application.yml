@@ -1,23 +1,19 @@
 # this configuration needs to correspond to the Vue.js frontends' vue.config.js devServer.proxy.target configuration!
 # otherwise you may experience errors like: Proxy error: Could not proxy request /api/hello from localhost:8080 to http://localhost:8088... (ECONNREFUSED).
 server:
-  port: 8098
+  port: ${SPRING_PORT:8098}
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3307/freightmate_db
-    username: root
-    password: freightmate
-    driver-class-name: com.mysql.jdbc.Driver
+    url: ${DB_URL:jdbc:mysql://localhost:3307/freightmate_db}
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:freightmate}
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     show-sql: true
     properties:
       hibernate:
         check_nullability: true
-  security:
-    user:
-      name: freightmate
-      password: 2X8gO6loUJNp
 jwt:
-  secret: THISSHOULDNOTMAKETOPROUCTION
+  secret: ${JWT_SECRET:THISSHOULDNOTMAKETOPROUCTION}
   expiry: 86400 #24 hours in seconds
