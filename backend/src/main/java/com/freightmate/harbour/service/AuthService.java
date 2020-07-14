@@ -14,11 +14,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.Date;
+import java.util.Objects;
 
 @Component
 public class AuthService {
@@ -29,7 +29,7 @@ public class AuthService {
     private final BCryptPasswordEncoder bCryptEncoder = new BCryptPasswordEncoder(10);
 
     @Autowired
-    private FreightmateUserDetailsService freightmateUserDetailsService;
+    private FreightmateUserDetailsService userDetailsService;
 
     AuthService(@Value("${jwt.secret}") String secret,
                 @Value("${jwt.expiry}") int tokenExpiry) {
@@ -41,7 +41,8 @@ public class AuthService {
     }
 
     public String generateToken(AuthRequest request) {
-        User user = getUser(request.getUsername());
+        User user = this.userDetailsService
+                .loadUserByUsername(request.getUsername());
 
         if (!this.verifyPassword(request, user)) {
             return null;
@@ -64,34 +65,32 @@ public class AuthService {
 
     //todo: Check password against user password once user CRUD is created
     private boolean verifyPassword(AuthRequest request, User user) {
-        // todo replace this with user.getPassword() once user CRUD is complete
-        // String dbHashPlaceholder = "$2y$12$KwGiUF3awTTXtBJKdlC8Je.Y7vq4i1eVs7cPUoOBcXXvbYYcbmKAm";
-        String dbHashPlaceholder = user.getPassword();
+
+        // Always run a comparison against a failing password if the user doesn't exist so we still take the same time
+        // regardless of if the user exists or not. Harder to brute force if time is constant whether or not the user exists
+        // For a valid bcrypt string it must have $2y$10$ followed by 53 chars
+        String dummyPassword = "$2y$10$.THISW.ILLNOT.WORKASITISNoT.ABCRYPTHASH.NOBCRYPT.HERE";
+        String existingHashedPassword = Objects.isNull(user) ? dummyPassword : user.getPassword();
 
         // This is a remnant of the last system. Everything is SHA512'd then bcrypted.
         // This will revert the double hashing and then log you in
-        if (this.bCryptEncoder.matches(generateSHA512Hash(request.getPassword()), dbHashPlaceholder)) {
+        if (this.bCryptEncoder.matches(generateSHA512Hash(request.getPassword()), existingHashedPassword)) {
             try {
-                this.updatePassword(request.getUsername(), request.getPassword());
+                this.updatePassword(user, request.getPassword());
                 return true;
             } catch (Exception e) {
+                LOG.error("Unable to update password.", e);
                 LOG.warn(String.format("Unable to revert doubled SHA512 hashing for user: %s", request.getUsername()));
             }
         }
 
         // if the user doesn't have a double hashed password, proceed normally
-        return this.bCryptEncoder.matches(request.getPassword(), dbHashPlaceholder);
+        return this.bCryptEncoder.matches(request.getPassword(), existingHashedPassword);
     }
 
-    private boolean updatePassword(String username, String password) {
-        // todo update the users password bcrypt their input
-        return true;
-
-    }
-
-    //todo this a placeholder to get the user based on username this will likely be a userrepo.getByUsename()
-    private User getUser(String username) {
-        return this.freightmateUserDetailsService.loadUserByUsername(username);
+    private User updatePassword(User user, String password) {
+        user.setPassword(this.bCryptEncoder.encode(password));
+        return this.userDetailsService.saveUser(user);
     }
 
     //generate token for user
@@ -105,25 +104,32 @@ public class AuthService {
     }
 
     private String generateSHA512Hash(String input) {
-        SecureRandom random = new SecureRandom();
-        byte[] salt = new byte[16];
-        random.nextBytes(salt);
-
-        return (generateSHA512Hash(input, salt));
-    }
-
-    private String generateSHA512Hash(String input, byte[] salt) {
         try {
+            // getInstance() method is called with algorithm SHA-512
             MessageDigest md = MessageDigest.getInstance("SHA-512");
-            md.update(salt);
-            byte[] bytes = md.digest(input.getBytes(StandardCharsets.UTF_8));
-            StringBuilder sb = new StringBuilder();
-            for (byte aByte : bytes) {
-                sb.append(Integer.toString((aByte & 0xff) + 0x100, 16).substring(1));
+
+            // digest() method is called
+            // to calculate message digest of the input string
+            // returned as array of byte
+            byte[] messageDigest = md.digest(input.getBytes());
+
+            // Convert byte array into signum representation
+            BigInteger no = new BigInteger(1, messageDigest);
+
+            // Convert message digest into hex value
+            String hashtext = no.toString(16);
+
+            // Add preceding 0s to make it 32 bit
+            while (hashtext.length() < 32) {
+                hashtext = "0" + hashtext;
             }
-            return sb.toString();
-        } catch (NoSuchAlgorithmException e) {
-            LOG.error("Unable to find the correct ago", e.getCause());
+
+            // return the HashText
+            return hashtext;
+        }
+
+        // For specifying wrong message digest algorithms
+        catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
     }

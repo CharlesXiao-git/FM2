@@ -30,7 +30,7 @@ public class BackendController {
     @RequestMapping(path = "/user/{lastName}/{firstName}", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public long addNewUser (@PathVariable("lastName") String lastName, @PathVariable("firstName") String firstName) {
-        User savedUser = userRepository.save(User.builder().firstName(firstName).lastName(lastName).build());
+        User savedUser = userRepository.save(User.builder().build());
 
         LOG.info(savedUser.toString() + " successfully saved into DB");
 

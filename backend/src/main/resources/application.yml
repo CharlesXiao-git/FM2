@@ -4,7 +4,7 @@ server:
   port: 8098
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3307/freightmate-core
+    url: jdbc:mysql://localhost:3307/freightmate_db
     username: root
     password: freightmate
     driver-class-name: com.mysql.jdbc.Driver
