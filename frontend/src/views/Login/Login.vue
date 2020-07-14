@@ -77,8 +77,16 @@ export default class Login extends Vue {
 
     extractJWTUser (token: string) {
       const parsedToken = JSON.parse(atob(token.split('.')[1]))
-      if (parsedToken !== null && Object.prototype.hasOwnProperty.call(parsedToken, 'sub')) {
-        this.user.username = parsedToken.sub
+      if (parsedToken !== null) {
+        if (Object.prototype.hasOwnProperty.call(parsedToken, 'sub')) {
+          this.user.username = parsedToken.sub
+        }
+        if (Object.prototype.hasOwnProperty.call(parsedToken, 'userRole')) {
+          this.user.role = parsedToken.userRole
+        }
+        if (Object.prototype.hasOwnProperty.call(parsedToken, 'email')) {
+          this.user.email = parsedToken.email
+        }
       }
     }
 }
