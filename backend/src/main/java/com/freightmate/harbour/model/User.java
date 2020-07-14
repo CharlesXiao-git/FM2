@@ -57,9 +57,6 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     Unit preferredUnit;
 
-    @Column (nullable = false)
-    Boolean isAdmin;
-
     @Column (length = 512)
     String token;
 

@@ -16,7 +16,6 @@ CREATE TABLE IF NOT EXISTS user
     broker_id             INT,
     customer_id           INT,
     preferred_unit        VARCHAR(10),
-    is_admin              BOOLEAN NOT NULL DEFAULT false,
     token                 VARCHAR(512),
     token_created_at      DATETIME,
     is_deleted            BOOLEAN               DEFAULT false NOT NULL,
@@ -91,16 +90,14 @@ INSERT INTO user (username,
                   is_deleted,
                   user_role,
                   broker_id,
-                  is_admin,
                   token)
 SELECT c.username,
        c.password,
        c.email,
        COALESCE(c.active, false),
        c.del_flag,
-       'CUSTOMER',
+       IF(c.admin = 1, 'ADMIN', 'CUSTOMER'),
        u2.id,
-       c.admin,
        c.`key`
 FROM freightmate_secure_login.customers c
          LEFT JOIN user u on c.username = u.username
@@ -208,6 +205,7 @@ FROM freightmate_secure_login.clients c
          LEFT JOIN freightmate_secure_login.customers cus on c.customer_id = cus.id
          LEFT JOIN user u2 on cus.username = u2.username
 WHERE u.id is null;
+
 #
 # SELECT *
 # FROM user

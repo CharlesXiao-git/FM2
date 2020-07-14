@@ -24,17 +24,17 @@ import java.util.Objects;
 public class AuthService {
     private final int tokenExpiry;
     private final Algorithm algorithm;
+    private final FreightmateUserDetailsService userDetailsService;
     private final JWTVerifier verifier;
     private static final Logger LOG = LoggerFactory.getLogger(AuthService.class);
     private final BCryptPasswordEncoder bCryptEncoder = new BCryptPasswordEncoder(10);
 
-    @Autowired
-    private FreightmateUserDetailsService userDetailsService;
-
     AuthService(@Value("${jwt.secret}") String secret,
-                @Value("${jwt.expiry}") int tokenExpiry) {
+                @Value("${jwt.expiry}") int tokenExpiry,
+                @Autowired FreightmateUserDetailsService userDetailsService) {
         this.tokenExpiry = tokenExpiry;
         this.algorithm = Algorithm.HMAC512(secret);
+        this.userDetailsService = userDetailsService;
         this.verifier = JWT.require(this.algorithm)
                 .withIssuer("FreightMate")
                 .build();
@@ -100,6 +100,8 @@ public class AuthService {
                 .withSubject(authRequest.getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis() + (tokenExpiry * 1000)))
                 .withIssuer("FreightMate")
+                .withClaim("userRole", user.getUserRole().toString())
+                .withClaim("email", user.getEmail())
                 .sign(algorithm);
     }
 

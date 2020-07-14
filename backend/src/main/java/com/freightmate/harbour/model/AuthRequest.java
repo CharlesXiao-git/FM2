@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 
+// todo: Need to find another way instead of using @Data
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,6 +15,4 @@ public class AuthRequest {
     String username;
     @NotBlank(message = "Password cannot be null or blank")
     String password;
-
-
 }
