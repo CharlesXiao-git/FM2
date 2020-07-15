@@ -17,3 +17,8 @@ spring:
 jwt:
   secret: ${JWT_SECRET:THISSHOULDNOTMAKETOPROUCTION}
   expiry: 86400 #24 hours in seconds
+auspost:
+  api-key: ${$AUSPOST_API_KEY:APIKEYGOESHERE}
+http:
+  connect-timeout-seconds: 10
+  read-timeout-seconds: 55

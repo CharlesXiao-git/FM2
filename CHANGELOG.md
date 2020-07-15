@@ -27,3 +27,5 @@ See https://keepachangelog.com/en/1.0.0/ for more info
 - BACKEND | Add to authentication endpoints, change login url, add process to undo double hashing, tweak docker-compose local conf
 - BACKEND | Add Authorisation to application endpoints
 - BACKEND | Changed config to be env var driven
+- BACKEND | Integrate Auspost locality REST API and add postcode lookup to the Address Controller
+- Backend | Configure Default HTTP REST client settings 
