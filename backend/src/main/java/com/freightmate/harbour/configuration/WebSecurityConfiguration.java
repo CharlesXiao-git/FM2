@@ -29,20 +29,20 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-        HttpSecurity disable = http.httpBasic() // Enable Spring HTTP Basic Auth, this enables security middleware
-                .and()
-                .authorizeRequests()
-                    .antMatchers(WEBPAGE_ROOT, WEBPAGE_LOGIN, API_LOGIN).permitAll() // Allow anyone to access root,login page and login api
-                    .antMatchers(ADMIN_SUBROUTES).hasRole(UserRole.ADMIN.name()) // only admins can his the admin URLs
-                    .antMatchers(BROKER_SUBROUTES).hasRole(UserRole.BROKER.name()) // only brokers can his the broker URLs
-                    .antMatchers(STATIC_SUBROUTEES).permitAll() // serve static assets
-                    .anyRequest().authenticated() // any request not specified above requires user to be logged in
-                .and()
-                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                    .addFilter(new JWTAuthorizationFilter(authenticationManager(), this.authService))
-                // disable cross site request forgery, as we don't use cookies - otherwise ALL PUT, POST, DELETE will get HTTP 403!
-                .csrf().disable();
+        http.httpBasic() // Enable Spring HTTP Basic Auth, this enables security middleware
+            .and()
+            .authorizeRequests()
+                .antMatchers(WEBPAGE_ROOT, WEBPAGE_LOGIN, API_LOGIN).permitAll() // Allow anyone to access root,login page and login api
+                .antMatchers(ADMIN_SUBROUTES).hasRole(UserRole.ADMIN.name()) // only admins can his the admin URLs
+                .antMatchers(BROKER_SUBROUTES).hasRole(UserRole.BROKER.name()) // only brokers can his the broker URLs
+                .antMatchers(STATIC_SUBROUTEES).permitAll() // serve static assets
+                .anyRequest().authenticated() // any request not specified above requires user to be logged in
+            .and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .and()
+                .addFilter(new JWTAuthorizationFilter(authenticationManager(), this.authService))
+            // disable cross site request forgery, as we don't use cookies - otherwise ALL PUT, POST, DELETE will get HTTP 403!
+            .csrf().disable();
 
     }
 }
