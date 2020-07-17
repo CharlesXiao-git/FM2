@@ -1,19 +1,33 @@
 <template>
     <div class="home">
-        <img alt="Vue logo" src="../assets/logo.png">
-        <HelloWorld msg="Welcome to Your Vue.js App"/>
+        <Header :username="username"/>
+        <Sidebar :role="role"/>
     </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
-import HelloWorld from '@/components/HelloWorld.vue'
+import { Component, Prop, Vue } from 'vue-property-decorator'
+import Header from '@/components/Header/Header.vue'
+import Sidebar from '@/components/Sidebar/Sidebar.vue'
 
     @Component({
       components: {
-        HelloWorld
+        Header,
+        Sidebar
       }
     })
 export default class Home extends Vue {
+    @Prop()
+    username!: string
+
+    @Prop()
+    role!: string
 }
 </script>
+
+<style>
+    .home {
+        background-color: white;
+        height: 100%;
+    }
+</style>

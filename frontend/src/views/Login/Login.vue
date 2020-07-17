@@ -1,7 +1,7 @@
 <template>
     <b-container fluid>
         <b-row>
-            <form class="login text-center my-5 mx-auto pt-5 px-5" @submit.prevent="login">
+            <form class="login text-center my-5 mx-auto pt-5 px-0 px-sm-5" @submit.prevent="login">
                 <img src="../../assets/FreightMate_Logo.svg" alt="FreightMate Logo" />
                 <div class="input-group mt-2">
                     <div class="input-group-prepend">
@@ -52,6 +52,7 @@ export default class Login extends Vue {
           localStorage.setItem('user-token', token)
           this.extractJWTUser(token)
           this.validation = true
+          this.$router.push({ name: 'Home', params: { username: this.user.username, role: this.user.role } })
         }, error => {
           if (error.response.data !== null) {
             this.errorMessage = error.response.data

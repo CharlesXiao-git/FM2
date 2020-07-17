@@ -4,6 +4,22 @@
   </div>
 </template>
 
+<script lang="ts">
+import { Component, Vue } from 'vue-property-decorator'
+
+@Component
+export default class App extends Vue {
+  mounted () {
+    if (!this.getToken()) {
+      this.$router.replace({ name: 'Login' })
+    }
+  }
+
+  getToken () {
+    return localStorage.getItem('user-token') || 0
+  }
+}
+</script>
 <style lang="scss">
 #app {
     font-family: "Montserrat", sans-serif !important;
