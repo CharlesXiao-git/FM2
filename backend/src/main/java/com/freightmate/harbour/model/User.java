@@ -1,5 +1,6 @@
 package com.freightmate.harbour.model;
 
+import com.freightmate.harbour.service.FreightmateUserDetailsService;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;

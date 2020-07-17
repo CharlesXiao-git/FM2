@@ -10,9 +10,10 @@ import javax.validation.constraints.NotBlank;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthRequest {
+public class LoginRequest {
     @NotBlank(message = "Username cannot be null or blank")
     String username;
     @NotBlank(message = "Password cannot be null or blank")
     String password;
+    String requestIpAddress;
 }

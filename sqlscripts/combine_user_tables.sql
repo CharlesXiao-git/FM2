@@ -196,8 +196,8 @@ SELECT c.username,
        COALESCE(cus.active, false),
        c.del_flag,
        'CLIENT',
-       u2.broker_id,
-       u2.id,
+       cus.broker_id,
+       cus.id,
        UPPER(c.preferred_units),
        c.`key`
 FROM freightmate_secure_login.clients c

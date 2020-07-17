@@ -5,8 +5,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.freightmate.harbour.model.AuthRequest;
-import com.freightmate.harbour.model.User;
+import com.freightmate.harbour.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +27,7 @@ public class AuthService {
     private final JWTVerifier verifier;
     private static final Logger LOG = LoggerFactory.getLogger(AuthService.class);
     private final BCryptPasswordEncoder bCryptEncoder = new BCryptPasswordEncoder(10);
+    private static final int ATTEMPT_LIMIT = 5;
 
     AuthService(@Value("${jwt.secret}") String secret,
                 @Value("${jwt.expiry}") int tokenExpiry,
@@ -40,14 +40,67 @@ public class AuthService {
                 .build();
     }
 
-    public String generateToken(AuthRequest request) {
+    public LoginResult attemptLogin(LoginRequest request) {
+
+        //// 1. get the user details
+        // Load user details from User
         User user = this.userDetailsService
                 .loadUserByUsername(request.getUsername());
 
-        if (!this.verifyPassword(request, user)) {
-            return null;
+        //// 2. check if user is locked or not
+        if (this.isRequestLocked(user, request)){
+            this.createFailedLoginAttempt(request);
+            return LoginResult
+                    .builder()
+                    .loginResponse(LoginResponse.LOCKED)
+                    .build();
         }
-        return this.generateJWT(request, user);
+
+        //// 3. verify user's password
+        if (!this.verifyPassword(request, user)) {
+            this.createFailedLoginAttempt(request);
+            return LoginResult
+                    .builder()
+                    .loginResponse(LoginResponse.WRONG_USER_PASSWORD)
+                    .build();
+        }
+
+        //// 4. When everything is ok then generate token
+        // call generate token
+        String token = this.generateJWT(user);
+
+        return LoginResult.builder()
+                .loginResponse(LoginResponse.OK)
+                .token(token)
+                .build();
+    }
+
+    private boolean isRequestLocked(User user, LoginRequest request) {
+        // check if user is null
+        if (Objects.isNull(user)) {
+            // do a lookup by ip address
+            Integer attemptCount = this.userDetailsService.getLoginAttemptCountByIp(request.getRequestIpAddress());
+
+            return attemptCount >= ATTEMPT_LIMIT;
+        }
+        return this.isRequestorLocked(request);
+    }
+
+    private boolean isRequestorLocked(LoginRequest request) {
+        Integer userAttemptCount = this.userDetailsService.getLoginAttemptCountByUsername(request.getUsername());
+        Integer ipAttemptCount = this.userDetailsService.getLoginAttemptCountByIp(request.getRequestIpAddress());
+
+        return userAttemptCount >= ATTEMPT_LIMIT || ipAttemptCount >= ATTEMPT_LIMIT;
+    }
+
+    private UserLoginAttempt createFailedLoginAttempt(LoginRequest request) {
+        // Save login attempt
+        return this.userDetailsService.createLoginAttempt(
+                UserLoginAttempt.builder()
+                        .username(request.getUsername())
+                        .originIp(request.getRequestIpAddress())
+                        .build()
+        );
     }
 
     public DecodedJWT decodeToken(String token) {
@@ -63,8 +116,8 @@ public class AuthService {
         }
     }
 
-    //todo: Check password against user password once user CRUD is created
-    private boolean verifyPassword(AuthRequest request, User user) {
+    //Check password against user password once user CRUD is created
+    private boolean verifyPassword(LoginRequest request, User user) {
 
         // Always run a comparison against a failing password if the user doesn't exist so we still take the same time
         // regardless of if the user exists or not. Harder to brute force if time is constant whether or not the user exists
@@ -94,10 +147,10 @@ public class AuthService {
     }
 
     //generate token for user
-    private String generateJWT(AuthRequest authRequest, User user) {
-        //todo add some relevant user details to the JWT
+    private String generateJWT(User user) {
+        // add some relevant user details to the JWT
         return JWT.create()
-                .withSubject(authRequest.getUsername())
+                .withSubject(user.getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis() + (tokenExpiry * 1000)))
                 .withIssuer("FreightMate")
                 .withClaim("userRole", user.getUserRole().toString())
