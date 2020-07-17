@@ -58,7 +58,7 @@ public class PostCodeService {
     public boolean isInvalidPostcode(String postcode){
         try{
             int code = Integer.parseInt(postcode);
-            return code > 9999 || code < 1000;
+            return code > 9999 || code < 100;
         } catch (NullPointerException|NumberFormatException e){
             return true;
         }
