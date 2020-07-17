@@ -104,7 +104,8 @@ public class AuthService {
     }
 
     public DecodedJWT decodeToken(String token) {
-        return this.verifier.verify(token);
+        // remove the bearer prefix on the token
+        return this.verifier.verify(token.replace("Bearer ",""));
     }
 
     public boolean isValidToken(String token) {
