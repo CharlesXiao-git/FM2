@@ -21,7 +21,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private static final String WEBPAGE_ROOT = "/";
     private static final String WEBPAGE_LOGIN = "/login";
-    private static final String API_LOGIN = "/";
+    private static final String API_LOGIN = "/api/v1/auth/login";
     private static final String ADMIN_SUBROUTES = "/api/v1/admin/**";
     private static final String BROKER_SUBROUTES = "/api/v1/broker/**";
     private static final String STATIC_SUBROUTEES = "/static/**";
@@ -29,10 +29,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-        http.httpBasic() // Enable Spring HTTP Basic Auth, this enables security middleware
-            .and()
+        http
             .authorizeRequests()
-                .antMatchers(WEBPAGE_ROOT, WEBPAGE_LOGIN, API_LOGIN).permitAll() // Allow anyone to access root,login page and login api
+                .antMatchers(WEBPAGE_ROOT, API_LOGIN, WEBPAGE_LOGIN).permitAll() // Allow anyone to access root,login page and login api
                 .antMatchers(ADMIN_SUBROUTES).hasRole(UserRole.ADMIN.name()) // only admins can his the admin URLs
                 .antMatchers(BROKER_SUBROUTES).hasRole(UserRole.BROKER.name()) // only brokers can his the broker URLs
                 .antMatchers(STATIC_SUBROUTEES).permitAll() // serve static assets
