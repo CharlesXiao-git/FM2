@@ -10,6 +10,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class FreightmateUserDetailsService implements UserDetailsService{
 
@@ -37,5 +39,9 @@ public class FreightmateUserDetailsService implements UserDetailsService{
 
     public Integer getLoginAttemptCountByUsername(String username) {
         return userLoginAttemptRepository.getCountOfLoginAttemptByUsername(username);
+    }
+
+    public List<User> getChildren(User user) {
+        return userRepository.findUsersByCustomerIsOrBrokerIs(user, user);
     }
 }
