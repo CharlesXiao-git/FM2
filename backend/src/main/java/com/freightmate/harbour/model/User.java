@@ -66,7 +66,7 @@ public class User implements UserDetails {
     LocalDateTime deletedAt;
 
     @CreationTimestamp
-    LocalDateTime createdAt;;
+    LocalDateTime createdAt;
     @UpdateTimestamp
     LocalDateTime updatedAt;
 

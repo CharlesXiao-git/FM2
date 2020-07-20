@@ -23,8 +23,10 @@ CREATE TABLE IF NOT EXISTS user
     created_at            DATETIME     NOT NULL DEFAULT NOW(),
     updated_at            DATETIME     NOT NULL DEFAULT NOW(),
     deleted_by            INT,
-    created_by            INT NOT NULL DEFAULT -1,
-    updated_by            INT NOT NULL DEFAULT -1
+    created_by            INT          NOT NULL DEFAULT -1,
+    updated_by            INT          NOT NULL DEFAULT -1,
+    original_id           INT,
+    original_user_type    VARCHAR(10)
 );
 
 
@@ -67,11 +69,15 @@ INSERT INTO user (username,
                   password,
                   email,
                   broker_service_email,
-                  user_role)
+                  user_role,
+                  original_id,
+                  original_user_type)
 SELECT CASE WHEN COALESCE(c.username, cli.username) is not null THEN CONCAT(b.username, '_Broker') ELSE b.username END,
        b.password,
        b.bookings_email,
        b.service_email,
+       'BROKER',
+       b.id,
        'BROKER'
 FROM freightmate_secure_login.broker b
          LEFT JOIN user u on b.username = u.username
@@ -90,7 +96,9 @@ INSERT INTO user (username,
                   is_deleted,
                   user_role,
                   broker_id,
-                  token)
+                  token,
+                  original_id,
+                  original_user_type)
 SELECT c.username,
        c.password,
        c.email,
@@ -98,7 +106,9 @@ SELECT c.username,
        c.del_flag,
        IF(c.admin = 1, 'ADMIN', 'CUSTOMER'),
        u2.id,
-       c.`key`
+       c.`key`,
+       c.id,
+       'CUSTOMER'
 FROM freightmate_secure_login.customers c
          LEFT JOIN user u on c.username = u.username
          LEFT JOIN freightmate_secure_login.broker b on c.broker_id = b.id
@@ -189,22 +199,46 @@ INSERT INTO user (username,
                   broker_id,
                   customer_id,
                   preferred_unit,
-                  token)
+                  token,
+                  original_id,
+                  original_user_type)
 SELECT c.username,
        c.password,
        c.email,
        COALESCE(cus.active, false),
        c.del_flag,
        'CLIENT',
-       cus.broker_id,
-       cus.id,
+       u2.broker_id,
+       u2.customer_id,
        UPPER(c.preferred_units),
-       c.`key`
+       c.`key`,
+       c.id,
+       'CLIENT'
 FROM freightmate_secure_login.clients c
          LEFT JOIN user u on c.username = u.username
          LEFT JOIN freightmate_secure_login.customers cus on c.customer_id = cus.id
          LEFT JOIN user u2 on cus.username = u2.username
 WHERE u.id is null;
+
+# Update client that has no customer_id and broker_id but they have valid reference in original
+# Note: one client left due to this client has no valid customer_id reference
+UPDATE user u
+    INNER JOIN (
+        SELECT us.id, cus.id customer_id, cus.broker_id
+        FROM user us
+                 INNER JOIN freightmate_secure_login.clients c
+                            ON us.original_id = c.id
+                 INNER JOIN freightmate_db.user cus
+                            ON c.customer_id = cus.original_id
+        WHERE us.user_role = 'CLIENT'
+          AND us.broker_id IS NULL
+          AND us.customer_id IS NULL
+          AND cus.user_role = 'CUSTOMER') AS x ON u.id = x.id
+SET u.customer_id = x.customer_id,
+    u.broker_id   = x.broker_id
+WHERE u.user_role = 'CLIENT'
+  AND u.broker_id IS NULL
+  AND u.customer_id IS NULL;
 
 #
 # SELECT *
