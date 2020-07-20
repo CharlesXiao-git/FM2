@@ -54,7 +54,7 @@ SELECT 'DELIVERY',
        a.count_times_used,
        a.id
 FROM delivery_address a
-         INNER JOIN user u ON a.client_id = u.original_id
+         LEFT JOIN user u ON a.client_id = u.original_id
 WHERE u.user_role = 'CLIENT'
   AND (COALESCE(a.company, '') <> '' OR COALESCE(a.name, '') <> '')
   AND (a.postcode REGEXP '[0-9]' OR COALESCE(a.postcode, '') = ''); # only get numeric postcode and exclude alphanumeric;
@@ -63,11 +63,10 @@ WHERE u.user_role = 'CLIENT'
 CREATE INDEX idx_address_original_id ON address (original_id);
 
 # Insert delivery addresses for customers
-INSERT INTO address (address_type, customer_id, client_id, reference_id, company_name, address_line_1, address_line_2,
+INSERT INTO address (address_type, customer_id, reference_id, company_name, address_line_1, address_line_2,
                      town, postcode, country, state, contact_name, contact_no, contact_email, notes,
                      count_used, original_id)
 SELECT 'DELIVERY',
-       u.customer_id,
        u.id,
        a.address_ref_no,
        COALESCE(NULLIF(a.company, ''), a.name), #set company name to contact name if null
