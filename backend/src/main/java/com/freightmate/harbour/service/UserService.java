@@ -14,7 +14,8 @@ public class UserService {
     UserService(@Autowired FreightmateUserDetailsService detailsService){
         this.detailsService = detailsService;
     }
-    public List<User> getChildren(User reqestor) {
-        return detailsService.getChildren(reqestor);
+    public List<User> getChildren(String username) {
+        //todo replace with id from token when JWT is updated
+        return detailsService.getChildren(detailsService.loadUserByUsername(username).getId());
     }
 }

@@ -41,7 +41,7 @@ public class FreightmateUserDetailsService implements UserDetailsService{
         return userLoginAttemptRepository.getCountOfLoginAttemptByUsername(username);
     }
 
-    public List<User> getChildren(User user) {
-        return userRepository.findUsersByCustomerIsOrBrokerIs(user, user);
+    public List<User> getChildren(long userId) {
+        return userRepository.findUsersByParent(userId);
     }
 }

@@ -1,6 +1,6 @@
 package com.freightmate.harbour.controller;
 
-import com.freightmate.harbour.RequestHelper;
+import com.freightmate.harbour.helper.RequestHelper;
 import com.freightmate.harbour.model.LoginRequest;
 import com.freightmate.harbour.model.LoginResponse;
 import com.freightmate.harbour.model.LoginResult;

@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS user
     user_role             ENUM ('CUSTOMER','BROKER','CLIENT','ADMIN'),
     broker_id             INT,
     customer_id           INT,
-    preferred_unit        VARCHAR(10),
+    preferred_unit        ENUM('CM', 'M', 'MM'),
     token                 VARCHAR(512),
     token_created_at      DATETIME,
     is_deleted            BOOLEAN               DEFAULT false NOT NULL,
@@ -210,7 +210,7 @@ SELECT c.username,
        'CLIENT',
        u2.broker_id,
        u2.id,
-       UPPER(c.preferred_units),
+       COALESCE(NULLIF(UPPER(c.preferred_units ),''), 'CM'),  # enpty strings and nulls are converted to M
        c.`key`,
        c.id,
        'CLIENT'
@@ -280,4 +280,4 @@ WHERE u.user_role = 'CLIENT'
 
 # Move railroad user/pass to config
 
-
+# UPDATE user set password = '$2y$12$PD9NqjjhkemdzQqFBdkkceoQkiH5ajKG/mw0uvsUC8tdu2MZgcEUu' WHERE username in ('kurtis', 'michelle','tuco');

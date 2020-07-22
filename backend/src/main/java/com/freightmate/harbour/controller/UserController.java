@@ -23,16 +23,15 @@ public class UserController {
 
         @RequestMapping(path="/children", method = RequestMethod.GET)
         public ResponseEntity<Map<String, Long>> getChildrenIdentifiers(Authentication authentication){
-            User reqestor = (User) authentication.getPrincipal();
+            String reqestorUsername = (String) authentication.getPrincipal();
 
-            List<User> children = userService.getChildren(reqestor);
+            List<User> children = userService.getChildren(reqestorUsername);
 
             if (children.isEmpty()){
                 ResponseEntity
                         .status(HttpStatus.NO_CONTENT)
                         .build();
             }
-
             // Stream (loop) over the returned users, and construct a Map<username,userId> to return
             return ResponseEntity.ok(
                     children.stream()

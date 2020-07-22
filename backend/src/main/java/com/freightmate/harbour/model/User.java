@@ -1,24 +1,24 @@
 package com.freightmate.harbour.model;
 
-import com.freightmate.harbour.service.FreightmateUserDetailsService;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Getter
 @Entity
-public class User implements UserDetails {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     long id;
@@ -40,9 +40,11 @@ public class User implements UserDetails {
 
     String brokerServiceEmail;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     User broker;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     User customer;
 
@@ -58,7 +60,6 @@ public class User implements UserDetails {
 
     @Column (length = 512)
     String token;
-
     LocalDateTime tokenCreatedAt;
 
     @Column(nullable = false)
@@ -77,30 +78,11 @@ public class User implements UserDetails {
     Integer updatedBy;
 
     // Attempting to keep authorization as simple as possible, lets just use the roles rather than privs
-    @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(new SimpleGrantedAuthority(this.userRole.name()));
     }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    //todo inplement check of login failures here
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    //todo confirm if we want an expiring password
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return false;
-    }
-
     //todo implement soft delete check
-    @Override
     public boolean isEnabled() {
         return false;
     }
