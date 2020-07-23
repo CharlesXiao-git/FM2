@@ -27,18 +27,23 @@ public class PostCodeService {
     }
 
     /**
-     * @param postcode 4 digit australian postcode to lookup
+     * @param searchVal A postcode or string to search by. Whitespace must be encoded
      * @return string suburb state postcode as defined but auspost
      * @throws HttpClientErrorException on HttpClient error
      */
-    public AuspostLocalityResponse getLocality(Integer postcode) {
+    public AuspostLocalityResponse getLocality(String searchVal) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         headers.set("AUTH-KEY", apiKey);
 
+        // Auspost API doesn't like whitespace and first word should be enough to get some results
+        if (searchVal.contains(" ")){
+            searchVal = searchVal.split(" ")[0];
+        }
+
         UriComponentsBuilder urlBuilder = UriComponentsBuilder
                 .fromHttpUrl(ENDPOINT_URL)
-                .queryParam("q", postcode)
+                .queryParam("q", searchVal)
                 .queryParam("excludePostBoxFlag", true);
 
         try {

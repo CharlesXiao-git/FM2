@@ -20,7 +20,7 @@ public class PostCodeServiceTest {
         RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder();
         PostCodeService _service = new PostCodeService(restTemplateBuilder.build(),FAKE_KEY);
 
-        AuspostLocalityResponse localityResponse = _service.getLocality(3018);
+        AuspostLocalityResponse localityResponse = _service.getLocality("3018");
 
         assert !localityResponse.getLocalitiesWrapper().getLocalities().isEmpty();
         LOG.info("Successfully loaded response: {}", localityResponse);
