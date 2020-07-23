@@ -1,12 +1,20 @@
 <template>
   <div class="alert-container">
-    <b-alert
+    <b-alert v-if="autoDismissible"
       :variant="variant"
       dismissible
       :show="dismissCountDown"
       @dismissed="dismissCountDown=0"
       @dismiss-count-down="countDownChanged"
       fade
+    >
+      {{text}}
+    </b-alert>
+    <b-alert v-else
+        :variant="variant"
+        dismissible
+        show
+        fade
     >
       {{text}}
     </b-alert>
@@ -20,10 +28,12 @@ type AlertVariant = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' |
 
 @Component
 export default class Alert extends Vue {
+  @Prop() private text!: string
   @Prop() private variant: AlertVariant
-  @Prop() private text: string
+  @Prop() private autoDismissInterval: number
 
-  dismissCountDown = 10
+  autoDismissible = this.autoDismissInterval !== undefined && this.autoDismissInterval > 0
+  dismissCountDown = this.autoDismissInterval
 
   countDownChanged (dismissCountDown: number) {
     this.dismissCountDown = dismissCountDown
@@ -31,9 +41,4 @@ export default class Alert extends Vue {
 }
 </script>
 
-<style>
-  .alert-container {
-    height: 50px;
-    margin-bottom: 15px;
-  }
-</style>
+<style scoped lang="scss" src="./Alert.scss"></style>
