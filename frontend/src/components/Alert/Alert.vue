@@ -28,7 +28,7 @@ type AlertVariant = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' |
 
 @Component
 export default class Alert extends Vue {
-  @Prop() private text!: string
+  @Prop({ required: true }) private text!: string
   @Prop() private variant: AlertVariant
   @Prop() private autoDismissInterval: number
 
