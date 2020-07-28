@@ -8,11 +8,10 @@ import org.mockito.Mockito;
 
 import java.util.Date;
 
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class AuthServiceTest {
-    FreightmateUserDetailsService userServiceMock = Mockito.mock(FreightmateUserDetailsService.class);
+    UserDetailsService userServiceMock = Mockito.mock(UserDetailsService.class);
     AuthService service = new AuthService("TEST", 3600, userServiceMock);
 
     @Before

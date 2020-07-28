@@ -23,7 +23,7 @@ import java.util.Objects;
 public class AuthService {
     private final int tokenExpiry;
     private final Algorithm algorithm;
-    private final FreightmateUserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService;
     private final JWTVerifier verifier;
     private static final Logger LOG = LoggerFactory.getLogger(AuthService.class);
     private final BCryptPasswordEncoder bCryptEncoder = new BCryptPasswordEncoder(10);
@@ -31,7 +31,7 @@ public class AuthService {
 
     AuthService(@Value("${jwt.secret}") String secret,
                 @Value("${jwt.expiry}") int tokenExpiry,
-                @Autowired FreightmateUserDetailsService userDetailsService) {
+                @Autowired UserDetailsService userDetailsService) {
         this.tokenExpiry = tokenExpiry;
         this.algorithm = Algorithm.HMAC512(secret);
         this.userDetailsService = userDetailsService;

@@ -1,19 +1,20 @@
 package com.freightmate.harbour.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Getter
+@Setter
 public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,20 +24,29 @@ public class Address {
     @Enumerated(EnumType.STRING)
     private AddressType addressType;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private User customer; // the table needs to have column name customer_id
+    @JsonIgnore
+    @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)
+    private User customer;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @Column(name = "customer_id", insertable = false, updatable = false)
+    private Long customerId;
+
+    @JsonIgnore
+    @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)
     private User client;
+
+    @Column(name = "client_id", insertable = false, updatable = false)
+    private Long clientId;
 
     private String referenceId;
 
     @Column(nullable = false)
     private String companyName;
 
-    @Column(nullable = false)
+    @Column(name = "address_line_1", nullable = false)
     private String addressLine1;
 
+    @Column(name = "address_line_2")
     private String addressLine2;
 
     @Column(nullable = false)
@@ -44,10 +54,10 @@ public class Address {
 
     @Column(nullable = false)
     //@Size(max = 4, min = 3)       // Commented, existing data contains LENGTH(postcode) > 4
-    private int postcode;
+    private Integer postcode;
 
     @Column(nullable = false)
-    private String country;
+    private static final String country = "Australia";
 
     @Column(nullable = false)
     private String state;           // State is not using enum due to existing data
@@ -62,12 +72,14 @@ public class Address {
     private String notes; // Special Instructions
 
     @Column(nullable = false)
-    private Boolean isDefault;
+    @ColumnDefault(value = "false")
+    private Boolean isDefault = false;
 
     private int countUsed;
 
     @Column(nullable = false)
-    Boolean isDeleted;
+    @ColumnDefault(value = "false")
+    Boolean isDeleted = false;
     LocalDateTime deletedAt;
 
     @CreationTimestamp

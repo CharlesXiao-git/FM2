@@ -1,5 +1,7 @@
 package com.freightmate.harbour.service;
 
+import com.freightmate.harbour.model.Address;
+import com.freightmate.harbour.model.AuspostLocality;
 import com.freightmate.harbour.model.AuspostLocalityResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +14,8 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PostCodeService {
@@ -67,6 +71,16 @@ public class PostCodeService {
         } catch (NullPointerException|NumberFormatException e){
             return true;
         }
+    }
+
+    public List<AuspostLocality> getMatchingLocalitiesBySuburb(Address addressRequest) {
+        return this
+                .getLocality(String.valueOf(addressRequest.getPostcode()))
+                .getLocalitiesWrapper()
+                .getLocalities()
+                .stream()
+                .filter(element -> element.getLocation().equalsIgnoreCase(addressRequest.getTown()))
+                .collect(Collectors.toList());
     }
 }
 

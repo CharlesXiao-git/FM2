@@ -1,19 +1,17 @@
 package com.freightmate.harbour.service;
 
-import com.freightmate.harbour.exception.UserNotFoundException;
 import com.freightmate.harbour.model.User;
 import com.freightmate.harbour.model.UserLoginAttempt;
 import com.freightmate.harbour.repository.UserLoginAttemptRepository;
 import com.freightmate.harbour.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class FreightmateUserDetailsService implements UserDetailsService{
+public class UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
