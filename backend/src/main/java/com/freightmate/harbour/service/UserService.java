@@ -9,9 +9,9 @@ import java.util.List;
 @Service
 public class UserService {
 
-    private final FreightmateUserDetailsService detailsService;
+    private final UserDetailsService detailsService;
 
-    UserService(@Autowired FreightmateUserDetailsService detailsService){
+    UserService(@Autowired UserDetailsService detailsService){
         this.detailsService = detailsService;
     }
     public List<User> getChildren(String username) {

@@ -18,7 +18,6 @@ public class AddressDto extends BaseDto{
     private String addressLine2;
     private String town;
     private Integer postcode;
-    private String country = "Australia";
     private String state;
     private String contactName;
     private String contactNo;
@@ -40,7 +39,6 @@ public class AddressDto extends BaseDto{
                 .contactEmail(this.contactEmail)
                 .contactName(this.contactName)
                 .contactNo(this.contactNo)
-                .country(this.country)
                 .countUsed(this.countUsed)
                 .createdAt(super.getCreatedAt())
                 .createdBy(super.getCreatedBy())
