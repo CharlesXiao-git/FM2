@@ -1,0 +1,36 @@
+@import 'node_modules/bootstrap/scss/_functions.scss';
+@import 'node_modules/bootstrap/scss/_variables.scss';
+@import 'node_modules/bootstrap/scss/mixins/_breakpoints';
+
+// Variables
+$primary: #3d424e;
+
+
+// Styles
+.primary-button {
+  color: #fff;
+  background-color: #80bf45 !important;
+  border: none !important;
+  text-transform: uppercase;
+  padding: 0.5em 1.1em;
+}
+
+.primary-button:hover {
+  color: #fff;
+  background-color: #5b8237 !important;
+  border: none !important;
+}
+
+.primary-button:focus {
+  box-shadow: none;
+}
+
+.secondary-button {
+  color: #fff;
+  background-color: #495463;
+  text-transform: uppercase;
+}
+
+.secondary-button:hover {
+  background-color: #5a6268 !important;
+}

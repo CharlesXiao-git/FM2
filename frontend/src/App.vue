@@ -1,22 +1,25 @@
 <template>
   <div id="app">
-    <router-view/>
+    <component :is="layout">
+      <router-view/>
+    </component>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
+import { isTokenValid } from '@/service/AuthService'
 
 @Component
 export default class App extends Vue {
   mounted () {
-    if (!this.getToken()) {
+    if (!isTokenValid()) {
       this.$router.replace({ name: 'Login' })
     }
   }
 
-  getToken () {
-    return localStorage.getItem('user-token') || 0
+  get layout () {
+    return (this.$route.meta.layout || 'default') + '-layout'
   }
 }
 </script>

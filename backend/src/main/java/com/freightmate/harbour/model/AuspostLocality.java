@@ -12,7 +12,7 @@ public class AuspostLocality {
     private String location;
     private Integer id;
     private Double latitude;
-    private Double longditude;
+    private Double longitude;
     private Integer postcode;
     private String state;
 }

@@ -22,36 +22,24 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Vue } from 'vue-property-decorator'
+import { extractUserFromToken, getToken, removeToken } from '@/service/AuthService'
 
 @Component
 export default class Header extends Vue {
   user: string = this.getUser()
 
-  @Prop() private username: string
-
   getUser () {
-    this.user = this.username
-    const token = this.getToken()
+    const token = getToken()
 
-    // If we don't have the username, we can get the username from the token
-    if (!this.user && token) {
-      const parsedToken = JSON.parse(atob(token.split('.')[1]))
-      if (parsedToken !== null) {
-        if (Object.prototype.hasOwnProperty.call(parsedToken, 'sub')) {
-          this.user = parsedToken.sub
-        }
-      }
+    if (token) {
+      this.user = extractUserFromToken(token).username
     }
     return this.user
   }
 
-  getToken () {
-    return localStorage.getItem('user-token') || 0
-  }
-
   logout () {
-    localStorage.removeItem('user-token')
+    removeToken()
     this.$router.push({ name: 'Login' })
   }
 }

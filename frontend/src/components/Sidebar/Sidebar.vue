@@ -127,7 +127,7 @@
                         </b-button>
                     </b-nav-item>
                     <b-nav-item>
-                        <b-button>
+                        <b-button :to="{ name : 'AddressBook' }">
                             <i class="fas mr-1 fa-address-book"></i>
                             Address Book
                         </b-button>

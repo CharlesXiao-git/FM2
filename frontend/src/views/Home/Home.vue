@@ -1,7 +1,10 @@
 <template>
     <div class="home">
-        <Header :username="username"/>
+        <Header />
         <Sidebar :role="role"/>
+        <div class="content">
+            <slot />
+        </div>
     </div>
 </template>
 
@@ -18,16 +21,8 @@ import Sidebar from '@/components/Sidebar/Sidebar.vue'
     })
 export default class Home extends Vue {
     @Prop()
-    username!: string
-
-    @Prop()
     role!: string
 }
 </script>
 
-<style>
-    .home {
-        background-color: white;
-        height: 100%;
-    }
-</style>
+<style lang="scss" src="./Home.scss"></style>

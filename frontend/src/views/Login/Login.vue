@@ -32,7 +32,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { User } from '@/model/User'
+import { extractUserFromToken, setToken } from '@/service/AuthService'
 
 @Component
 export default class Login extends Vue {
@@ -42,17 +42,16 @@ export default class Login extends Vue {
     validation: boolean = null
     errorMessage = 'Error logging in! Please try again or press the reset password button below.'
     multipleAttempts = false
-    user = new User()
 
     login (): void {
       const user = this.prepareData()
       this.$axios.post('/api/v1/auth/login', user)
         .then(response => {
           const token = response.data
-          localStorage.setItem('user-token', token)
-          this.extractJWTUser(token)
+          setToken(token)
+          const user = extractUserFromToken(token)
           this.validation = true
-          this.$router.push({ name: 'Home', params: { username: this.user.username, role: this.user.role } })
+          this.$router.push({ name: 'Home', params: { role: user.role } })
         }, error => {
           if (error.response.data !== null) {
             this.errorMessage = error.response.data
@@ -74,21 +73,6 @@ export default class Login extends Vue {
     disableSignIn () {
       this.multipleAttempts = true
       setTimeout(() => { this.multipleAttempts = false }, 60000)
-    }
-
-    extractJWTUser (token: string) {
-      const parsedToken = JSON.parse(atob(token.split('.')[1]))
-      if (parsedToken !== null) {
-        if (Object.prototype.hasOwnProperty.call(parsedToken, 'sub')) {
-          this.user.username = parsedToken.sub
-        }
-        if (Object.prototype.hasOwnProperty.call(parsedToken, 'userRole')) {
-          this.user.role = parsedToken.userRole
-        }
-        if (Object.prototype.hasOwnProperty.call(parsedToken, 'email')) {
-          this.user.email = parsedToken.email
-        }
-      }
     }
 }
 </script>
