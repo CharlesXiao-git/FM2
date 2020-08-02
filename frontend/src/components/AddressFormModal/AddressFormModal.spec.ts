@@ -10,7 +10,8 @@ describe('AddressFormModal.vue', () => {
       propsData: {
         modalId: "new-address-modal",
         headerTitle: "New Address",
-        idLabel: "Receiver ID"
+        idLabel: "Receiver ID",
+        buttonName: "Add"
       }
     })
 
@@ -35,7 +36,8 @@ describe('AddressFormModal.vue', () => {
       propsData: {
         modalId: "new-address-modal",
         headerTitle: "New Address",
-        idLabel: "Receiver ID"
+        idLabel: "Receiver ID",
+        buttonName: "Add"
       }
     })
 

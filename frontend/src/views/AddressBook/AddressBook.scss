@@ -10,7 +10,10 @@
 }
 
 .address-book-alert {
-  width: 100%
+  width: 100%;
+  text-align: center;
+  z-index: 1020;
+  height: 0;
 }
 
 .img-container {

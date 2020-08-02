@@ -23,24 +23,19 @@
 }
 
 ::v-deep .custom-select {
-  float: left;
   width: 5rem;
-}
-
-.right {
-  float: left;
 }
 
 .right {
   float: right;
 }
 
-.data-table-content {
-  padding-top: 16px;
-}
-
 .edit-button, .edit-button:hover, .edit-button:focus {
   color: #80bf45;
   background-color: #ffffff;
   border: none;
+}
+
+::v-deep #confirm-action-modal .modal-content {
+  text-align: center;
 }

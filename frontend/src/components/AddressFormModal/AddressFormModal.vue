@@ -1,5 +1,5 @@
 <template>
-    <b-modal :id="modalId" ref="modal" :title="headerTitle" size="lg" @ok="handleSubmit" @cancel="resetModal" @hidden="resetModal">
+    <b-modal @shown="populateAddress" :id="modalId" ref="modal" :title="headerTitle" size="lg" @ok="handleSubmit" @cancel="resetModal" @hidden="resetModal">
         <form ref="form">
             <div>
                 <div class="form-group row">
@@ -25,7 +25,7 @@
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label form-control-label">Contact Number</label>
                     <div class="col-lg-9">
-                        <b-form-input v-model="contactNumber" class="form-control" type="number" placeholder="Optional" />
+                        <b-form-input v-model="contactNumber" class="form-control" placeholder="Optional" />
                     </div>
                 </div>
                 <div class="form-group row">
@@ -71,6 +71,7 @@
                                 </div>
                             </template>
                         </cool-select>
+                        <p class="helper-text" v-if="showHelperText">Previous selection : {{ address.town }} , {{ address.state }}, {{ address.postcode }} </p>
                         <span class="error" v-if="validateLocationFlag">Please make a valid selection</span>
                     </div>
                 </div>
@@ -83,7 +84,7 @@
             </div>
         </form>
         <template v-slot:modal-footer="{ ok, cancel }">
-            <b-button class="primary-button" type="submit" @click="ok()">Add</b-button>
+            <b-button class="primary-button" type="submit" @click="ok()">{{ buttonName }}</b-button>
             <b-button class="secondary-button" @click="cancel()">Close</b-button>
         </template>
     </b-modal>
@@ -106,17 +107,17 @@ export default class AddressFormModal extends Vue {
     @Prop({ required: true }) modalId: string
     @Prop({ required: true }) headerTitle: string
     @Prop({ required: true }) idLabel: string
+    @Prop({ required: true }) buttonName: string
     @Prop() address: Address
 
-    referenceId = (this.address) ? this.address.referenceId : null
-    companyName = (this.address) ? this.address.companyName : null
-    addressLine1= (this.address) ? this.address.addressLine1 : null
-    addressLine2= (this.address) ? this.address.addressLine2 : null
-    suburb= (this.address) ? this.address.town : null
-    contactName = (this.address) ? this.address.contactName : null
-    contactNumber = (this.address) ? this.address.contactNo : null
-    contactEmail = (this.address) ? this.address.contactEmail : null
-    specialInstructions = (this.address) ? this.address.notes : null
+    referenceId: string = null
+    companyName: string = null
+    addressLine1: string = null
+    addressLine2: string = null
+    contactName: string = null
+    contactNumber: string = null
+    contactEmail: string = null
+    specialInstructions: string = null
 
     validateCompanyNameFlag: boolean = null
     validateContactNameFlag: boolean = null
@@ -129,6 +130,23 @@ export default class AddressFormModal extends Vue {
       location: null as string,
       state: null as string,
       postcode: null as number
+    }
+
+    showHelperText = false
+
+    populateAddress () {
+      if (this.address) {
+        this.referenceId = this.address.referenceId
+        this.companyName = this.address.companyName
+        this.addressLine1 = this.address.addressLine1
+        this.addressLine2 = this.address.addressLine2
+        this.contactName = this.address.contactName
+        this.contactNumber = this.address.contactNo
+        this.contactEmail = this.address.contactEmail
+        this.specialInstructions = this.address.notes
+        this.onSearch(this.address.postcode.toString())
+        this.showHelperText = true
+      }
     }
 
     noData: boolean = null
@@ -165,7 +183,6 @@ export default class AddressFormModal extends Vue {
       this.companyName = null
       this.addressLine1 = null
       this.addressLine2 = null
-      this.suburb = null
       this.contactName = null
       this.contactNumber = null
       this.contactEmail = null
@@ -194,7 +211,7 @@ export default class AddressFormModal extends Vue {
 
       if (this.validateCompanyNameFlag && this.validateContactNameFlag && (this.validateContactEmailFlag === null || this.validateContactEmailFlag) && this.validateAddressLineFlag && !this.validateLocationFlag) {
         const emitAddress = new Address(
-          null,
+          this.getId(),
           this.referenceId,
           this.companyName,
           this.addressLine1,
@@ -212,6 +229,13 @@ export default class AddressFormModal extends Vue {
           this.$bvModal.hide(this.modalId)
         })
       }
+    }
+
+    getId () {
+      if (this.address) {
+        return this.address.id
+      }
+      return null
     }
 
     validateCompanyName () {

@@ -1,8 +1,7 @@
 <template>
     <div class="address-book row">
         <div class="address-book-alert">
-            <Alert v-if="confirmAddAddress" variant="success" text="Address added successfully" autoDismissInterval="10" />
-            <Alert v-if="errorAddAddress" variant="danger" text="Error adding new Address" autoDismissInterval="10" />
+            <Alert v-if="displayAlert" :variant="variant" :text="alertMessage" autoDismissInterval="5" />
         </div>
         <div class="address-book-header">
             <div class="d-flex col-md-11 col-12 ml-xl-auto ml-2 mr-auto py-4">
@@ -18,7 +17,7 @@
         <div class="address-book-content col-md-11 col-12 ml-xl-auto ml-2 mr-auto mt-4">
             <div class="row">
                 <b-button class="primary-button mb-4" v-b-modal.new-address-modal ><i class="fas mr-2 fa-plus"></i>New Address</b-button>
-                <AddressFormModal modal-id="new-address-modal" header-title="New Address" id-label="Receiver ID" @emit-address="emittedNewAddress"></AddressFormModal>
+                <AddressFormModal modal-id="new-address-modal" header-title="New Address" id-label="Receiver ID" @emit-address="emittedNewAddress" button-name="Add"></AddressFormModal>
             </div>
             <div class="row">
                 <template v-if="loading">Loading...</template>
@@ -26,7 +25,7 @@
                     <template v-if="noAddresses">{{ noAddressesErrorMessage }}</template>
                     <template v-else-if="errorFetching">{{ errorFetchingMessage }}</template>
                     <template v-else>
-                        <AddressTable :address="addresses"></AddressTable>
+                        <AddressDataTable :address="addresses" @emit-address="emittedUpdatedAddress" @emit-delete-address="emittedDeleteAddress"></AddressDataTable>
                     </template>
                 </template>
             </div>
@@ -36,45 +35,95 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import AddressFormModal from '@/components/AddressFormModal/AddressFormModal.vue'
 import { Address } from '@/model/Address'
-import { getAuthenticatedToken } from '@/service/AuthService'
-import AddressTable from '@/components/AddressTable/AddressTable.vue'
+import { getAuthenticatedToken, getDefaultConfig } from '@/service/AuthService'
+import AddressDataTable from '@/components/AddressDataTable/AddressDataTable.vue'
+import AddressFormModal from '@/components/AddressFormModal/AddressFormModal.vue'
 import Alert from '@/components/Alert/Alert.vue'
 
 @Component({
-  components: { Alert, AddressTable, AddressFormModal }
+  components: { AddressDataTable, AddressFormModal, Alert }
 })
 
 export default class AddressBook extends Vue {
-  confirmAddAddress = false
-  errorAddAddress = false
+  displayAlert = false
+  variant: string = null
+  alertMessage: string = null
   addresses: Address[] = []
-
   errorFetching = false
   errorFetchingMessage = 'Error while fetching addresses'
-  noAddressesErrorMessage = 'No addresses available'
   noAddresses = false
+  noAddressesErrorMessage = 'No addresses found'
+
   loading = true
 
   emittedNewAddress (address: Address) {
-    const config = {
-      headers: getAuthenticatedToken()
-    }
-
-    this.$axios.post('/api/v1/address', this.prepareDataNewAddress(address), config)
+    this.resetFlag()
+    this.$axios.post('/api/v1/address', this.prepareAddressData(address), getDefaultConfig())
       .then(response => {
         address = response.data
         this.addresses.unshift(address)
-        this.confirmAddAddress = true
+        this.setAlert('success', 'Address added successfully')
       }, error => {
         this.$log.warn(error)
-        this.errorAddAddress = true
+        this.setAlert('danger', 'Error adding new Address')
       })
   }
 
-  prepareDataNewAddress (address: Address) {
+  emittedUpdatedAddress (address: Address) {
+    this.resetFlag()
+    this.$axios.put('/api/v1/address', this.prepareAddressData(address), getDefaultConfig())
+      .then(response => {
+        address = response.data
+        this.addresses.unshift(address)
+        this.setAlert('success', 'Address updated successfully')
+      }, error => {
+        this.$log.warn(error)
+        this.setAlert('danger', 'Error updating Address')
+      })
+  }
+
+  emittedDeleteAddress (addresses: Address[]) {
+    this.resetFlag()
+    this.$axios.delete('/api/v1/address', this.prepareConfig(addresses))
+      .then(response => {
+        this.$log.info(response.data)
+        addresses.forEach(address => {
+          this.addresses.splice(this.addresses.indexOf(address), 1)
+        })
+        this.setAlert('success', 'Address(es) deleted successfully')
+      }, error => {
+        this.$log.warn(error)
+        this.setAlert('danger', 'Error deleting address(es)')
+      })
+  }
+
+  setAlert (variant: string, alertMessage: string) {
+    this.displayAlert = true
+    this.variant = variant
+    this.alertMessage = alertMessage
+  }
+
+  resetFlag () {
+    this.displayAlert = false
+  }
+
+  prepareConfig (addresses: Address[]) {
+    const params = new URLSearchParams()
+
+    addresses.forEach(address => {
+      params.append('ids', address.id)
+    })
+
     return {
+      headers: getAuthenticatedToken(),
+      params: params
+    }
+  }
+
+  prepareAddressData (address: Address) {
+    const sendAddressData: Address = {
+      id: null,
       addressType: 'DELIVERY',
       referenceId: address.referenceId,
       companyName: address.companyName,
@@ -88,12 +137,18 @@ export default class AddressBook extends Vue {
       contactEmail: address.contactEmail,
       notes: address.notes
     }
+    if (address.id) {
+      sendAddressData.id = address.id
+    }
+
+    return sendAddressData
   }
 
   created (): void {
     const config = {
       headers: getAuthenticatedToken(),
       params: {
+        addressType: 'DELIVERY',
         page: 0,
         size: 10000
       }

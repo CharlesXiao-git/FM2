@@ -10,47 +10,27 @@ describe('<ConfirmActionModal />', () => {
   const wrapper = mount(ConfirmActionModal, {
     localVue,
     slots: {
-      trigger: '<b-button class="delete-btn">Delete</b-button>',
       content: `<p>${contentText}</p>`
     },
     propsData: {
-      confirmed: confirmFunction
+      modalId: 'confirm-action-modal',
+      buttonName: 'confirm'
     }
   })
 
-  const triggerBtn = wrapper.find('.delete-btn')
+  wrapper.trigger('ok')
   let modal = wrapper.find('#confirm-action-modal')
 
   describe('initial state', () => {
-    it('renders the trigger element', () => {
-      expect(triggerBtn.exists()).toBeTruthy()
-    })
-
     it('hides the modal', () => {
       expect(modal.exists()).toBeTruthy()
       expect(modal.element).not.toBeVisible()
     })
   })
 
-  describe('clicking on the trigger element', () => {
-    beforeAll(async () => {
-      await triggerBtn.trigger('click')
-      modal = wrapper.find('#confirm-action-modal')
-    })
-
-    it('opens the modal', async () => {
-      expect(modal.element).toBeVisible()
-    })
-
-    it('renders modal content correctly', () => {
-      expect(modal.find('.modal-body').text()).toEqual(contentText)
-      expect(modal.find('.modal-footer').findAll('button')).toHaveLength(2)
-    })
-  })
-
   describe('modal buttons interaction', () => {
     beforeEach(async () => {
-      await triggerBtn.trigger('click')
+      await wrapper.trigger('ok')
       modal = wrapper.find('#confirm-action-modal')
     })
 
@@ -59,7 +39,6 @@ describe('<ConfirmActionModal />', () => {
 
       it('calls the confirm function and closes the modal', async () => {
         await okBtn.trigger('click')
-        expect(confirmFunction).toHaveBeenCalledTimes(1)
         expect(modal.element).not.toBeVisible()
       })
     })

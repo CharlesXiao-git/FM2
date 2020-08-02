@@ -1,4 +1,5 @@
 export class Address {
+  addressType: string
   id: string
   referenceId: string
   companyName: string
