@@ -27,6 +27,7 @@ target
 logback.out.xml
 
 backend/src/main/resources/public/
+out/
 backend/target
 __frontend/dist/
 __frontend/node/

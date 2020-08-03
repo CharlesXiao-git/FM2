@@ -1,0 +1,67 @@
+.menu-toggle, .menu-toggle:hover .btn-secondary{
+  min-width: 15em;
+  max-width: 15em;
+  color:#fff;
+  background-color: #414b58 !important;
+}
+.sidebar {
+  padding: 8px;
+  min-width: 15em;
+  max-width: 15em;
+  background-color: rgb(73, 84, 99);
+  float: left;
+  height: 100%;
+  position: fixed;
+  text-align: left;
+  overflow: auto;
+  transition: all 0.3s;
+  z-index: 99;
+}
+
+.nav-link {
+  padding: 0.1em 0.3em;
+  color: white;
+  cursor:default;
+}
+
+.dropdown-toggle {
+  color: white;
+}
+
+.btn-secondary {
+  text-align: left;
+  width: 100%;
+  cursor:pointer;
+  color: white;
+  background-color: inherit !important;
+  border: none;
+}
+.btn-secondary:hover {
+  color: #414b58;
+  background-color: #ffffff !important;
+  border-color: #adadad;
+  transition: all 0.3s;
+}
+
+.btn-secondary:focus {
+  box-shadow: none;
+  border:none;
+}
+
+.menu-items .nav-item {
+  margin-left: 32px;
+  padding: 0.3em 0;
+}
+
+.menu-items .nav-item:hover {
+  cursor: pointer;
+  color: #414b58;
+  background-color: #ffffff !important;
+  border-color: #adadad;
+  transition: all 0.3s;
+}
+
+.menu-items .nav-item:hover .nav-link:hover {
+  cursor: pointer;
+  color: #414b58 !important;
+}

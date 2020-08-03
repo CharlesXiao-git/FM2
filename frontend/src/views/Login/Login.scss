@@ -1,0 +1,38 @@
+.login {
+  border-radius: 2px;
+  width: 700px;
+}
+.form-control{
+  background: #f7f7f7 none repeat scroll 0 0;
+  border: 1px solid #d4d4d4;
+  border-radius: 4px;
+  font-size: 14px;
+  height: 50px;
+  line-height: 50px;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: #5375B8;
+  border-color: #5375B8;
+}
+
+#reset_pw_button {
+  width: 50%;
+  color: white
+}
+
+.btn-primary:hover {
+  color: #fff;
+  background-color: #315c8a;
+  border-color: #315c8a;
+}
+
+.input-group-text {
+  width: 42px;
+}
+
+.invalid-feedback {
+  font-size: 100%;
+  margin-bottom: 16px;
+}

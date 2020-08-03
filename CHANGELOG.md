@@ -23,4 +23,9 @@ See https://keepachangelog.com/en/1.0.0/ for more info
 - CORE | CHANGELOG and README  
 - FRONTEND | VueJS Typescript project using [vue-cli](https://cli.vuejs.org/), including plugins `babel`,`typescript`,`router`,`eslint`,`unit-jest`  
 - BACKEND | Spring boot Java 11 project, including plugins related to DB connections, security and `SpringMVC`
-  
+- BACKEND | Begin to implement authentication through spring
+- BACKEND | Add to authentication endpoints, change login url, add process to undo double hashing, tweak docker-compose local conf
+- BACKEND | Add Authorisation to application endpoints
+- BACKEND | Changed config to be env var driven
+- BACKEND | Integrate Auspost locality REST API and add postcode lookup to the Address Controller
+- Backend | Configure Default HTTP REST client settings 

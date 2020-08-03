@@ -1,0 +1,41 @@
+::v-deep .table {
+  font-family: "Montserrat", sans-serif !important;
+  position: relative;
+  border: 1px solid rgba(0,0,0,.12);
+  border-collapse: collapse;
+  white-space: nowrap;
+  background-color: #fff;
+  text-align: left;
+  font-size: 13px;
+}
+
+::v-deep .table-responsive-true {
+  overflow-y: scroll;
+}
+
+::v-deep .row {
+  margin: 0 16px 0 0;
+}
+
+.data-table {
+  width: 100%;
+  background: #ffffff;
+}
+
+::v-deep .custom-select {
+  width: 5rem;
+}
+
+.right {
+  float: right;
+}
+
+.edit-button, .edit-button:hover, .edit-button:focus {
+  color: #80bf45;
+  background-color: #ffffff;
+  border: none;
+}
+
+::v-deep #confirm-action-modal .modal-content {
+  text-align: center;
+}
