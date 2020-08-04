@@ -89,7 +89,7 @@ public class ConsignmentService {
     }
 
     // Update
-    public Consignment updateConsignment(ConsignmentDto consignmentRequest, String requestorUsername) {
+    public void updateConsignment(ConsignmentDto consignmentRequest, String requestorUsername) {
         // Validate the consignment to be updated exists
         Optional<Consignment> currentConsignment = this.getConsignments(
                 Collections.singletonList(consignmentRequest.getId())
@@ -98,6 +98,9 @@ public class ConsignmentService {
         if (currentConsignment.isEmpty()) {
             throw new BadRequestException("Unable to find consignment");
         }
+
+        Consignment con = currentConsignment.get();
+
 
         // Validate if user has permission to update
         // Return 403 if the requestor is a client and the consignment does not belong to the user
@@ -110,9 +113,9 @@ public class ConsignmentService {
 
         // If the user is not a client then validate the children user under the requestor owns the consignment
         boolean userOwnsOrIsParent = userService
-                .getChildren(requestorUsername)
+                .getChildren(user,true)
                 .stream()
-                .anyMatch(child -> child.getId() == currentConsignment.get().getClientId());
+                .anyMatch(child -> child.getId() == con.getClientId());
 
         if(!userOwnsOrIsParent) {
             throw new ForbiddenException("User does not have permission to update this consignment");
@@ -138,10 +141,10 @@ public class ConsignmentService {
 
         // Map the updated values into the existing consignment object
         // Null will be ignored and treated as no update
-        modelMapper.map(consignmentRequest, currentConsignment);
+        modelMapper.map(consignmentRequest, con);
 
         // Save updated consignment
-        return consignmentRepository.save(currentConsignment.get());
+        consignmentRepository.save(con);
     }
 
     // Delete
@@ -158,7 +161,7 @@ public class ConsignmentService {
 
         // Validate the the user is the parent or the owner of the consignments
         List<Long> children = userService
-                .getChildren(username)
+                .getChildren(user, true)
                 .stream()
                 .map(User::getId)
                 .collect(Collectors.toList());

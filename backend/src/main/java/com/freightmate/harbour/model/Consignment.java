@@ -53,15 +53,15 @@ public class Consignment {
 
     @Column(nullable = false)
     @ColumnDefault(value = "false")
-    private boolean isAllowedToLeave = false;
+    private Boolean isAllowedToLeave;
 
     @Column(nullable = false)
     @ColumnDefault(value = "false")
-    private boolean isTailgateRequired = false;
+    private Boolean isTailgateRequired;
 
     @Column(nullable = false)
     @ColumnDefault(value = "false")
-    Boolean isDeleted = false;
+    Boolean isDeleted;
 
     LocalDateTime deletedAt;
 
