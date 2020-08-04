@@ -74,8 +74,9 @@ export default class AddressBook extends Vue {
     this.resetFlag()
     this.$axios.put('/api/v1/address', this.prepareAddressData(address), getDefaultConfig())
       .then(response => {
-        address = response.data
-        this.addresses.unshift(address)
+        this.addresses.splice(this.addresses.indexOf(this.addresses.find(oldAddress => oldAddress.id === address.id)), 1)
+        const updatedAddress = response.data
+        this.addresses.unshift(updatedAddress)
         this.setAlert('success', 'Address updated successfully')
       }, error => {
         this.$log.warn(error)
