@@ -1,6 +1,6 @@
 package com.freightmate.harbour.model.dto;
 
-import com.freightmate.harbour.model.DeliveryAddressType;
+import com.freightmate.harbour.model.AddressClass;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,7 +17,7 @@ public class ConsignmentDto {
     private LocalDateTime dispatchDateAt;
     private LocalDateTime deliveryWindowStartAt;
     private LocalDateTime deliveryWindowEndAt;
-    private DeliveryAddressType deliveryAddressType;
-    private boolean isAllowedToLeave;
-    private boolean isTailgateRequired;
+    private AddressClass addressClass;
+    private Boolean isAllowedToLeave;
+    private Boolean isTailgateRequired;
 }
