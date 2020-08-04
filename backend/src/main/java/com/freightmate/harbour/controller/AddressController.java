@@ -207,7 +207,7 @@ public class AddressController {
     public ResponseEntity<Address> updateAddress(@RequestBody AddressDto addressRequest) {
         // validate if the address id exists
         //Address currentAddress = addressService.getAddressById(addressRequest.getId());
-        Address currentAddress = addressService.getAddressesByIds(
+        Address currentAddress = addressService.getAddresses(
                 Collections.singletonList(
                         addressRequest.getId()
                 )
@@ -277,7 +277,7 @@ public class AddressController {
 
         try {
             // validate all the address Ids exist
-            List<Address> addressesByIds = addressService.getAddressesByIds(ids);
+            List<Address> addressesByIds = addressService.getAddresses(ids);
             if(ids.size() != addressesByIds.size()) {
                 return ResponseEntity
                         .status(HttpStatus.BAD_REQUEST)

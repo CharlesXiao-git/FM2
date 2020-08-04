@@ -70,7 +70,7 @@ public class AddressService {
         return addressRepository.deleteAddressesByIds(addressIds, user.getId());
     }
 
-    public List<Address> getAddressesByIds(List<Long> addressIds) {
+    public List<Address> getAddresses(List<Long> addressIds) {
         return addressRepository.findAddressesByIds(addressIds);
     }
 

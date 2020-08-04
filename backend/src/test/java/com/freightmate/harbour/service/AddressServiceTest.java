@@ -87,7 +87,7 @@ public class AddressServiceTest {
         this.addressService.deleteAddress(ids, "kurtis");
 
         assert Objects.isNull(
-                this.addressService.getAddressesByIds(
+                this.addressService.getAddresses(
                         Collections.singletonList(
                                 this.newAddress.getId()
                         )
