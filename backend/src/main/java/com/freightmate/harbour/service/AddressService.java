@@ -1,5 +1,6 @@
 package com.freightmate.harbour.service;
 
+import com.freightmate.harbour.exception.BadRequestException;
 import com.freightmate.harbour.model.dto.AddressDto;
 import com.freightmate.harbour.model.*;
 import com.freightmate.harbour.repository.AddressRepository;
@@ -9,7 +10,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
+
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AddressService {
@@ -68,6 +72,14 @@ public class AddressService {
 
         // Perform delete to the address
         return addressRepository.deleteAddressesByIds(addressIds, user.getId());
+    }
+
+    // Search address by criteria and current logged in user
+    public List<Address> searchAddresses(String searchCriteria, String username, AddressType addressType) {
+        // Get user details from username
+        User user = userDetailsService.loadUserByUsername(username);
+        // Perform search
+        return addressRepository.findAddresses(addressType.name(), user.getUserRole().name(), user.getId(), searchCriteria);
     }
 
     public List<Address> getAddresses(List<Long> addressIds) {

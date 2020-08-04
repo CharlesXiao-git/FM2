@@ -17,5 +17,4 @@ public interface UserRepository extends CrudRepository<User, Long> {
 
     @Query(SELECT_USERS_BY_PARENT_QUERY)
     List<User> findUsersByParent(long userId);
-
 }

@@ -6,7 +6,10 @@ import com.freightmate.harbour.model.dto.AddressDto;
 import com.freightmate.harbour.service.AddressService;
 import com.freightmate.harbour.service.PostCodeService;
 import org.apache.logging.log4j.util.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -33,6 +36,8 @@ public class AddressController {
 
     @Autowired
     private AddressService addressService;
+
+    private static final Logger LOG = LoggerFactory.getLogger(AddressController.class);
 
     /**
      * Lookup using locality string or postcode and combine results
@@ -302,5 +307,28 @@ public class AddressController {
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .build();
         }
+    }
+
+    @RequestMapping(path="/search", method = RequestMethod.GET)
+    public ResponseEntity<List<Address>> searchAddress(@RequestParam Optional<AddressType> addressType,
+                                                @RequestParam String criteria,
+                                                Authentication authentication) {
+        String username = (String) authentication.getPrincipal();
+        try {
+            return ResponseEntity
+                    .ok(
+                            addressService.searchAddresses(
+                                    criteria,
+                                    username,
+                                    addressType.orElse(AddressType.ANY)
+                            )
+                    );
+        } catch (DataAccessException e) {
+            LOG.error("Unable to access database: ", e);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .build();
+        }
+
     }
 }
