@@ -1,6 +1,6 @@
 import { Address } from '@/model/Address'
 
-export default function prepareAddressData (address: Address) {
+export function prepareAddressData (address: Address): Address {
   const sendAddressData: Address = {
     id: null,
     addressType: 'DELIVERY',

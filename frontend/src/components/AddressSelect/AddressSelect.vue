@@ -35,7 +35,7 @@ import Alert from '@/components/Alert/Alert.vue'
 import { CoolSelect } from 'vue-cool-select'
 import { Address } from '@/model/Address'
 import { getAuthenticatedToken, getDefaultConfig } from '@/service/AuthService'
-import prepareAddressData from '@/helpers/AddressHelper'
+import { prepareAddressData } from '@/helpers/AddressHelper'
 
 @Component({
   components: { Alert, AddressFormModal, CoolSelect }
