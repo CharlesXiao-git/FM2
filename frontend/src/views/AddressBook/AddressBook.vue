@@ -40,6 +40,7 @@ import { getAuthenticatedToken, getDefaultConfig } from '@/service/AuthService'
 import AddressDataTable from '@/components/AddressDataTable/AddressDataTable.vue'
 import AddressFormModal from '@/components/AddressFormModal/AddressFormModal.vue'
 import Alert from '@/components/Alert/Alert.vue'
+import prepareAddressData from '@/helpers/AddressHelper'
 
 @Component({
   components: { AddressDataTable, AddressFormModal, Alert }
@@ -59,7 +60,7 @@ export default class AddressBook extends Vue {
 
   emittedNewAddress (address: Address) {
     this.resetFlag()
-    this.$axios.post('/api/v1/address', this.prepareAddressData(address), getDefaultConfig())
+    this.$axios.post('/api/v1/address', prepareAddressData(address), getDefaultConfig())
       .then(response => {
         address = response.data
         this.addresses.unshift(address)
@@ -72,7 +73,7 @@ export default class AddressBook extends Vue {
 
   emittedUpdatedAddress (address: Address) {
     this.resetFlag()
-    this.$axios.put('/api/v1/address', this.prepareAddressData(address), getDefaultConfig())
+    this.$axios.put('/api/v1/address', prepareAddressData(address), getDefaultConfig())
       .then(response => {
         this.addresses.splice(this.addresses.indexOf(this.addresses.find(oldAddress => oldAddress.id === address.id)), 1)
         const updatedAddress = response.data
@@ -120,29 +121,6 @@ export default class AddressBook extends Vue {
       headers: getAuthenticatedToken(),
       params: params
     }
-  }
-
-  prepareAddressData (address: Address) {
-    const sendAddressData: Address = {
-      id: null,
-      addressType: 'DELIVERY',
-      referenceId: address.referenceId,
-      companyName: address.companyName,
-      addressLine1: address.addressLine1,
-      addressLine2: address.addressLine2,
-      town: address.town,
-      postcode: address.postcode,
-      state: address.state,
-      contactName: address.contactName,
-      contactNo: address.contactNo,
-      contactEmail: address.contactEmail,
-      notes: address.notes
-    }
-    if (address.id) {
-      sendAddressData.id = address.id
-    }
-
-    return sendAddressData
   }
 
   created (): void {

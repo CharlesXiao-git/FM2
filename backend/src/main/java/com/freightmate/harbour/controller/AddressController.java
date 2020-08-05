@@ -309,7 +309,7 @@ public class AddressController {
         }
     }
 
-    @RequestMapping(path="/search", method = RequestMethod.GET)
+    @RequestMapping(path="/search", method = RequestMethod.POST)
     public ResponseEntity<List<Address>> searchAddress(@RequestParam Optional<AddressType> addressType,
                                                 @RequestParam String criteria,
                                                 Authentication authentication) {

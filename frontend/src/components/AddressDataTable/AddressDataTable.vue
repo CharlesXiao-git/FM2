@@ -16,9 +16,9 @@
       <b-button :disabled="this.selectedItems.length < 1" class="secondary-button ml-2 mb-2" v-b-modal.confirm-action-modal><i class="fas mr-2 fa-trash-alt" />Delete</b-button>
       <ConfirmActionModal modal-id="confirm-action-modal" button-name="Yes, delete it!" button-class="warning-button" @confirmed="deleteItems">
         <template v-slot:content>
-          <i class="fa fa-exclamation-triangle fa-2x"/>
+          <i class="fa fa-exclamation-triangle fa-2x"/><br/>
           <h3>Delete selected address(es)?</h3>
-          <p>Are you sure? You will not be able to recover the addresses once deleted.</p>
+          <p>Are you sure? <br/> You will not be able to recover the addresses once deleted.</p>
         </template>
       </ConfirmActionModal>
     </div>

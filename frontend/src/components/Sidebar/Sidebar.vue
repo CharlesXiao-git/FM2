@@ -20,7 +20,7 @@
                             Create New
                         </b-button>
                         <b-collapse class="menu-items" id="create-new-collapse">
-                            <b-nav-item>
+                            <b-nav-item to="/consignment">
                                 Consignment
                             </b-nav-item>
                             <b-nav-item>

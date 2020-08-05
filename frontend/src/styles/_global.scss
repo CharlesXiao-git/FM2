@@ -4,7 +4,8 @@
 
 // Variables
 $primary: #3d424e;
-
+$content-background-color: #fafafa;
+$header-background-color: #495463;
 
 // Styles
 .primary-button {
@@ -39,4 +40,5 @@ $primary: #3d424e;
   color: #ffffff;
   background-color: rgb(221, 107, 85) !important;
   border: none !important;
+  text-transform: uppercase;
 }

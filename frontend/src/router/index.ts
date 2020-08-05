@@ -3,6 +3,7 @@ import VueRouter, { RouteConfig } from 'vue-router'
 import Login from '@/views/Login/Login.vue'
 import Home from '@/views/Home/Home.vue'
 import AddressBook from '@/views/AddressBook/AddressBook.vue'
+import Consignment from '@/views/Consignment/Consignment.vue'
 
 Vue.use(VueRouter)
 
@@ -22,6 +23,13 @@ const routes: Array<RouteConfig> = [
     path: '/home',
     name: 'Home',
     component: Home,
+    props: true
+  },
+  {
+    path: '/consignment',
+    name: 'Consignment',
+    meta: { layout: 'home' },
+    component: Consignment,
     props: true
   },
   {

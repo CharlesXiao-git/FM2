@@ -58,7 +58,7 @@
                                 disable-filtering-by-search
                                 @search="onSearch">
                             <template #no-data>
-                                {{ noData ? "No information found by request." : "We need at least 3 letters / numbers to search" }}
+                                {{ noData ? "No address found." : "We need at least 3 letters / numbers to search" }}
                             </template>
                             <template #item="{ item }">
                                 <div class="item">
@@ -170,11 +170,12 @@ export default class AddressFormModal extends Vue {
       this.$axios.get('/api/v1/address/locality', config)
         .then(response => {
           this.items = response.data.localities
+        }, error => {
           if (!this.items.length) {
             this.noData = true
+          } else {
+            this.$log.error(error)
           }
-        }, error => {
-          this.$log.error(error)
         })
     }
 
