@@ -100,7 +100,7 @@ export default class AddressSelect extends Vue {
       }
     }
 
-    this.$axios.get('/api/v1/address/search', config)
+    this.$axios.post('/api/v1/address/search', null, config)
       .then(response => {
         this.addresses = response.data
         if (!this.addresses.length) {
