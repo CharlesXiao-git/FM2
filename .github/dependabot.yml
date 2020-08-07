@@ -8,10 +8,12 @@ updates:
     # Maintain dependencies for npm
   - package-ecosystem: "npm"
     directory: "/frontend"
+    target_branch: "development"
     schedule:
       interval: "daily"
 
   - package-ecosystem: "maven"
     directory: "/backend"
+    target_branch: "development"
     schedule:
       interval: "daily"
