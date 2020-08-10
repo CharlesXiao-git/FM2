@@ -8,12 +8,12 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { isTokenValid } from '@/service/AuthService'
+import { userSessionValid } from '@/helpers/auth/UserHelpers'
 
 @Component
 export default class App extends Vue {
   mounted () {
-    if (!isTokenValid()) {
+    if (!userSessionValid()) {
       this.$router.replace({ name: 'Login' })
     }
   }

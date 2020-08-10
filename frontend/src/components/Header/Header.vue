@@ -23,20 +23,12 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { extractUserFromToken, getToken, removeToken } from '@/service/AuthService'
+import { removeToken } from '@/helpers/auth/StorageHelpers'
+import { userName } from '@/helpers/auth/UserHelpers'
 
 @Component
 export default class Header extends Vue {
-  user: string = this.getUser()
-
-  getUser () {
-    const token = getToken()
-
-    if (token) {
-      this.user = extractUserFromToken(token).username
-    }
-    return this.user
-  }
+  user: string = userName()
 
   logout () {
     removeToken()
