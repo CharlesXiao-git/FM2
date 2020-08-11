@@ -2,7 +2,6 @@ package com.freightmate.harbour.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -11,7 +10,6 @@ import java.time.LocalDateTime;
 
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 @Entity
 @Getter
 @Setter
@@ -40,15 +38,12 @@ public class Consignment {
     private AddressClass addressClass;
 
     @Column(nullable = false)
-    @ColumnDefault(value = "false")
     private Boolean isAllowedToLeave;
 
     @Column(nullable = false)
-    @ColumnDefault(value = "false")
     private Boolean isTailgateRequired;
 
     @Column(nullable = false)
-    @ColumnDefault(value = "false")
     Boolean isDeleted;
 
     LocalDateTime deletedAt;
@@ -64,4 +59,10 @@ public class Consignment {
     String deletedBy;
     String createdBy;
     String updatedBy;
+
+    public Consignment() {
+        this.isAllowedToLeave = false;
+        this.isTailgateRequired = false;
+        this.isDeleted = false;
+    }
 }
