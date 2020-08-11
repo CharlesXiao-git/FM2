@@ -20,6 +20,15 @@ target
 *.iml
 *.log
 
+
+# Terraform State Files
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+.terraformrc
+terraform.rc
+
+
 # VSCode
 .vscode
 

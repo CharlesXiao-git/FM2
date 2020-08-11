@@ -1,0 +1,210 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "FMWebAppPolicyS3",
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListBucketMultipartUploads",
+        "s3:GetBucketTagging",
+        "s3:DeleteObjectVersion",
+        "s3:GetObjectVersionTagging",
+        "s3:ListBucketVersions",
+        "s3:GetBucketVersioning",
+        "s3:GetBucketAcl",
+        "s3:GetBucketPolicy",
+        "s3:ReplicateObject",
+        "s3:PutObject",
+        "s3:GetObjectAcl",
+        "s3:GetObject",
+        "s3:GetEncryptionConfiguration",
+        "s3:AbortMultipartUpload",
+        "s3:PutObjectVersionAcl",
+        "s3:GetObjectVersionAcl",
+        "s3:GetObjectTagging",
+        "s3:DeleteObject",
+        "s3:GetBucketLocation",
+        "s3:PutObjectAcl",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": [
+        "${s3Bucket}"
+      ],
+      "Condition": {
+        "IpAddress": {
+          "aws:SourceIp": [
+            "${ApplicationSubnet1CidrBlock}",
+            "${ApplicationSubnet2CidrBlock}"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "FMWebAppPolicySES",
+      "Effect": "Allow",
+      "Action": [
+        "ses:SendEmail",
+        "ses:SendRawEmail",
+        "ses:SendBulkTemplatedEmail"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "IpAddress": {
+          "aws:SourceIp": [
+            "${ApplicationSubnet1CidrBlock}",
+            "${ApplicationSubnet2CidrBlock}"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "FMWebAppPolicySNS1",
+      "Effect": "Allow",
+      "Action": [
+        "sns:Publish",
+        "sns:GetTopicAttributes"
+      ],
+      "Resource": "${snsTopic}",
+      "Condition": {
+        "IpAddress": {
+          "aws:SourceIp": [
+            "${ApplicationSubnet1CidrBlock}",
+            "${ApplicationSubnet2CidrBlock}"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "FMWebAppPolicySNS2",
+      "Effect": "Allow",
+      "Action": [
+        "sns:GetEndpointAttributes",
+        "sns:ListTopics"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "IpAddress": {
+          "aws:SourceIp": [
+            "${ApplicationSubnet1CidrBlock}",
+            "${ApplicationSubnet2CidrBlock}"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "FMWebAppPolicySSM",
+      "Effect": "Allow",
+      "Action": [
+        "ssm:GetParameters",
+        "ssm:GetParameter"
+      ],
+      "Resource": ${ssmParameters},
+      "Condition": {
+        "IpAddress": {
+          "aws:SourceIp": [
+            "${ApplicationSubnet1CidrBlock}",
+            "${ApplicationSubnet2CidrBlock}"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "FMWebAppPolicyCloudWatch",
+      "Effect": "Allow",
+      "Action": [
+        "cloudwatch:PutMetricData",
+        "cloudwatch:DescribeAlarmHistory",
+        "cloudwatch:GetDashboard",
+        "cloudwatch:GetMetricData",
+        "cloudwatch:DescribeAlarmsForMetric",
+        "cloudwatch:DescribeAlarms",
+        "cloudwatch:GetMetricStatistics",
+        "cloudwatch:GetMetricWidgetImage",
+        "cloudwatch:ListMetrics",
+        "cloudwatch:DescribeAnomalyDetectors"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "IpAddress": {
+          "aws:SourceIp": [
+            "${ApplicationSubnet1CidrBlock}",
+            "${ApplicationSubnet2CidrBlock}"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "FMWebAppPolicyCloudWatchLogs1",
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateExportTask",
+        "logs:CreateLogStream",
+        "logs:DescribeLogGroups",
+        "logs:DescribeLogStreams",
+        "logs:StartQuery",
+        "logs:GetLogEvents",
+        "logs:FilterLogEvents",
+        "logs:GetLogGroupFields",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "arn:aws:logs:ap-southeast-2:687523771005:log-group:someLogGroupName",
+      "Condition": {
+        "IpAddress": {
+          "aws:SourceIp": [
+            "${ApplicationSubnet1CidrBlock}",
+            "${ApplicationSubnet2CidrBlock}"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "FMWebAppPolicyCloudWatchLogs2",
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogDelivery",
+        "logs:GetLogRecord",
+        "logs:GetQueryResults",
+        "logs:StopQuery",
+        "logs:TestMetricFilter",
+        "logs:GetLogDelivery",
+        "logs:ListLogDeliveries"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "IpAddress": {
+          "aws:SourceIp": [
+            "${ApplicationSubnet1CidrBlock}",
+            "${ApplicationSubnet2CidrBlock}"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "FMWebAppPolicyElasticLoadBalancing",
+      "Effect": "Allow",
+      "Action": [
+        "elasticloadbalancing:DescribeLoadBalancerAttributes",
+        "elasticloadbalancing:DescribeSSLPolicies",
+        "elasticloadbalancing:DescribeLoadBalancers",
+        "elasticloadbalancing:DescribeTargetGroupAttributes",
+        "elasticloadbalancing:DescribeListeners",
+        "elasticloadbalancing:DescribeTags",
+        "elasticloadbalancing:DescribeAccountLimits",
+        "elasticloadbalancing:DescribeTargetHealth",
+        "elasticloadbalancing:DescribeTargetGroups",
+        "elasticloadbalancing:DescribeListenerCertificates",
+        "elasticloadbalancing:DescribeRules"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "VisualEditor1",
+      "Effect": "Allow",
+      "Action": [
+        "elasticloadbalancing:RegisterTargets",
+        "elasticloadbalancing:DeregisterTargets"
+      ],
+      "Resource": "${ApplicationAPILoadBalancerTargetGroup}"
+    }
+  ]
+}
