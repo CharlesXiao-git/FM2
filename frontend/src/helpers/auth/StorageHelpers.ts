@@ -27,6 +27,8 @@ export function removeToken () {
  */
 export function decodeToken () {
   const token = getToken()
+  if (token === null) { return null }
+
   try {
     return JSON.parse(atob(token.split('.')[1]))
   } catch (e) {
