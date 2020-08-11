@@ -10,10 +10,16 @@ updates:
     directory: "/frontend"
     target-branch: "development"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "wednesday"
+      time: "08:00"
+      timezone: "Australia/Melbourne"
 
   - package-ecosystem: "maven"
     directory: "/backend"
     target-branch: "development"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "wednesday"
+      time: "08:00"
+      timezone: "Australia/Melbourne"
