@@ -11,9 +11,15 @@ updates:
     target-branch: "development"
     schedule:
       interval: "weekly"
+      day: "wednesday"
+      time: "08:00"
+      timezone: "Australia/Melbourne"
 
   - package-ecosystem: "maven"
     directory: "/backend"
     target-branch: "development"
     schedule:
       interval: "weekly"
+      day: "wednesday"
+      time: "08:00"
+      timezone: "Australia/Melbourne"
