@@ -178,7 +178,7 @@ public class ConsignmentService {
     }
 
     private void setConsignmentAddresses(Address delivery, Address sender, Consignment consignment) {
-        consignment.setDeliveryAddress(delivery);
-        consignment.setSenderAddress(sender);
+        consignment.setDeliveryAddressId(delivery.getId());
+        consignment.setSenderAddressId(sender.getId());
     }
 }

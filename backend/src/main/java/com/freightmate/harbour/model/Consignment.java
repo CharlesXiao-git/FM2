@@ -27,20 +27,8 @@ public class Consignment {
     @Column(name = "client_id", insertable = false, updatable = false)
     private long clientId;
 
-    @JsonIgnore
-    @ManyToOne(targetEntity = Address.class, fetch = FetchType.LAZY)
-    private Address senderAddress;
-
-    @Column(name = "sender_address_id", insertable = false, updatable = false)
     private long senderAddressId;
-
-    @JsonIgnore
-    @ManyToOne(targetEntity = Address.class, fetch = FetchType.LAZY)
-    private Address deliveryAddress;
-
-    @Column(name = "delivery_address_id", insertable = false, updatable = false)
     private long deliveryAddressId;
-
     private String connoteId;
 
     private LocalDateTime dispatchDateAt;
