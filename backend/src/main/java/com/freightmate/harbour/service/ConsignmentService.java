@@ -75,12 +75,9 @@ public class ConsignmentService {
     }
 
     // Read
-    public ConsignmentQueryResult readConsignment(String username, Pageable pageable) {
-        // find user by username
-        User user = userDetailsService.loadUserByUsername(username);
-
+    public ConsignmentQueryResult readConsignment(long userId, Pageable pageable) {
         // Find consignments under the user
-        List<Consignment> consignments = consignmentRepository.findConsignments(user.getId(), pageable);
+        List<Consignment> consignments = consignmentRepository.findConsignments(userId, pageable);
 
         return ConsignmentQueryResult.builder()
                 .count(consignments.size())
@@ -89,7 +86,7 @@ public class ConsignmentService {
     }
 
     // Update
-    public void updateConsignment(ConsignmentDto consignmentRequest, String requestorUsername) {
+    public void updateConsignment(ConsignmentDto consignmentRequest, UserRole userRole, long userId) {
         // Validate the consignment to be updated exists
         Optional<Consignment> currentConsignment = this.getConsignments(
                 Collections.singletonList(consignmentRequest.getId())
@@ -101,19 +98,15 @@ public class ConsignmentService {
 
         Consignment con = currentConsignment.get();
 
-
         // Validate if user has permission to update
         // Return 403 if the requestor is a client and the consignment does not belong to the user
-
-        User user = userDetailsService.loadUserByUsername(requestorUsername);
-
-        if(user.getUserRole().equals(UserRole.CLIENT) && user.getId() != currentConsignment.get().getClientId()) {
+        if(userRole.equals(UserRole.CLIENT) && userId != currentConsignment.get().getClientId()) {
             throw new ForbiddenException("User does not have permission to update this consignment");
         }
 
         // If the user is not a client then validate the children user under the requestor owns the consignment
         boolean userOwnsOrIsParent = userService
-                .getChildren(user,true)
+                .getChildren(userId,true)
                 .stream()
                 .anyMatch(child -> child.getId() == con.getClientId());
 
@@ -149,10 +142,7 @@ public class ConsignmentService {
 
     // Delete
     @Transactional
-    public void deleteConsignment(List<Long> ids, String username) {
-        // Get user details from username
-        User user = userDetailsService.loadUserByUsername(username);
-
+    public void deleteConsignment(List<Long> ids, long userId) {
         // Get a list of existing consignments
         List<Consignment> consignments = this.getConsignments(ids);
         if (consignments.size() != ids.size()) {
@@ -161,7 +151,7 @@ public class ConsignmentService {
 
         // Validate the the user is the parent or the owner of the consignments
         List<Long> children = userService
-                .getChildren(user, true)
+                .getChildren(userId, true)
                 .stream()
                 .map(User::getId)
                 .collect(Collectors.toList());
@@ -175,7 +165,7 @@ public class ConsignmentService {
         }
 
         // Perform delete on the consignment IDs
-        consignmentRepository.deleteConsignments(ids, user.getId());
+        consignmentRepository.deleteConsignments(ids, userId);
     }
 
     public List<Consignment> getConsignments(List<Long> ids) {

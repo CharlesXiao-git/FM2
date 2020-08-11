@@ -124,12 +124,12 @@ public class AddressController {
     public ResponseEntity<AddressQueryResult> readAddressBook(@RequestParam Optional<AddressType> addressType,
                                                               Pageable pageable,
                                                               Authentication authentication) {
-        // Get the username of the requestor
-        String username = (String) authentication.getPrincipal();
+        // Get the User ID of the requestor
+        long userId = ((AuthToken) authentication.getPrincipal()).getUserId();
 
         try {
             // perform read to address repository by calling the address book service
-            AddressQueryResult addressQueryResult = addressService.readAddress(username, addressType.orElse(AddressType.ANY), pageable);
+            AddressQueryResult addressQueryResult = addressService.readAddress(userId, addressType.orElse(AddressType.ANY), pageable);
 
             if (addressQueryResult.getCount() == 0) {
                 // Return 204 if zero result
@@ -157,7 +157,7 @@ public class AddressController {
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<Address> createAddress(@RequestBody Address addressRequest, Authentication authentication) {
         // Get the username of the requestor
-        String username = (String) authentication.getPrincipal();
+        String username = ((AuthToken) authentication.getPrincipal()).getUsername();
 
         // validate postcode
         if(postCodeService.isInvalidPostcode(String.valueOf(addressRequest.getPostcode()))){
@@ -277,8 +277,8 @@ public class AddressController {
     @RequestMapping(method = RequestMethod.DELETE)
     public ResponseEntity<String> deleteAddress(@RequestParam("ids") List<Long> ids,
                                                 Authentication authentication) {
-        // Get the username of the requestor
-        String username = (String) authentication.getPrincipal();
+        // Get the User ID of the requestor
+        long userId = ((AuthToken) authentication.getPrincipal()).getUserId();
 
         try {
             // validate all the address Ids exist
@@ -290,7 +290,7 @@ public class AddressController {
             }
 
             // perform delete address for the user
-            Integer result = addressService.deleteAddress(ids, username);
+            Integer result = addressService.deleteAddresses(ids, userId);
 
             // return 204 if there is nothing deleted
             if(result == 0) {
@@ -313,13 +313,15 @@ public class AddressController {
     public ResponseEntity<List<Address>> searchAddress(@RequestParam Optional<AddressType> addressType,
                                                 @RequestParam String criteria,
                                                 Authentication authentication) {
-        String username = (String) authentication.getPrincipal();
+        // Get the User ID of the requestor
+        AuthToken authToken = (AuthToken) authentication.getPrincipal();
         try {
             return ResponseEntity
                     .ok(
                             addressService.searchAddresses(
                                     criteria,
-                                    username,
+                                    authToken.getRole(),
+                                    authToken.getUserId(),
                                     addressType.orElse(AddressType.ANY)
                             )
                     );

@@ -1,5 +1,6 @@
 package com.freightmate.harbour.controller;
 
+import com.freightmate.harbour.model.AuthToken;
 import com.freightmate.harbour.model.User;
 import com.freightmate.harbour.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +24,9 @@ public class UserController {
 
         @RequestMapping(path="/children", method = RequestMethod.GET)
         public ResponseEntity<Map<String, Long>> getChildrenIdentifiers(Authentication authentication){
-            String reqestorUsername = (String) authentication.getPrincipal();
+            long reqestorUserId = ((AuthToken) authentication.getPrincipal()).getUserId();
 
-            List<User> children = userService.getChildren(reqestorUsername);
+            List<User> children = userService.getChildren(reqestorUserId);
 
             if (children.isEmpty()){
                 ResponseEntity

@@ -3,6 +3,7 @@ package com.freightmate.harbour.filter;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.freightmate.harbour.helper.RequestHelper;
+import com.freightmate.harbour.model.AuthToken;
 import com.freightmate.harbour.service.AuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,14 +67,14 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
         String token = request.getHeader(HEADER_STRING);
         if (token != null) {
             try {
-                DecodedJWT decodedJWT = authService.decodeToken(token);
+                AuthToken authToken = new AuthToken(authService.decodeToken(token));
 
                 // Give the user the role in the token
-                GrantedAuthority auth = new SimpleGrantedAuthority(decodedJWT.getClaim("userRole").asString());
+                GrantedAuthority auth = new SimpleGrantedAuthority(authToken.getRole().name());
 
                 // Give Spring the context that this subject has the role defined above
                 return new UsernamePasswordAuthenticationToken(
-                        decodedJWT.getSubject(),
+                        authToken,
                         null,
                         Collections.singletonList(auth)
                 );

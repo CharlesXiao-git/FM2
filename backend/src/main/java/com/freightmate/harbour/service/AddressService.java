@@ -43,10 +43,8 @@ public class AddressService {
     }
 
     // Read
-    public AddressQueryResult readAddress(String username, AddressType addressType, Pageable pageable) {
+    public AddressQueryResult readAddress(long userId, AddressType addressType, Pageable pageable) {
         // todo: Need to re-look at this function again when "shared" setting is enabled. Do Lookup by user id to get address (client or customer)
-        // find user by username
-        User user = userDetailsService.loadUserByUsername(username);
 
         // Find addresses under the user
         List<Address> addresses = addressRepository.findAddresses(
@@ -71,20 +69,15 @@ public class AddressService {
     }
 
     // Delete
-    public Integer deleteAddress(List<Long> addressIds, String username) {
-        // Get user details from username
-        User user = userDetailsService.loadUserByUsername(username);
-
+    public Integer deleteAddresses(List<Long> addressIds, long userId) {
         // Perform delete to the address
-        return addressRepository.deleteAddressesByIds(addressIds, user.getId());
+        return addressRepository.deleteAddressesByIds(addressIds, userId);
     }
 
     // Search address by criteria and current logged in user
-    public List<Address> searchAddresses(String searchCriteria, String username, AddressType addressType) {
-        // Get user details from username
-        User user = userDetailsService.loadUserByUsername(username);
+    public List<Address> searchAddresses(String searchCriteria, UserRole userRole, long userId, AddressType addressType) {
         // Perform search
-        return addressRepository.findAddresses(addressType.name(), user.getUserRole().name(), user.getId(), searchCriteria);
+        return addressRepository.findAddresses(addressType.name(), userRole.name(), userId, searchCriteria);
     }
 
     public List<Address> getAddresses(List<Long> addressIds) {

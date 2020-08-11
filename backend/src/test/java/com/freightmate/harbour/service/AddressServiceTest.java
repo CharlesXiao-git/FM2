@@ -55,7 +55,7 @@ public class AddressServiceTest {
     @Ignore
     public void addressServiceShouldSucceed_WhenGettingAddressesForAUser() {
         PageRequest pageRequest = PageRequest.of(0,10);
-        AddressQueryResult result = this.addressService.readAddress("kurtis", AddressType.DELIVERY, pageRequest);
+        AddressQueryResult result = this.addressService.readAddress(533, AddressType.DELIVERY, pageRequest);
         assert result.getCount() > 0;
     }
     
@@ -84,7 +84,7 @@ public class AddressServiceTest {
     public void addressServiceShouldSucceed_WhenDeletingAnAddress() {
         List<Long> ids = new ArrayList();
         ids.add(this.newAddress.getId());
-        this.addressService.deleteAddress(ids, "kurtis");
+        this.addressService.deleteAddresses(ids, 533);
 
         assert Objects.isNull(
                 this.addressService.getAddresses(

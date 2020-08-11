@@ -42,4 +42,8 @@ public class UserDetailsService {
     public List<User> getChildren(long userId) {
         return userRepository.findUsersByParent(userId);
     }
+
+    public List<User> getUsers(List<Long> userIds) {
+        return userRepository.findUsersByIds(userIds);
+    }
 }
