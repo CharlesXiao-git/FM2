@@ -125,11 +125,15 @@ public class AddressController {
                                                               Pageable pageable,
                                                               Authentication authentication) {
         // Get the User ID of the requestor
-        long userId = ((AuthToken) authentication.getPrincipal()).getUserId();
+        AuthToken authToken = (AuthToken) authentication.getPrincipal();
 
         try {
             // perform read to address repository by calling the address book service
-            AddressQueryResult addressQueryResult = addressService.readAddress(userId, addressType.orElse(AddressType.ANY), pageable);
+            AddressQueryResult addressQueryResult = addressService.readAddress(
+                    authToken.getUserId(),
+                    authToken.getRole(),
+                    addressType.orElse(AddressType.ANY),
+                    pageable);
 
             if (addressQueryResult.getCount() == 0) {
                 // Return 204 if zero result

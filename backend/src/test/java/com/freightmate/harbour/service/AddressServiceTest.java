@@ -4,6 +4,7 @@ import com.freightmate.harbour.Harbour;
 import com.freightmate.harbour.model.Address;
 import com.freightmate.harbour.model.AddressQueryResult;
 import com.freightmate.harbour.model.AddressType;
+import com.freightmate.harbour.model.UserRole;
 import com.freightmate.harbour.model.dto.AddressDto;
 import org.junit.After;
 import org.junit.Before;
@@ -55,7 +56,7 @@ public class AddressServiceTest {
     @Ignore
     public void addressServiceShouldSucceed_WhenGettingAddressesForAUser() {
         PageRequest pageRequest = PageRequest.of(0,10);
-        AddressQueryResult result = this.addressService.readAddress(533, AddressType.DELIVERY, pageRequest);
+        AddressQueryResult result = this.addressService.readAddress(533, UserRole.CLIENT, AddressType.DELIVERY, pageRequest);
         assert result.getCount() > 0;
     }
     

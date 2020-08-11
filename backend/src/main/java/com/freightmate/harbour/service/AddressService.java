@@ -43,14 +43,14 @@ public class AddressService {
     }
 
     // Read
-    public AddressQueryResult readAddress(long userId, AddressType addressType, Pageable pageable) {
+    public AddressQueryResult readAddress(long userId, UserRole userRole, AddressType addressType, Pageable pageable) {
         // todo: Need to re-look at this function again when "shared" setting is enabled. Do Lookup by user id to get address (client or customer)
 
         // Find addresses under the user
         List<Address> addresses = addressRepository.findAddresses(
                 addressType.name(),
-                user.getUserRole().name(),
-                user.getId(),
+                userRole.name(),
+                userId,
                 pageable
         );
         return AddressQueryResult.builder()
