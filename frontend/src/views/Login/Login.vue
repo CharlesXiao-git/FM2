@@ -33,7 +33,6 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { setToken } from '@/helpers/auth/StorageHelpers'
-import { userRole } from '@/helpers/auth/UserHelpers'
 
 @Component
 export default class Login extends Vue {
@@ -51,7 +50,7 @@ export default class Login extends Vue {
           const token = response.data
           setToken(token)
           this.validation = true
-          this.$router.push({ name: 'Home', params: { role: userRole() } })
+          this.$router.push({ name: 'Home' })
         }, error => {
           if (error.response.data !== null) {
             this.errorMessage = error.response.data
