@@ -1,4 +1,3 @@
-import { User } from '@/model/User'
 import { decodeToken } from '@/helpers/auth/StorageHelpers'
 
 export type DecodedToken = {
@@ -18,58 +17,43 @@ function getTokenValue (value: DecodedTokenStringValue) {
   return (parsedToken !== null && parsedToken[value] !== undefined) ? parsedToken[value] : undefined
 }
 
-export function userId () {
+export function userId (): string | undefined {
   return getTokenValue('userId')
 }
 
-export function userName () {
+export function userName (): string | undefined {
   return getTokenValue('sub')
 }
 
-export function userEmail () {
+export function userEmail (): string | undefined {
   return getTokenValue('email')
 }
 
-export function userRole () {
+export function userRole (): string | undefined {
   return getTokenValue('userRole')
 }
 
-export function userIsBroker () {
-  return userRole().toUpperCase() === 'BROKER'
-}
-
-export function userIsCustomer () {
-  return userRole().toUpperCase() === 'CUSTOMER'
-}
-
-export function userIsClient () {
-  return userRole().toUpperCase() === 'CLIENT'
-}
-
-export function userIsAdmin () {
-  return userRole().toUpperCase() === 'ADMIN'
-}
-
-export function userPreferredUnit () {
+export function userPreferredUnit (): string | undefined {
   return getTokenValue('preferredUnit')
 }
 
-export function currentUser () {
-  const parsedToken: DecodedToken = decodeToken()
-  const user = new User()
-
-  if (parsedToken !== null) {
-    user.id = parsedToken.userId
-    user.username = parsedToken.sub
-    user.email = parsedToken.email
-    user.role = parsedToken.userRole
-    user.preferredUnit = parsedToken.preferredUnit
-  }
-
-  return user
+export function isUserBroker (): boolean {
+  return userRole() !== undefined && userRole().toUpperCase() === 'BROKER'
 }
 
-export function userSessionValid () {
+export function isUserCustomer (): boolean {
+  return userRole() !== undefined && userRole().toUpperCase() === 'CUSTOMER'
+}
+
+export function isUserClient (): boolean {
+  return userRole() !== undefined && userRole().toUpperCase() === 'CLIENT'
+}
+
+export function isUserAdmin (): boolean {
+  return userRole() !== undefined && userRole().toUpperCase() === 'ADMIN'
+}
+
+export function isUserSessionValid (): boolean {
   const parsedToken: DecodedToken = decodeToken()
   if (parsedToken && Date.now() < parsedToken.exp * 1000) {
     return true
