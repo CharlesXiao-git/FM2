@@ -1,6 +1,6 @@
 package com.freightmate.harbour.service;
 
-import com.freightmate.harbour.exception.BadRequestException;
+import com.freightmate.harbour.exception.ForbiddenException;
 import com.freightmate.harbour.model.dto.AddressDto;
 import com.freightmate.harbour.model.*;
 import com.freightmate.harbour.repository.AddressRepository;
@@ -11,9 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AddressService {
@@ -36,6 +34,10 @@ public class AddressService {
         // Get user details from username
         User user = userDetailsService.loadUserByUsername(username);
 
+        if (user.getUserRole().equals(UserRole.BROKER)) {
+            throw new ForbiddenException("Addresses cannot be created for a BROKER, please provide a customer or client ID");
+        }
+
         // Save address after the user id has been assigned
         return addressRepository.save(setUserIdToAddress(user, newAddress));
     }
@@ -47,8 +49,11 @@ public class AddressService {
         User user = userDetailsService.loadUserByUsername(username);
 
         // Find addresses under the user
-        List<Address> addresses = addressRepository.findAddressesByUserId(user.getId(),
-                addressType.name(), pageable
+        List<Address> addresses = addressRepository.findAddresses(
+                addressType.name(),
+                user.getUserRole().name(),
+                user.getId(),
+                pageable
         );
         return AddressQueryResult.builder()
                 .count(addresses.size())
@@ -83,7 +88,7 @@ public class AddressService {
     }
 
     public List<Address> getAddresses(List<Long> addressIds) {
-        return addressRepository.findAddressesByIds(addressIds);
+        return addressRepository.findAddresses(addressIds);
     }
 
     // User ID will need to be assigned to the address
@@ -101,8 +106,8 @@ public class AddressService {
         } else if (user.getUserRole().equals(UserRole.CUSTOMER)) {
             // Similarly with the client, the first code is to return the ID as a response
             // where the following code is to store the ID in the address table
-            newAddress.setCustomerId(user.getCustomer().getId());
-            newAddress.setCustomer(user.getCustomer());
+            newAddress.setCustomerId(user.getId());
+            newAddress.setCustomer(user);
         }
         return newAddress;
     }

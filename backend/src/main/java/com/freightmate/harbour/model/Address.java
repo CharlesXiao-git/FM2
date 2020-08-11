@@ -75,7 +75,7 @@ public class Address {
     @ColumnDefault(value = "false")
     private Boolean isDefault = false;
 
-    private int countUsed;
+    private Integer countUsed;
 
     @Column(nullable = false)
     @ColumnDefault(value = "false")
