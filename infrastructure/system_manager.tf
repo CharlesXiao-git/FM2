@@ -8,8 +8,8 @@
 
 
 resource "aws_ssm_parameter" "DatabaseUsername" {
-  name = "${var.application-name}-${terraform.workspace}-database-master-username"
-  type = "String"
+  name  = "${var.application-name}-${terraform.workspace}-database-master-username"
+  type  = "String"
   value = "harbour-app"
 
   tags = {
@@ -19,8 +19,8 @@ resource "aws_ssm_parameter" "DatabaseUsername" {
 }
 
 resource "aws_ssm_parameter" "DatabasePassword" {
-  name = "${var.application-name}-${terraform.workspace}-database-master-password"
-  type = "SecureString"
+  name  = "${var.application-name}-${terraform.workspace}-database-master-password"
+  type  = "SecureString"
   value = random_password.DatabaseMasterPassword.result
 
   tags = {
@@ -41,8 +41,8 @@ resource "aws_ssm_parameter" "DatabaseApplicationDatabasePassword" {
 }
 
 resource "aws_ssm_parameter" "JWTSecret" {
-  name = "${var.application-name}-${terraform.workspace}-jwt-secret"
-  type = "SecureString"
+  name  = "${var.application-name}-${terraform.workspace}-jwt-secret"
+  type  = "SecureString"
   value = random_password.JWTSecretKey.result
 
   tags = {
@@ -52,9 +52,9 @@ resource "aws_ssm_parameter" "JWTSecret" {
 }
 
 resource "aws_ssm_parameter" "AusPostAPIKey" {
-  name = "${var.application-name}-${terraform.workspace}-auspost-api-key"
-  type = "String"
-  value = ""
+  name  = "${var.application-name}-${terraform.workspace}-auspost-api-key"
+  type  = "String"
+  value = "foobar"
 
   tags = {
     Environment = terraform.workspace

@@ -37,6 +37,11 @@ resource "aws_iam_policy" "ApplicationECSTaskPolicy" {
 }
 
 
+resource "aws_iam_role_policy_attachment" "WebAPIPolicyForECS" {
+  policy_arn = aws_iam_policy.ApplicationWebPolicy.arn
+  role       = aws_iam_role.ECSServiceRole.name
+}
+
 
 resource "aws_iam_role" "ECSTaskServiceRole" {
   name        = "${var.application-name}-${terraform.workspace}-ECSTaskRole"
@@ -73,9 +78,15 @@ data "template_file" "ApplicationWebPolicy" {
     ApplicationSubnet2CidrBlock           = aws_subnet.ApplicationSubnet2.cidr_block
     s3Bucket                              = "arn:aws:s3:::someS3BucketArn/*"
     snsTopic                              = "arn:aws:sns:ap-southeast-2:687523771005:someSnsTopicArn"
+    ApplicationEcrRepository              = aws_ecr_repository.Application.arn
+    CloudWatchLogGroup                    = aws_cloudwatch_log_group.ApplicationLogGroup.arn
+    CloudWatchLogStream                   = aws_cloudwatch_log_stream.ApplicationLogStream.arn
     ssmParameters = jsonencode([
       aws_ssm_parameter.DatabaseUsername.arn,
-      aws_ssm_parameter.DatabasePassword.arn
+      aws_ssm_parameter.DatabasePassword.arn,
+      aws_ssm_parameter.AusPostAPIKey.arn,
+      aws_ssm_parameter.JWTSecret.arn,
+      aws_ssm_parameter.DatabaseApplicationDatabasePassword.arn
     ])
   }
 }

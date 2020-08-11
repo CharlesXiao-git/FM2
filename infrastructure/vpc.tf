@@ -14,6 +14,6 @@ resource "aws_vpc" "application" {
   tags = {
     Name        = "${var.application-name}-${terraform.workspace}-Environment"
     Environment = terraform.workspace
-    Application = "${var.application-name}"
+    Application = var.application-name
   }
 }

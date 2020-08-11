@@ -20,11 +20,11 @@ resource "aws_ecs_cluster" "ApplicationCluster" {
 resource "aws_ecs_service" "WebService" {
   name             = "WebAPI"
   cluster          = aws_ecs_cluster.ApplicationCluster.id
-  task_definition   = aws_ecs_task_definition.Application.id # Will always pick the latest ACTIVE defn.
-  desired_count    = 0
+  task_definition  = aws_ecs_task_definition.Application.id # Will always pick the latest ACTIVE defn.
+  desired_count    = 1
   depends_on       = [aws_lb_target_group.ApplicationAPITargetGroup]
   launch_type      = "FARGATE"
-  platform_version = "1.4.0"
+  platform_version = "1.3.0"
 
   network_configuration {
     subnets          = [aws_subnet.ApplicationSubnet1.id, aws_subnet.ApplicationSubnet2.id]
@@ -69,11 +69,12 @@ data "template_file" "ApplicationContainerDefinition" {
     DatabaseHost             = aws_rds_cluster.ApplicationDatabase.endpoint
     DatabaseName             = var.application-database-name
     DatabaseUsername         = var.application-database-username
-    DatabasePassword         = aws_ssm_parameter.DatabaseApplicationDatabasePassword.arn,
-    AusPostApiKey            = aws_ssm_parameter.AusPostAPIKey.arn,
-    JwtSecret                = aws_ssm_parameter.JTWSecret.arn
+    DatabasePassword         = aws_ssm_parameter.DatabaseApplicationDatabasePassword.arn
+    AusPostApiKey            = aws_ssm_parameter.AusPostAPIKey.arn
+    JwtSecret                = aws_ssm_parameter.JWTSecret.arn
     SpringPort               = var.application-spring-port
-
+    CloudWatchLogGroup       = aws_cloudwatch_log_group.ApplicationLogGroup.name
+    AwsRegion                = var.aws-region
   }
 
 }

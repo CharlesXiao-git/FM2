@@ -11,7 +11,7 @@
 resource "aws_cloudfront_distribution" "ApplicationClient" {
   enabled             = false
   default_root_object = "index.html"
-  aliases             = ["${terraform.workspace}.staging.${data.aws_route53_zone.Public.name}"]
+  aliases             = [trimsuffix(lower("${terraform.workspace}.staging.${data.aws_route53_zone.Public.name}"), ".")]
 
   price_class = "PriceClass_All" // Australia is in the "All" class
 

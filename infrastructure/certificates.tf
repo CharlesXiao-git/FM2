@@ -10,7 +10,7 @@
 resource "aws_acm_certificate" "ApplicationClient" {
   provider = aws.us-east-1
 
-  domain_name       = "${terraform.workspace}.staging.${data.aws_route53_zone.Public.name}"
+  domain_name       = trimsuffix(lower("${terraform.workspace}.staging.${data.aws_route53_zone.Public.name}"), ".")
   validation_method = "DNS"
 
   tags = {

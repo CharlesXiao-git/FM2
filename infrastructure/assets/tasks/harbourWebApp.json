@@ -31,7 +31,7 @@
       },
       {
         "name": "SPRING_PORT",
-        "value": ${SpringPort}
+        "value": "${SpringPort}"
       }
     ],
     "secrets": [
@@ -41,12 +41,20 @@
       },
       {
         "name": "AUSPOST_API_KEY",
-        "value": "${AusPostApiKey}"
+        "valueFrom": "${AusPostApiKey}"
       },
       {
         "name": "JWT_SECRET",
-        "value": "${JwtSecret}"
+        "valueFrom": "${JwtSecret}"
       }
-    ]
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${CloudWatchLogGroup}",
+        "awslogs-region": "${AwsRegion}",
+        "awslogs-stream-prefix": "ecs"
+      }
+    }
   }
 ]

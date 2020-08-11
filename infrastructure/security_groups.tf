@@ -61,7 +61,7 @@ resource "aws_security_group" "ApplicationECSTasks" {
     from_port       = 80
     to_port         = 80
     protocol        = "tcp"
-    security_groups = [aws_security_group.PublicALBAccess.id]
+    security_groups = [aws_security_group.PublicALBAccess.id, aws_security_group.BastionHosts.id]
   }
 
   tags = {

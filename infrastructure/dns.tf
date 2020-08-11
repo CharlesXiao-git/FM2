@@ -16,6 +16,15 @@ data "aws_route53_zone" "Public" {
   private_zone = false
 }
 
+resource "aws_route53_record" "BastionHost" {
+  name = lower("bastion.${terraform.workspace}.staging.${data.aws_route53_zone.Public.name}")
+  type = "A"
+  zone_id = data.aws_route53_zone.Public.id
+  ttl = 300
+
+  records = [aws_eip.BastionHostEip.public_ip]
+}
+
 resource "aws_route53_record" "StagingClientRecord" {
   zone_id = data.aws_route53_zone.Public.id
   name    = "${terraform.workspace}.staging.${data.aws_route53_zone.Public.name}"
@@ -26,7 +35,6 @@ resource "aws_route53_record" "StagingClientRecord" {
     name                   = aws_cloudfront_distribution.ApplicationClient.domain_name
     zone_id                = aws_cloudfront_distribution.ApplicationClient.hosted_zone_id
   }
-
 }
 
 resource "aws_route53_record" "StaticAssetsRecord" {
@@ -39,7 +47,6 @@ resource "aws_route53_record" "StaticAssetsRecord" {
     name                   = aws_s3_bucket.StaticAssets.website_domain
     zone_id                = aws_s3_bucket.StaticAssets.hosted_zone_id
   }
-
 }
 
 resource "aws_route53_record" "ApplicationAPI" {
@@ -49,7 +56,7 @@ resource "aws_route53_record" "ApplicationAPI" {
 
   alias {
     evaluate_target_health = false
-    name = aws_lb.ApplicationAPIWeb.name
-    zone_id = aws_lb.ApplicationAPIWeb.zone_id
+    name                   = aws_lb.ApplicationAPIWeb.dns_name
+    zone_id                = aws_lb.ApplicationAPIWeb.zone_id
   }
 }

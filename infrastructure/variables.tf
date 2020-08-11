@@ -24,7 +24,7 @@ variable "freight-com-domain" {
 
 variable "application-spring-port" {
   description = "Application port to use on Fargate container, and spring app"
-  default = 80
+  default     = 80
 }
 
 resource "random_password" "DatabaseMasterPassword" {
@@ -45,7 +45,7 @@ variable "application-database-username" {
 
 variable "application-database-name" {
   description = "Application Database name"
-  default     = "freightmate_user"
+  default     = "freightmate"
 }
 
 variable "application-ecs-container-name" {
@@ -55,4 +55,9 @@ variable "application-ecs-container-name" {
 
 resource "random_password" "JWTSecretKey" {
   length = 24
+}
+
+variable "bastion-key-name" {
+  description = "Bastion host keyboard"
+  default = "freightmate-Harbour-bastion"
 }

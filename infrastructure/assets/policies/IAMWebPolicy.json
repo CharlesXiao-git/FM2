@@ -98,15 +98,7 @@
         "ssm:GetParameters",
         "ssm:GetParameter"
       ],
-      "Resource": ${ssmParameters},
-      "Condition": {
-        "IpAddress": {
-          "aws:SourceIp": [
-            "${ApplicationSubnet1CidrBlock}",
-            "${ApplicationSubnet2CidrBlock}"
-          ]
-        }
-      }
+      "Resource": ${ssmParameters}
     },
     {
       "Sid": "FMWebAppPolicyCloudWatch",
@@ -147,15 +139,10 @@
         "logs:GetLogGroupFields",
         "logs:PutLogEvents"
       ],
-      "Resource": "arn:aws:logs:ap-southeast-2:687523771005:log-group:someLogGroupName",
-      "Condition": {
-        "IpAddress": {
-          "aws:SourceIp": [
-            "${ApplicationSubnet1CidrBlock}",
-            "${ApplicationSubnet2CidrBlock}"
-          ]
-        }
-      }
+      "Resource": [
+        "${CloudWatchLogGroup}",
+        "${CloudWatchLogStream}"
+      ]
     },
     {
       "Sid": "FMWebAppPolicyCloudWatchLogs2",
@@ -169,15 +156,7 @@
         "logs:GetLogDelivery",
         "logs:ListLogDeliveries"
       ],
-      "Resource": "*",
-      "Condition": {
-        "IpAddress": {
-          "aws:SourceIp": [
-            "${ApplicationSubnet1CidrBlock}",
-            "${ApplicationSubnet2CidrBlock}"
-          ]
-        }
-      }
+      "Resource": "*"
     },
     {
       "Sid": "FMWebAppPolicyElasticLoadBalancing",
@@ -198,13 +177,31 @@
       "Resource": "*"
     },
     {
-      "Sid": "VisualEditor1",
+      "Sid": "FMWebAppPolicyElasticLoadBalancing2",
       "Effect": "Allow",
       "Action": [
         "elasticloadbalancing:RegisterTargets",
         "elasticloadbalancing:DeregisterTargets"
       ],
       "Resource": "${ApplicationAPILoadBalancerTargetGroup}"
+    },
+    {
+      "Sid": "FMWebAppPolicyECR",
+      "Effect": "Allow",
+      "Action": [
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage",
+        "ecr:BatchCheckLayerAvailability"
+      ],
+      "Resource": "${ApplicationEcrRepository}"
+    },
+    {
+      "Sid": "FMWebAppPolicyECRAuth",
+      "Effect": "Allow",
+      "Action": [
+        "ecr:GetAuthorizationToken"
+      ],
+      "Resource": "*"
     }
   ]
 }
