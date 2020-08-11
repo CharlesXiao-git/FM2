@@ -1,4 +1,5 @@
 import { decodeToken } from '@/helpers/auth/StorageHelpers'
+import { User } from '@/model/User'
 
 export type DecodedToken = {
   userId: string;
@@ -10,31 +11,39 @@ export type DecodedToken = {
   iss: string;
 }
 
-export type DecodedTokenStringValue = 'userId' | 'sub' | 'email' | 'preferredUnit' | 'userRole' | 'iss'
+const parsedToken: DecodedToken = decodeToken()
+const user = new User()
 
-function getTokenValue (value: DecodedTokenStringValue) {
-  const parsedToken: DecodedToken = decodeToken()
-  return (parsedToken !== null && parsedToken[value] !== undefined) ? parsedToken[value] : undefined
+export function currentUser (): User {
+  if (parsedToken !== null) {
+    user.id = parsedToken.userId
+    user.username = parsedToken.sub
+    user.email = parsedToken.email
+    user.role = parsedToken.userRole
+    user.preferredUnit = parsedToken.preferredUnit
+  }
+
+  return user
 }
 
 export function userId (): string | undefined {
-  return getTokenValue('userId')
+  return currentUser().id
 }
 
 export function userName (): string | undefined {
-  return getTokenValue('sub')
+  return currentUser().username
 }
 
 export function userEmail (): string | undefined {
-  return getTokenValue('email')
+  return currentUser().email
 }
 
 export function userRole (): string | undefined {
-  return getTokenValue('userRole')
+  return currentUser().role
 }
 
 export function userPreferredUnit (): string | undefined {
-  return getTokenValue('preferredUnit')
+  return currentUser().preferredUnit
 }
 
 export function isUserBroker (): boolean {
