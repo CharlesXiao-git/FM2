@@ -34,6 +34,22 @@ export function userRole () {
   return getTokenValue('userRole')
 }
 
+export function userIsBroker () {
+  return userRole().toUpperCase() === 'BROKER'
+}
+
+export function userIsCustomer () {
+  return userRole().toUpperCase() === 'CUSTOMER'
+}
+
+export function userIsClient () {
+  return userRole().toUpperCase() === 'CLIENT'
+}
+
+export function userIsAdmin () {
+  return userRole().toUpperCase() === 'ADMIN'
+}
+
 export function userPreferredUnit () {
   return getTokenValue('preferredUnit')
 }
