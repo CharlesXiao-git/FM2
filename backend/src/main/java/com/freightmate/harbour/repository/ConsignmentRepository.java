@@ -25,7 +25,8 @@ public interface ConsignmentRepository extends PagingAndSortingRepository<Consig
 
     String DELETE_BY_IDS = "UPDATE consignment c SET " +
             "c.is_deleted = TRUE," +
-            "c.deleted_at = NOW() " +
+            "c.deleted_at = NOW(), " +
+            "c.deleted_by = ?2 " +
             "WHERE c.id IN ?1 " +
             "AND c.client_id = ?2";
 

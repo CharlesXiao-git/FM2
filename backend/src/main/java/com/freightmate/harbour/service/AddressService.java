@@ -1,7 +1,7 @@
 package com.freightmate.harbour.service;
 
 import com.freightmate.harbour.exception.ForbiddenException;
-import com.freightmate.harbour.model.dto.AddressDto;
+import com.freightmate.harbour.model.dto.AddressDTO;
 import com.freightmate.harbour.model.*;
 import com.freightmate.harbour.repository.AddressRepository;
 import org.modelmapper.ModelMapper;
@@ -43,24 +43,21 @@ public class AddressService {
     }
 
     // Read
-    public AddressQueryResult readAddress(long userId, UserRole userRole, AddressType addressType, Pageable pageable) {
+    public List<Address> readAddress(long userId, UserRole userRole, AddressType addressType, Pageable pageable) {
         // todo: Need to re-look at this function again when "shared" setting is enabled. Do Lookup by user id to get address (client or customer)
 
         // Find addresses under the user
-        List<Address> addresses = addressRepository.findAddresses(
-                addressType.name(),
-                userRole.name(),
-                userId,
-                pageable
-        );
-        return AddressQueryResult.builder()
-                .count(addresses.size())
-                .addresses(addresses)
-                .build();
+        return addressRepository
+                .findAddresses(
+                        addressType.name(),
+                        userRole.name(),
+                        userId,
+                        pageable
+                );
     }
 
     // Update
-    public Address updateAddress(AddressDto dto, Address currentAddress) {
+    public Address updateAddress(AddressDTO dto, Address currentAddress) {
         // Map the updated values into the existing address object
         // Null will be ignored and treated as no update
         modelMapper.map(dto, currentAddress);

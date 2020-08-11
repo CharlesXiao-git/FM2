@@ -4,8 +4,8 @@ import com.freightmate.harbour.Harbour;
 import com.freightmate.harbour.model.Address;
 import com.freightmate.harbour.model.AddressQueryResult;
 import com.freightmate.harbour.model.AddressType;
+import com.freightmate.harbour.model.dto.AddressDTO;
 import com.freightmate.harbour.model.UserRole;
-import com.freightmate.harbour.model.dto.AddressDto;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -56,24 +56,25 @@ public class AddressServiceTest {
     @Ignore
     public void addressServiceShouldSucceed_WhenGettingAddressesForAUser() {
         PageRequest pageRequest = PageRequest.of(0,10);
-        AddressQueryResult result = this.addressService.readAddress(533, UserRole.CLIENT, AddressType.DELIVERY, pageRequest);
-        assert result.getCount() > 0;
+        List<Address> result = this.addressService.readAddress(533, UserRole.CLIENT, AddressType.DELIVERY, pageRequest);
+        assert result.size() > 0;
     }
     
     @Test
     @Ignore
     public void addressServiceShouldSucceed_WhenUpdatingAddress() {
-        AddressDto updatedAddress = new AddressDto();
-        updatedAddress.setId(this.newAddress.getId());
-        updatedAddress.setAddressType(AddressType.DELIVERY);
-        updatedAddress.setAddressLine1("10 SMITH ST");
-        updatedAddress.setTown("SOUTHBANK");
-        updatedAddress.setPostcode(3006);
-        updatedAddress.setState("VIC");
-        updatedAddress.setCompanyName("TEST");
-        updatedAddress.setContactName("Smith");
-        updatedAddress.setContactEmail("smith@foo.bar");
-        updatedAddress.setContactNo("9800 1234");
+        AddressDTO updatedAddress = AddressDTO.builder()
+                .id(this.newAddress.getId())
+                .addressType(AddressType.DELIVERY)
+                .addressLine1("10 SMITH ST")
+                .town("SOUTHBANK")
+                .postcode(3006)
+                .state("VIC")
+                .companyName("TEST")
+                .contactName("Smith")
+                .contactEmail("smith@foo.bar")
+                .contactNo("9800 1234")
+                .build();
 
         Address result = this.addressService.updateAddress(updatedAddress, newAddress);
         assert result.getTown().equals(updatedAddress.getTown());

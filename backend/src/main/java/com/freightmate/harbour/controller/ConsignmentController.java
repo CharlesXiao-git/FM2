@@ -3,8 +3,9 @@ package com.freightmate.harbour.controller;
 import com.freightmate.harbour.model.AuthToken;
 import com.freightmate.harbour.model.Consignment;
 import com.freightmate.harbour.model.ConsignmentQueryResult;
-import com.freightmate.harbour.model.dto.ConsignmentDto;
+import com.freightmate.harbour.model.dto.ConsignmentDTO;
 import com.freightmate.harbour.service.ConsignmentService;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -15,8 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
-import org.slf4j.Logger;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/consignment")
@@ -28,21 +28,17 @@ public class ConsignmentController {
     private static final Logger LOG = LoggerFactory.getLogger(ConsignmentController.class);
 
     @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<Consignment> createConsignment(@RequestBody Consignment consignmentRequest,
-                                                    Authentication authentication) {
+    public ResponseEntity<ConsignmentDTO> createConsignment(@RequestBody Consignment consignmentRequest,
+                                                            Authentication authentication) {
         // Get the username of the requestor
         String username = ((AuthToken) authentication.getPrincipal()).getUsername();
 
         try {
-            Consignment result = consignmentService.createConsignment(consignmentRequest, username);
-            // Return 204 if result is null
-            if(Objects.isNull(result)) {
-                return ResponseEntity
-                        .status(HttpStatus.NO_CONTENT)
-                        .build();
-            }
-
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(
+                    ConsignmentDTO.fromConsignment(
+                            consignmentService.createConsignment(consignmentRequest, username)
+                    )
+            );
         }catch (DataAccessException e) {
             LOG.error("Unable to create consignment : ", e);
             return ResponseEntity
@@ -58,12 +54,19 @@ public class ConsignmentController {
         long userId = ((AuthToken) authentication.getPrincipal()).getUserId();
 
         try {
+            List<Consignment> con = consignmentService.readConsignment(userId,pageable);
+
             return ResponseEntity.ok(
-                    consignmentService
-                            .readConsignment(
-                                    userId,
-                                    pageable
+                    ConsignmentQueryResult
+                            .builder()
+                            .consignments(
+                                con
+                                    .stream()
+                                    .map(ConsignmentDTO::fromConsignment)
+                                    .collect(Collectors.toList())
                             )
+                            .count(con.size())
+                            .build()
             );
         } catch (DataAccessException e) {
             LOG.error("Unable to read consignment : ", e);
@@ -74,8 +77,8 @@ public class ConsignmentController {
     }
 
     @RequestMapping(method = RequestMethod.PUT)
-    public ResponseEntity<Consignment> updateConsignment(@RequestBody ConsignmentDto consignmentRequest,
-                                                         Authentication authentication) {
+    public ResponseEntity updateConsignment(@RequestBody ConsignmentDTO consignmentRequest,
+                                                            Authentication authentication) {
         AuthToken authToken = (AuthToken) authentication.getPrincipal();
 
         try {
@@ -93,13 +96,13 @@ public class ConsignmentController {
     }
 
     @RequestMapping(method = RequestMethod.DELETE)
-    public ResponseEntity<String> deleteConsignment(@RequestParam("ids") List<Long> ids,
-                                                    Authentication authentication) {
-        // Get the user ID of the requestor
-        long userId = ((AuthToken) authentication.getPrincipal()).getUserId();
+    public ResponseEntity deleteConsignment(@RequestParam("ids") List<Long> ids,
+                                                              Authentication authentication) {
+        // Get the username of the requestor
+        AuthToken authToken = (AuthToken) authentication.getPrincipal();
 
         try {
-            consignmentService.deleteConsignment(ids, userId);
+            consignmentService.deleteConsignment(ids, authToken.getUserId());
             // return 204 after successful delete
             return ResponseEntity
                     .status(HttpStatus.NO_CONTENT)

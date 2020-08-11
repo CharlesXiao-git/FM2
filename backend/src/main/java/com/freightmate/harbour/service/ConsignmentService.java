@@ -4,7 +4,7 @@ import com.freightmate.harbour.exception.AddressNotFoundException;
 import com.freightmate.harbour.exception.BadRequestException;
 import com.freightmate.harbour.exception.ForbiddenException;
 import com.freightmate.harbour.model.*;
-import com.freightmate.harbour.model.dto.ConsignmentDto;
+import com.freightmate.harbour.model.dto.ConsignmentDTO;
 import com.freightmate.harbour.repository.ConsignmentRepository;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -75,18 +75,13 @@ public class ConsignmentService {
     }
 
     // Read
-    public ConsignmentQueryResult readConsignment(long userId, Pageable pageable) {
+    public List<Consignment> readConsignment(long userId, Pageable pageable) {
         // Find consignments under the user
-        List<Consignment> consignments = consignmentRepository.findConsignments(userId, pageable);
-
-        return ConsignmentQueryResult.builder()
-                .count(consignments.size())
-                .consignments(consignments)
-                .build();
+        return consignmentRepository.findConsignments(userId, pageable);
     }
 
     // Update
-    public void updateConsignment(ConsignmentDto consignmentRequest, UserRole userRole, long userId) {
+    public void updateConsignment(ConsignmentDTO consignmentRequest, UserRole userRole, long userId) {
         // Validate the consignment to be updated exists
         Optional<Consignment> currentConsignment = this.getConsignments(
                 Collections.singletonList(consignmentRequest.getId())

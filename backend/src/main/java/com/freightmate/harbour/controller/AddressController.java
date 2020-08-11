@@ -2,7 +2,7 @@ package com.freightmate.harbour.controller;
 
 import com.freightmate.harbour.helper.ListHelper;
 import com.freightmate.harbour.model.*;
-import com.freightmate.harbour.model.dto.AddressDto;
+import com.freightmate.harbour.model.dto.AddressDTO;
 import com.freightmate.harbour.service.AddressService;
 import com.freightmate.harbour.service.PostCodeService;
 import org.apache.logging.log4j.util.Strings;
@@ -27,6 +27,7 @@ import java.util.Objects;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/address")
@@ -129,20 +130,32 @@ public class AddressController {
 
         try {
             // perform read to address repository by calling the address book service
-            AddressQueryResult addressQueryResult = addressService.readAddress(
-                    authToken.getUserId(),
-                    authToken.getRole(),
-                    addressType.orElse(AddressType.ANY),
-                    pageable);
+            List<AddressDTO> addresses = addressService
+                    .readAddress(
+                            authToken.getUserId(),
+                            authToken.getRole(),
+                            addressType.orElse(AddressType.ANY),
+                            pageable
+                    )
+                    .stream()
+                    .map(AddressDTO::fromAddress)
+                    .collect(Collectors.toList());
 
-            if (addressQueryResult.getCount() == 0) {
+            if (addresses.size() == 0) {
                 // Return 204 if zero result
                 return ResponseEntity
                         .status(HttpStatus.NO_CONTENT)
                         .build();
             }
 
-            return ResponseEntity.ok(addressQueryResult);
+            return ResponseEntity.ok(
+                    AddressQueryResult
+                            .builder()
+                            .addresses(addresses)
+                            .count(addresses.size())
+                            .build()
+            );
+
         } catch (HttpClientErrorException e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -159,7 +172,7 @@ public class AddressController {
      * @return the new address after successful insertion. 400 code will be returned if unable to validate or insert
      */
     @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<Address> createAddress(@RequestBody Address addressRequest, Authentication authentication) {
+    public ResponseEntity<AddressDTO> createAddress(@RequestBody Address addressRequest, Authentication authentication) {
         // Get the username of the requestor
         String username = ((AuthToken) authentication.getPrincipal()).getUsername();
 
@@ -196,7 +209,7 @@ public class AddressController {
                         .build();
             }
 
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(AddressDTO.fromAddress(result));
 
         } catch (HttpClientErrorException e) {
             return ResponseEntity
@@ -209,16 +222,16 @@ public class AddressController {
      * Address book controller to update existing address. Any non-null fields provided by the update request
      * will update the existing data. Null fields will be ignored.
      *
-     * @param addressRequest    Expecting a JSON formatted body with the updated address details
+     * @param addressDto    Expecting a JSON formatted body with the updated address details
      * @return the updated address after successfully updated. 400 code will be returned if unable to validate or update
      */
     @RequestMapping(method = RequestMethod.PUT)
-    public ResponseEntity<Address> updateAddress(@RequestBody AddressDto addressRequest) {
+    public ResponseEntity updateAddress(@RequestBody AddressDTO addressDto) {
         // validate if the address id exists
         //Address currentAddress = addressService.getAddressById(addressRequest.getId());
         Address currentAddress = addressService.getAddresses(
                 Collections.singletonList(
-                        addressRequest.getId()
+                        addressDto.getId()
                 )
         ).get(0);
 
@@ -229,14 +242,14 @@ public class AddressController {
         }
 
         // validate postcode
-        if(postCodeService.isInvalidPostcode(String.valueOf(addressRequest.getPostcode()))){
+        if(postCodeService.isInvalidPostcode(String.valueOf(addressDto.getPostcode()))){
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .build();
         }
 
         // validate suburb (town) name
-        List<AuspostLocality> matchingLocals = postCodeService.getMatchingLocalitiesBySuburb(addressRequest.convertDtoToAddress());
+        List<AuspostLocality> matchingLocals = postCodeService.getMatchingLocalitiesBySuburb(AddressDTO.toAddress(addressDto));
 
         // if no matching suburb name return bad request
         if (matchingLocals.size() == 0) {
@@ -246,13 +259,13 @@ public class AddressController {
         }
 
         // Set the Auspost suburb, postcode and state into the new address to ensure that we have consistent data
-        addressRequest.setTown(matchingLocals.get(0).getLocation());
-        addressRequest.setPostcode(matchingLocals.get(0).getPostcode());
-        addressRequest.setState(matchingLocals.get(0).getState());
+        addressDto.setTown(matchingLocals.get(0).getLocation());
+        addressDto.setPostcode(matchingLocals.get(0).getPostcode());
+        addressDto.setState(matchingLocals.get(0).getState());
 
         try {
             // perform update address
-            Address result = addressService.updateAddress(addressRequest, currentAddress);
+            Address result = addressService.updateAddress(addressDto, currentAddress);
 
             if(Objects.isNull(result)) {
                 // return bad request if address service is unable to create the record
@@ -261,7 +274,9 @@ public class AddressController {
                         .build();
             }
 
-            return ResponseEntity.ok(result);
+            return ResponseEntity
+                    .status(HttpStatus.NO_CONTENT)
+                    .build();
         } catch (HttpClientErrorException e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -279,7 +294,7 @@ public class AddressController {
      */
     @Transactional
     @RequestMapping(method = RequestMethod.DELETE)
-    public ResponseEntity<String> deleteAddress(@RequestParam("ids") List<Long> ids,
+    public ResponseEntity deleteAddress(@RequestParam("ids") List<Long> ids,
                                                 Authentication authentication) {
         // Get the User ID of the requestor
         long userId = ((AuthToken) authentication.getPrincipal()).getUserId();
@@ -294,17 +309,12 @@ public class AddressController {
             }
 
             // perform delete address for the user
-            Integer result = addressService.deleteAddresses(ids, userId);
+            addressService.deleteAddresses(ids, userId);
 
-            // return 204 if there is nothing deleted
-            if(result == 0) {
-                return ResponseEntity
-                        .status(HttpStatus.NO_CONTENT)
-                        .build();
-            }
-
+            // return 204 if there is a successful delete
             return ResponseEntity
-                    .ok("The following addresses have been deleted: " + ids.toString());
+                    .status(HttpStatus.NO_CONTENT)
+                    .build();
 
         } catch (HttpClientErrorException e) {
             return ResponseEntity
@@ -314,20 +324,23 @@ public class AddressController {
     }
 
     @RequestMapping(path="/search", method = RequestMethod.POST)
-    public ResponseEntity<List<Address>> searchAddress(@RequestParam Optional<AddressType> addressType,
-                                                @RequestParam String criteria,
-                                                Authentication authentication) {
+    public ResponseEntity<List<AddressDTO>> searchAddress(@RequestParam Optional<AddressType> addressType,
+                                                          @RequestParam String criteria,
+                                                          Authentication authentication) {
         // Get the User ID of the requestor
         AuthToken authToken = (AuthToken) authentication.getPrincipal();
         try {
             return ResponseEntity
                     .ok(
-                            addressService.searchAddresses(
-                                    criteria,
-                                    authToken.getRole(),
-                                    authToken.getUserId(),
-                                    addressType.orElse(AddressType.ANY)
-                            )
+                        addressService.searchAddresses(
+                                criteria,
+                                authToken.getRole(),
+                                authToken.getUserId(),
+                                addressType.orElse(AddressType.ANY)
+                        )
+                        .stream()
+                        .map(AddressDTO::fromAddress)
+                        .collect(Collectors.toList())
                     );
         } catch (DataAccessException e) {
             LOG.error("Unable to access database: ", e);

@@ -1,5 +1,6 @@
 package com.freightmate.harbour.model;
 
+import com.freightmate.harbour.model.dto.AddressDTO;
 import lombok.Builder;
 import lombok.Value;
 
@@ -9,5 +10,5 @@ import java.util.List;
 @Builder
 public class AddressQueryResult {
     int count;
-    List<Address> addresses;
+    List<AddressDTO> addresses;
 }

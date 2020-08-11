@@ -66,7 +66,8 @@ public interface AddressRepository extends PagingAndSortingRepository<Address, L
 
     String DELETE_BY_IDS = "UPDATE address SET " +
             "is_deleted = TRUE," +
-            "deleted_at = NOW() " +
+            "deleted_at = NOW(), " +
+            "deleted_by = ?2 " +
             "WHERE id IN ?1 " +
             "AND is_deleted = FALSE "  +
             "AND NULLIF(COALESCE(client_id, customer_id), 0) = ?2";
