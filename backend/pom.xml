@@ -18,7 +18,7 @@
 		<java.version>11</java.version>
 
 		<!-- backend dependencies -->
-		<mysql.version>8.0.20</mysql.version>
+		<mysql.version>8.0.21</mysql.version>
 	</properties>
 
 	<dependencies>
