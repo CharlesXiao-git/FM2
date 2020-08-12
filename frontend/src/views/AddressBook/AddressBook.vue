@@ -40,7 +40,7 @@ import { getAuthenticatedToken, getDefaultConfig } from '@/helpers/auth/RequestH
 import AddressDataTable from '@/components/AddressDataTable/AddressDataTable.vue'
 import AddressFormModal from '@/components/AddressFormModal/AddressFormModal.vue'
 import Alert from '@/components/Alert/Alert.vue'
-import { prepareAddressData } from '@/helpers/AddressHelper'
+import { prepareAddressData } from '@/helpers/AddressHelpers'
 
 @Component({
   components: { AddressDataTable, AddressFormModal, Alert }

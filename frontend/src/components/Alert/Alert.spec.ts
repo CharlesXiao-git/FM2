@@ -1,6 +1,6 @@
 import { shallowMount } from '@vue/test-utils'
 import Alert from '@/components/Alert/Alert.vue'
-import localVue from '@/helpers/test/LocalVue'
+import localVue from '@/helpers/test/LocalVueHelpers'
 
 describe('<Alert />', () => {
   const propsData = {
