@@ -42,57 +42,30 @@ public class AddressController {
 
     /**
      * Lookup using locality string or postcode and combine results
-     * @param postcode number in range 100-9999 for a Australian locality
-     * @param locality String to search for eg "keysb"
+     * @param locality String to search for eg "keysb" or "3000"
      * @return list of matches, 204 when no results but lookup succeeded
      */
     @RequestMapping(path="/locality", method = RequestMethod.GET)
-    public ResponseEntity<AuspostLocalityWrapper> fetchLocality(
-            @Param("postcode") String postcode,
-            @Param("locality") String locality){
-
-        // no point calculating more than once.
-        boolean isInvalidPostcode = postCodeService.isInvalidPostcode(postcode);
+    public ResponseEntity<AuspostLocalityWrapper> fetchLocality(@Param("locality") String locality){
 
         // Make sure we have a valid request
-        if(isInvalidPostcode && Strings.isBlank(locality)){
+        if(Strings.isBlank(locality)){
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .build();
         }
-
-        //  create our wrapper object to extend with result from both requests
-        AuspostLocalityWrapper wrapper = new AuspostLocalityWrapper();
-
         try {
-            // if we have a post code do a postcode lookup
-            if (!isInvalidPostcode){
-                AuspostLocalityWrapper postCodeResponse = postCodeService
-                        .getLocality(postcode)
-                        .getLocalitiesWrapper();
+            AuspostLocalityWrapper wrapper = postCodeService.getLocality(locality);
 
-                // add any results we have to the wrapper to be returned
-                wrapper.setLocalities(
-                        ListHelper.extend(
-                                postCodeResponse.getLocalities(),
-                                wrapper.getLocalities()
-                        )
-                );
+            // When we call auspost if we don't get any localities back lets send a 204
+            if (Objects.isNull(wrapper.getLocalities()) || wrapper.getLocalities().isEmpty()) {
+                return ResponseEntity
+                        .status(HttpStatus.NO_CONTENT)
+                        .build();
             }
 
-            if (!Strings.isBlank(locality)){
-                AuspostLocalityWrapper localityResponse = postCodeService
-                        .getLocality(locality)
-                        .getLocalitiesWrapper();      // if we have a locality string do a lookup
+            return ResponseEntity.ok(wrapper);
 
-                // add any results we have to the wrapper to be returned
-                wrapper.setLocalities(
-                        ListHelper.extend(
-                                localityResponse.getLocalities(),
-                                wrapper.getLocalities()
-                        )
-                );
-            }
         } catch (HttpClientErrorException e) {
             // If something unexpected happens. Send a 500
             return ResponseEntity
@@ -100,14 +73,6 @@ public class AddressController {
                     .build();
         }
 
-        // When we call auspost if we don't get any localities back lets send a 204
-        if (Objects.isNull(wrapper.getLocalities()) || wrapper.getLocalities().isEmpty()){
-            return ResponseEntity
-                    .status(HttpStatus.NO_CONTENT)
-                    .build();
-        }
-
-        return ResponseEntity.ok(wrapper);
     }
 
     /**

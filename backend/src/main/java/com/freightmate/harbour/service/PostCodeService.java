@@ -1,8 +1,12 @@
 package com.freightmate.harbour.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.freightmate.harbour.model.Address;
 import com.freightmate.harbour.model.AuspostLocality;
 import com.freightmate.harbour.model.AuspostLocalityResponse;
+import com.freightmate.harbour.model.AuspostLocalityWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +27,14 @@ public class PostCodeService {
     private final String apiKey;
     private static final String ENDPOINT_URL = "https://digitalapi.auspost.com.au/postcode/search.json";
     private static final Logger LOG = LoggerFactory.getLogger(PostCodeService.class);
+    private ObjectMapper mapper;
 
     PostCodeService(@Autowired RestTemplate restTemplate,
-                    @Value("${auspost.api-key}") String apiKey){
+                    @Value("${auspost.api-key}") String apiKey,
+                    @Autowired ObjectMapper mapper){
         this.restTemplate = restTemplate;
         this.apiKey = apiKey;
+        this.mapper = mapper;
     }
 
     /**
@@ -35,7 +42,7 @@ public class PostCodeService {
      * @return string suburb state postcode as defined but auspost
      * @throws HttpClientErrorException on HttpClient error
      */
-    public AuspostLocalityResponse getLocality(String searchVal) {
+    public AuspostLocalityWrapper getLocality(String searchVal) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         headers.set("AUTH-KEY", apiKey);
@@ -51,12 +58,16 @@ public class PostCodeService {
                 .queryParam("excludePostBoxFlag", true);
 
         try {
-            ResponseEntity<AuspostLocalityResponse> responseEntity = restTemplate.exchange(
-                    urlBuilder.toUriString(),
-                    HttpMethod.GET,
-                    new HttpEntity<>(headers),
-                    AuspostLocalityResponse.class);
-            return responseEntity.getBody();
+            JsonNode body = restTemplate
+                    .exchange(
+                            urlBuilder.toUriString(),
+                            HttpMethod.GET,
+                            new HttpEntity<>(headers),
+                            JsonNode.class
+                    )
+                    .getBody();
+
+            return AuspostLocalityWrapper.fromJson(body, this.mapper);
         } catch (HttpClientErrorException e) {
             //ensure we log this exception then rethrow for the caller to handle
             LOG.error("Unable to lead postcode from Auspost API: ",e);
@@ -76,7 +87,6 @@ public class PostCodeService {
     public List<AuspostLocality> getMatchingLocalitiesBySuburb(Address addressRequest) {
         return this
                 .getLocality(String.valueOf(addressRequest.getPostcode()))
-                .getLocalitiesWrapper()
                 .getLocalities()
                 .stream()
                 .filter(element -> element.getLocation().equalsIgnoreCase(addressRequest.getTown()))
