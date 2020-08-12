@@ -22,3 +22,7 @@ auspost:
 http:
   connect-timeout-seconds: 10
   read-timeout-seconds: 55
+management:
+  endpoint:
+    health:
+      show-details: always

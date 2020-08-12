@@ -25,13 +25,14 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     private static final String ADMIN_SUBROUTES = "/api/v1/admin/**";
     private static final String BROKER_SUBROUTES = "/api/v1/broker/**";
     private static final String STATIC_SUBROUTEES = "/static/**";
+    private static final String HEALTHCHECK_ENDPOINT = "/actuator/health";
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
         http
             .authorizeRequests()
-                .antMatchers(WEBPAGE_ROOT, API_LOGIN, WEBPAGE_LOGIN).permitAll() // Allow anyone to access root,login page and login api
+                .antMatchers(WEBPAGE_ROOT, API_LOGIN, WEBPAGE_LOGIN, HEALTHCHECK_ENDPOINT).permitAll() // Allow anyone to access root,login page and login api
                 .antMatchers(ADMIN_SUBROUTES).hasRole(UserRole.ADMIN.name()) // only admins can his the admin URLs
                 .antMatchers(BROKER_SUBROUTES).hasRole(UserRole.BROKER.name()) // only brokers can his the broker URLs
                 .antMatchers(STATIC_SUBROUTEES).permitAll() // serve static assets
