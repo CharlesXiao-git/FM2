@@ -1,9 +1,7 @@
 export class User {
+  id: string
   username: string
   role: string
   email: string
-
-  constructor (username = '') {
-    this.username = username
-  }
+  preferredUnit: string
 }

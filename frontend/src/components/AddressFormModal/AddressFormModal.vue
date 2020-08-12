@@ -94,9 +94,9 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { BvModalEvent } from 'bootstrap-vue'
 import { CoolSelect } from 'vue-cool-select'
-import { getAuthenticatedToken } from '@/service/AuthService'
+import { getAuthenticatedToken } from '@/helpers/auth/RequestHelpers'
 import { Address } from '@/model/Address'
-import { validateEmailField, validateStringField } from '@/helpers/Validator'
+import { validateEmailField, validateStringField } from '@/helpers/ValidationHelpers'
 
 @Component({
   components: {

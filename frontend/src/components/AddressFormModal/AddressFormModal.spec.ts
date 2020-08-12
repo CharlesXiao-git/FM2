@@ -1,6 +1,6 @@
 import {createLocalVue, mount, shallowMount} from '@vue/test-utils'
 import AddressFormModal from '@/components/AddressFormModal/AddressFormModal.vue'
-import localVue from '@/helpers/test/LocalVue'
+import localVue from '@/helpers/test/LocalVueHelpers'
 import '@testing-library/jest-dom'
 
 describe('AddressFormModal.vue', () => {
