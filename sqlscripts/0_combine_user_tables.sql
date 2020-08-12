@@ -1,5 +1,5 @@
 # Can squash broker, custoemr, client -> user + customer_properties tables.
-USE freightmate_db;
+USE freightmate;
 
 DROP TABLE IF EXISTS user;
 DROP TABLE IF EXISTS customer_properties;
@@ -228,7 +228,7 @@ UPDATE user u
         FROM user us
                  INNER JOIN freightmate_secure_login.clients c
                             ON us.original_id = c.id
-                 INNER JOIN freightmate_db.user cus
+                 INNER JOIN freightmate.user cus
                             ON c.customer_id = cus.original_id
         WHERE us.user_role = 'CLIENT'
           AND us.broker_id IS NULL

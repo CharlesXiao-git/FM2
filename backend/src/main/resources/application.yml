@@ -4,7 +4,7 @@ server:
   port: ${SPRING_PORT:8098}
 spring:
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3307/freightmate_db}
+    url: ${DB_URL:jdbc:mysql://localhost:3307/freightmate}
     username: ${DB_USER:root}
     password: ${DB_PASSWORD:freightmate}
     driver-class-name: com.mysql.cj.jdbc.Driver

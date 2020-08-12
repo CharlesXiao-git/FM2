@@ -1,4 +1,4 @@
-USE freightmate_db;
+USE freightmate;
 
 DROP TABLE IF EXISTS address;
 
@@ -118,20 +118,20 @@ WHERE u.user_role = 'CLIENT'
 
 # Check how many delivery_address records are not inserted
 select *
-from freightmate_db.delivery_address a
+from freightmate.delivery_address a
 where not exists(
         select 1
-        from freightmate_db.address x
+        from freightmate.address x
         where a.id = x.original_id
           and x.address_type = 'DELIVERY'
     );
 
 # Check how many sender_address records are not inserted
 select *
-from freightmate_db.sender_address a
+from freightmate.sender_address a
 where not exists(
         select 1
-        from freightmate_db.address x
+        from freightmate.address x
         where a.id = x.original_id
           and x.address_type = 'SENDER'
     );

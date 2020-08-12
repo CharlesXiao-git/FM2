@@ -1,15 +1,15 @@
-USE freightmate_db;
+USE freightmate;
 
 ## Check and rename the original consignment table
 SELECT count(*)
 INTO @exists
 FROM information_schema.TABLES t1
-WHERE t1.TABLE_SCHEMA = 'freightmate_db'
+WHERE t1.TABLE_SCHEMA = 'freightmate'
   AND t1.TABLE_TYPE = 'BASE TABLE'
   AND t1.TABLE_NAME = 'consignment'
   AND NOT EXISTS(SELECT 1
                  FROM information_schema.TABLES t2
-                 WHERE t2.TABLE_SCHEMA = 'freightmate_db'
+                 WHERE t2.TABLE_SCHEMA = 'freightmate'
                    AND t2.TABLE_TYPE = 'BASE TABLE'
                    AND t2.TABLE_NAME = 'consignment_original'
     );
@@ -62,7 +62,7 @@ SELECT u.id,
        NULLIF(co.delivery_window_end, '0000-00-00 00:00:00'),
        co.id
 FROM consignment_original co
-         INNER JOIN freightmate_db.user u ON co.client_id = u.original_id
+         INNER JOIN freightmate.user u ON co.client_id = u.original_id
 WHERE u.user_role = 'CLIENT';
 #only for client
 
