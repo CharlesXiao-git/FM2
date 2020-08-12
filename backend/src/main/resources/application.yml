@@ -14,6 +14,11 @@ spring:
     properties:
       hibernate:
         check_nullability: true
+  data:
+    web:
+      pageable:
+        default-page-size: 99999
+        max-page-size: 99999
 jwt:
   secret: ${JWT_SECRET:THISSHOULDNOTMAKETOPROUCTION}
   expiry: 86400 #24 hours in seconds
