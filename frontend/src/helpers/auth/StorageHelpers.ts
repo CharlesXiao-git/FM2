@@ -23,15 +23,15 @@ export function removeToken () {
 
 /**
  * Decode the token : base64 decode and splitting
- * @param token
  */
 export function decodeToken () {
   const token = getToken()
-  if (token === null) { return null }
-
-  try {
-    return JSON.parse(atob(token.split('.')[1]))
-  } catch (e) {
-    console.log(e)
+  if (token) {
+    try {
+      return JSON.parse(atob(token.split('.')[1]))
+    } catch (e) {
+      console.log(e)
+    }
   }
+  return null
 }

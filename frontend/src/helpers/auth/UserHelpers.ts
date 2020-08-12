@@ -15,7 +15,7 @@ const parsedToken: DecodedToken = decodeToken()
 const user = new User()
 
 export function currentUser (): User {
-  if (parsedToken !== null) {
+  if (parsedToken) {
     user.id = parsedToken.userId
     user.username = parsedToken.sub
     user.email = parsedToken.email
