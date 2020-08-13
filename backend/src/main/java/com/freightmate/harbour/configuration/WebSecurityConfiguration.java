@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
 @EnableWebSecurity
@@ -40,7 +41,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
             .and()
                 .addFilter(new JWTAuthorizationFilter(authenticationManager(), this.authService))
             // disable cross site request forgery, as we don't use cookies - otherwise ALL PUT, POST, DELETE will get HTTP 403!
-            .csrf().disable();
+                .cors().configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues())
+            .and()
+                .csrf().disable();
 
     }
 }
