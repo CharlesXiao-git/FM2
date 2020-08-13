@@ -58,7 +58,13 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         configuration.setAllowCredentials(true);
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowedOrigins(Arrays.asList("*"));
-        configuration.setAllowedMethods(Arrays.asList("*"));
+        configuration.addAllowedMethod("OPTIONS");
+        configuration.addAllowedMethod("GET");
+        configuration.addAllowedMethod("HEAD");
+        configuration.addAllowedMethod("POST");
+        configuration.addAllowedMethod("PUT");
+        configuration.addAllowedMethod("DELETE");
+        configuration.addExposedHeader();
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
