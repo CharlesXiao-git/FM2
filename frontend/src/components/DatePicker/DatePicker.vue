@@ -1,19 +1,21 @@
 <template>
   <div>
     <label v-if="label" for="datepicker" class="datepicker-label">{{label}}</label>
-    <b-form-datepicker
-        id="datepicker"
-        v-model="value"
-        :min="min"
-        :date-format-options="dateFormatOptions"
-        :placeholder="datePickerPlaceholder"
-        :start-weekday="1"
-        :hide-header="hideHeader"
-        selected-variant="success"
-        locale="en-GB"
-        value-as-date
-        @input="change"
-    />
+    <div class="datepicker-container col-md-6 p-0">
+      <b-form-datepicker
+          id="datepicker"
+          v-model="value"
+          :min="min"
+          :date-format-options="dateFormatOptions"
+          :placeholder="datePickerPlaceholder"
+          :start-weekday="1"
+          :hide-header="hideHeader"
+          selected-variant="success"
+          locale="en-GB"
+          value-as-date
+          @input="change"
+      />
+    </div>
   </div>
 </template>
 
@@ -28,7 +30,7 @@ export default class DatePicker extends Vue {
   value: Date = null
   min: Date = new Date()
   dateFormatOptions: object = { year: 'numeric', month: 'numeric', day: 'numeric' }
-  datePickerPlaceholder = this.placeholder || 'Please select a date'
+  datePickerPlaceholder = this.placeholder || 'Select a date'
   hideHeader = true
 
   change () {
