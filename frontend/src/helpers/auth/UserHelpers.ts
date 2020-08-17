@@ -1,26 +1,22 @@
-import { decodeToken } from '@/helpers/auth/StorageHelpers'
 import { User } from '@/model/User'
+import { getToken } from '@/helpers/auth/StorageHelpers'
+import { DecodedToken, decodeToken } from '@/helpers/auth/TokenHelpers'
 
-export type DecodedToken = {
-  userId: string;
-  sub: string;
-  email: string;
-  preferredUnit: string;
-  userRole: string;
-  exp: number;
-  iss: string;
+let token: string = null
+let parsedToken: DecodedToken = null
+let user: User = null
+
+function updateUser (): void {
+  token = getToken() // Get new value
+  parsedToken = decodeToken() // Decode new value
+  if (parsedToken) {
+    user = new User(parsedToken.userId, parsedToken.sub, parsedToken.userRole, parsedToken.email, parsedToken.preferredUnit) // Set new user details
+  }
 }
 
-const parsedToken: DecodedToken = decodeToken()
-const user = new User()
-
 export function currentUser (): User {
-  if (parsedToken) {
-    user.id = parsedToken.userId
-    user.username = parsedToken.sub
-    user.email = parsedToken.email
-    user.role = parsedToken.userRole
-    user.preferredUnit = parsedToken.preferredUnit
+  if (!parsedToken || !user || getToken() !== token) {
+    updateUser()
   }
 
   return user
@@ -60,12 +56,4 @@ export function isUserClient (): boolean {
 
 export function isUserAdmin (): boolean {
   return userRole() !== undefined && userRole().toUpperCase() === 'ADMIN'
-}
-
-export function isUserSessionValid (): boolean {
-  const parsedToken: DecodedToken = decodeToken()
-  if (parsedToken && Date.now() < parsedToken.exp * 1000) {
-    return true
-  }
-  return false
 }
