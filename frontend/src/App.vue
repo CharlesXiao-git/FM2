@@ -27,7 +27,6 @@ export default class App extends Vue {
 #app {
     font-family: "Montserrat", sans-serif !important;
     -moz-osx-font-smoothing: grayscale;
-    background-color: $primary;
     height: 100%;
 }
 </style>

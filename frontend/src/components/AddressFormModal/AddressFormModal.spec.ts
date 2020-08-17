@@ -1,21 +1,21 @@
-import {createLocalVue, mount, shallowMount} from '@vue/test-utils'
+import { createLocalVue, mount, shallowMount } from '@vue/test-utils'
 import AddressFormModal from '@/components/AddressFormModal/AddressFormModal.vue'
 import localVue from '@/helpers/test/LocalVueHelpers'
 import '@testing-library/jest-dom'
 
 describe('AddressFormModal.vue', () => {
   it('renders AddressFormModal component correctly', () => {
-    const wrapper = shallowMount (AddressFormModal, {
+    const wrapper = shallowMount(AddressFormModal, {
       localVue,
       propsData: {
-        modalId: "new-address-modal",
-        headerTitle: "New Address",
-        idLabel: "Receiver ID",
-        buttonName: "Add"
+        modalId: 'new-address-modal',
+        headerTitle: 'New Address',
+        idLabel: 'Receiver ID',
+        buttonName: 'Add'
       }
     })
 
-    let modal = wrapper.find('#new-address-modal')
+    const modal = wrapper.find('#new-address-modal')
 
     expect(modal.exists()).toBeTruthy()
     expect(modal.element).toBeVisible()
@@ -31,13 +31,13 @@ describe('AddressFormModal.vue', () => {
   })
 
   it('renders error when data is invalid', () => {
-    const wrapper = shallowMount (AddressFormModal, {
+    const wrapper = shallowMount(AddressFormModal, {
       localVue,
       propsData: {
-        modalId: "new-address-modal",
-        headerTitle: "New Address",
-        idLabel: "Receiver ID",
-        buttonName: "Add"
+        modalId: 'new-address-modal',
+        headerTitle: 'New Address',
+        idLabel: 'Receiver ID',
+        buttonName: 'Add'
       }
     })
 

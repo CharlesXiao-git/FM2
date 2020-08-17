@@ -1,6 +1,7 @@
 package com.freightmate.harbour.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.freightmate.harbour.model.dto.ItemDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,6 +9,9 @@ import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @SuperBuilder
 @AllArgsConstructor
@@ -41,6 +45,12 @@ public class Consignment extends BaseEntity<Long> {
     @Column(nullable = false)
     private Boolean isTailgateRequired;
 
+    @OneToMany(targetEntity = Item.class,
+            cascade = CascadeType.ALL,
+            mappedBy = "consignment",
+            orphanRemoval = true)
+    private List<Item> items;
+
     @Column(nullable = false)
     Boolean isDeleted;
     LocalDateTime deletedAt;
@@ -50,5 +60,10 @@ public class Consignment extends BaseEntity<Long> {
         this.isAllowedToLeave = false;
         this.isTailgateRequired = false;
         this.isDeleted = false;
+    }
+
+    public void setItems(List<Item> items) {
+        this.items.clear();
+        this.items.addAll(items);
     }
 }

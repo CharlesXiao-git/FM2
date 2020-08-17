@@ -3,7 +3,9 @@ package com.freightmate.harbour.controller;
 import com.freightmate.harbour.model.AuthToken;
 import com.freightmate.harbour.model.Consignment;
 import com.freightmate.harbour.model.ConsignmentQueryResult;
+import com.freightmate.harbour.model.ItemType;
 import com.freightmate.harbour.model.dto.ConsignmentDTO;
+import com.freightmate.harbour.repository.ItemTypeRepository;
 import com.freightmate.harbour.service.ConsignmentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +27,9 @@ public class ConsignmentController {
     @Autowired
     private ConsignmentService consignmentService;
 
+    @Autowired
+    private ItemTypeRepository itemTypeRepository;
+
     private static final Logger LOG = LoggerFactory.getLogger(ConsignmentController.class);
 
     @RequestMapping(method = RequestMethod.POST)
@@ -40,7 +45,7 @@ public class ConsignmentController {
                     )
             );
         }catch (DataAccessException e) {
-            LOG.error("Unable to create consignment : ", e);
+            LOG.error("Unable to create consignment: ", e);
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .build();
@@ -69,7 +74,7 @@ public class ConsignmentController {
                             .build()
             );
         } catch (DataAccessException e) {
-            LOG.error("Unable to read consignment : ", e);
+            LOG.error("Unable to read consignment: ", e);
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .build();
@@ -88,7 +93,7 @@ public class ConsignmentController {
                     .status(HttpStatus.NO_CONTENT)
                     .build();
         } catch (DataAccessException e) {
-            LOG.error("Unable to update consignment : ", e);
+            LOG.error("Unable to update consignment: ", e);
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .build();
@@ -99,16 +104,30 @@ public class ConsignmentController {
     public ResponseEntity deleteConsignment(@RequestParam("ids") List<Long> ids,
                                                               Authentication authentication) {
         // Get the username of the requestor
-        AuthToken authToken = (AuthToken) authentication.getPrincipal();
+        long userId = ((AuthToken) authentication.getPrincipal()).getUserId();
 
         try {
-            consignmentService.deleteConsignment(ids, authToken.getUserId());
+            consignmentService.deleteConsignment(ids, userId);
             // return 204 after successful delete
             return ResponseEntity
                     .status(HttpStatus.NO_CONTENT)
                     .build();
         } catch (DataAccessException e) {
-            LOG.error("Unable to delete consignment : ", e);
+            LOG.error("Unable to delete consignment: ", e);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .build();
+        }
+    }
+
+    @RequestMapping(path="/itemTypes", method = RequestMethod.GET)
+    public ResponseEntity<List<ItemType>> retrieveItemType(@RequestParam("isCustom") Boolean isCustom) {
+        try {
+            return ResponseEntity.ok(
+                    itemTypeRepository.getItemTypes(isCustom)
+            );
+        } catch (DataAccessException e) {
+            LOG.error("Unable to retrieve item type list: ", e);
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .build();

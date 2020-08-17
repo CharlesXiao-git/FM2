@@ -2,14 +2,15 @@ package com.freightmate.harbour.model.dto;
 
 import com.freightmate.harbour.model.AddressClass;
 import com.freightmate.harbour.model.Consignment;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
-@Getter
-@Setter
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class ConsignmentDTO {
     private long id;
@@ -23,6 +24,7 @@ public class ConsignmentDTO {
     private AddressClass addressClass;
     private Boolean isAllowedToLeave;
     private Boolean isTailgateRequired;
+    private List<ItemDTO> items;
 
     public static Consignment toConsignment(ConsignmentDTO dto) {
         return Consignment.builder()
@@ -37,22 +39,30 @@ public class ConsignmentDTO {
                 .addressClass(dto.addressClass)
                 .isAllowedToLeave(dto.isAllowedToLeave)
                 .isTailgateRequired(dto.isTailgateRequired)
+                .items(dto.items.stream()
+                        .map(ItemDTO::toItem)
+                        .collect(Collectors.toList())
+                )
                 .build();
     }
 
-    public static ConsignmentDTO fromConsignment(Consignment address) {
+    public static ConsignmentDTO fromConsignment(Consignment con) {
         return ConsignmentDTO.builder()
-                .id(address.getId())
-                .clientId(address.getClientId())
-                .senderAddressId(address.getSenderAddressId())
-                .deliveryAddressId(address.getDeliveryAddressId())
-                .connoteId(address.getConnoteId())
-                .dispatchDateAt(address.getDispatchDateAt())
-                .deliveryWindowStartAt(address.getDeliveryWindowStartAt())
-                .deliveryWindowEndAt(address.getDeliveryWindowEndAt())
-                .addressClass(address.getAddressClass())
-                .isAllowedToLeave(address.getIsAllowedToLeave())
-                .isTailgateRequired(address.getIsTailgateRequired())
+                .id(con.getId())
+                .clientId(con.getClientId())
+                .senderAddressId(con.getSenderAddressId())
+                .deliveryAddressId(con.getDeliveryAddressId())
+                .connoteId(con.getConnoteId())
+                .dispatchDateAt(con.getDispatchDateAt())
+                .deliveryWindowStartAt(con.getDeliveryWindowStartAt())
+                .deliveryWindowEndAt(con.getDeliveryWindowEndAt())
+                .addressClass(con.getAddressClass())
+                .isAllowedToLeave(con.getIsAllowedToLeave())
+                .isTailgateRequired(con.getIsTailgateRequired())
+                .items(con.getItems().stream()
+                        .map(ItemDTO::fromItem)
+                        .collect(Collectors.toList())
+                )
                 .build();
     }
 

@@ -4,7 +4,8 @@
 
 // Variables
 $primary: #3d424e;
-$content-background-color: #fafafa;
+$secondary: #80bf45;
+$content-background-color: #f1f1f1;
 $header-background-color: #495463;
 
 // Styles
@@ -41,4 +42,10 @@ $header-background-color: #495463;
   background-color: rgb(221, 107, 85) !important;
   border: none !important;
   text-transform: uppercase;
+}
+
+h5 {
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 0.8rem;
 }

@@ -1,7 +1,11 @@
-.new-consignment {
+.consignment-content {
   background-color: $content-background-color;
 }
-.new-consignment-header {
+.consignment-sub-heading {
   background-color: $header-background-color;
   color: #ffffff;
+}
+
+::v-deep .row {
+  margin: 0 !important;
 }

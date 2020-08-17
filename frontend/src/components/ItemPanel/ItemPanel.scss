@@ -1,0 +1,30 @@
+.form-control-box {
+  background: #fafafa;
+  box-shadow: 0 5px 10px -4px rgba(0, 0, 0, 0.25);
+}
+
+.form-control {
+  padding: 8px;
+}
+::v-deep .input-group-text {
+  padding: 2px 4px !important;
+  font-size: 0.6rem;
+}
+
+.col-xl-1 {
+  padding: 0 8px;
+}
+
+.item-delete, .item-delete:hover, .item-delete:focus {
+  color: $secondary;
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+
+.error {
+  width: 100%;
+  margin: 0.5rem;
+  font-size: 80%;
+  color: #dc3545;
+}
