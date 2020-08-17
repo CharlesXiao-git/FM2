@@ -1,4 +1,4 @@
-USE freightmate_db;
+USE freightmate;
 
 ## Create Consignment Item table
 DROP TABLE IF EXISTS item;
