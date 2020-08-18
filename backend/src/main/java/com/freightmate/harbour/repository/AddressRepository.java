@@ -36,13 +36,14 @@ public interface AddressRepository extends PagingAndSortingRepository<Address, L
             "           a.postcode, a.state) concat_address_details " +
             "FROM address a " +
             "         LEFT JOIN user cli ON a.client_id = cli.id " +
+            "         LEFT JOIN user cus ON a.customer_id = cus.id " +
             "WHERE a.is_deleted = FALSE " +
             "  AND CASE " +
             "          WHEN ?1 = 'ANY' THEN a.address_type IN ('DELIVERY', 'SENDER') " +
             "          ELSE a.address_type = ?1 " +
             "    END " +
             "  AND CASE " +
-            "          WHEN ?2 = 'CUSTOMER' THEN cli.customer_id = ?3 " +
+            "          WHEN ?2 = 'CUSTOMER' THEN cus.id = ?3 " +
             "          WHEN ?2 = 'CLIENT' THEN cli.id = ?3 " +
             "          ELSE cli.broker_id = ?3 " + // User might be a broker
             "    END) AS x " +
@@ -54,15 +55,17 @@ public interface AddressRepository extends PagingAndSortingRepository<Address, L
             "             a.updated_at, a.deleted_by, a.created_by, a.updated_by " +
             "FROM address a " +
             "         LEFT JOIN user cli ON a.client_id = cli.id " +
+            "         LEFT JOIN user cus ON a.customer_id = cus.id " +
             "WHERE a.is_deleted = FALSE " +
             "  AND CASE " +
             "          WHEN ?1 = 'ANY' THEN a.address_type IN ('DELIVERY', 'SENDER') " +
             "          ELSE a.address_type = ?1 " +
             "    END " +
             "  AND CASE " +
-            "          WHEN ?2 = 'CUSTOMER' THEN cli.customer_id = ?3 " +
-            "          WHEN ?2 = 'CLIENT' THEN cli.id = ?3 " +
-            "          ELSE cli.broker_id = ?3 END"; // User might be a broker
+            "          WHEN ?2 = 'CUSTOMER' THEN ?3 in (cus.id, cli.id)  " +
+            "          WHEN ?2 = 'BROKER'   THEN ?3 in (cli.broker_id, cus.id, cli.id) " +
+            "          ELSE cli.id = ?3 " +
+            "      END";
 
     String DELETE_BY_IDS = "UPDATE address SET " +
             "is_deleted = TRUE," +

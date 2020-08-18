@@ -1,10 +1,35 @@
 <template>
     <div class="consignment col-11 m-auto p-0">
-        <div class="consignment-content">
-            <div class="consignment-sub-heading mt-5 pt-2 pb-1 pl-4">
-                <h3>NEW CONSIGNMENT</h3>
+        <div class="consignment-content mt-5">
+            <div class="consignment-sub-heading pt-2 pb-1 px-4">
+                <div class="row">
+                    <h3 class="col-8 col-sm-6 col-md-6 col-lg-8 col-xl-9">NEW CONSIGNMENT</h3>
+                    <template v-if="!isClient">
+                        <ClientSelect class="col-6 col-sm-6 col-lg-4 col-xl-3" @selected-client="getSelectedClient"></ClientSelect>
+                    </template>
+                </div>
             </div>
-            <AddressSelect></AddressSelect>
+            <div class="consignment-sender-receiver row p-4">
+                <div class="col-md-6">
+                    <h3>Sender Details</h3>
+                    <template v-if="senderAddress">
+                        <b>{{ senderAddress.companyName }}</b>
+                        <p class="consignment-sender-address"> {{ senderAddress.addressLine1 }}
+                            <template v-if="senderAddress.addressLine2">
+                                , {{ senderAddress.addressLine2 }}
+                            </template>
+                            , {{ senderAddress.town }}, {{ senderAddress.state }}, {{ senderAddress.postcode }}
+                        </p>
+                    </template>
+                    <template v-else>
+                        <AddressSelect modal-id="sender-address-select" :client="selectedClient"></AddressSelect>
+                    </template>
+                </div>
+                <div class="col-md-6">
+                    <h3>Receiver Details</h3>
+                    <AddressSelect modal-id="receiver-address-select" :client="selectedClient"></AddressSelect>
+                </div>
+            </div>
         </div>
         <div class="consignment-content">
             <div class="consignment-sub-heading mt-5 pt-2 pb-1 pl-4">
@@ -25,15 +50,43 @@ import AddressSelect from '@/components/AddressSelect/AddressSelect.vue'
 import ItemPanel from '@/components/ItemPanel/ItemPanel.vue'
 import { Item } from '@/model/Item'
 import { getAuthenticatedToken } from '@/helpers/auth/RequestHelpers'
+import ClientSelect from '@/components/ClientSelect/ClientSelect.vue'
+import { isUserClient } from '@/helpers/auth/UserHelpers'
+import { clientReference } from '@/helpers/types'
+import { Address } from '@/model/Address'
 
 @Component({
-  components: { ItemPanel, AddressSelect }
+  components: { ClientSelect, AddressSelect, ItemPanel }
 })
 export default class Consignment extends Vue {
+  isClient = isUserClient()
+  selectedClient: clientReference = null
   id = 0
   items: Item[] = [new Item(this.id)]
   disableAdd = false
   itemTypes: [] = null
+  senderAddress: Address = null
+
+  getSelectedClient (selectedClient: clientReference) {
+    this.selectedClient = selectedClient
+    this.getSenderAddress(this.selectedClient.id)
+  }
+
+  getSenderAddress (clientId: number = null) {
+    const config = {
+      headers: getAuthenticatedToken(),
+      params: {
+        clientId: clientId
+      }
+    }
+
+    this.$axios.get('/api/v1/address/default', config)
+      .then(response => {
+        this.senderAddress = response.data
+      }, error => {
+        this.$log.error(error.response.data)
+      })
+  }
 
   addItem () {
     if (this.items.length !== 0) {
@@ -80,6 +133,8 @@ export default class Consignment extends Vue {
       }, error => {
         this.$log.error(error.response.data)
       })
+
+    this.getSenderAddress()
   }
 }
 </script>

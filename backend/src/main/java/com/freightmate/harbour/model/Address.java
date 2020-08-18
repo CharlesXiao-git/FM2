@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.ColumnDefault;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -25,18 +23,7 @@ public class Address extends BaseEntity<Long> {
     @Enumerated(EnumType.STRING)
     private AddressType addressType;
 
-    @JsonIgnore
-    @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)
-    private User customer;
-
-    @Column(name = "customer_id", insertable = false, updatable = false)
     private Long customerId;
-
-    @JsonIgnore
-    @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)
-    private User client;
-
-    @Column(name = "client_id", insertable = false, updatable = false)
     private Long clientId;
 
     private String referenceId;

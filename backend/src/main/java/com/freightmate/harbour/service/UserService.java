@@ -27,4 +27,11 @@ public class UserService {
         }
         return children;
     }
+
+    public boolean isChildOf(long parentUserId, long childUserId) {
+        return this
+                .getChildren(parentUserId, true)
+                .stream()
+                .anyMatch(child -> child.getId() == childUserId);
+    }
 }

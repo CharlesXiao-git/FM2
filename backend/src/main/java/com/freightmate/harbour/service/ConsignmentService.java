@@ -45,9 +45,15 @@ public class ConsignmentService {
     }
 
     // Create
-    public Consignment createConsignment(Consignment newConsignment, String username) {
+    public Consignment createConsignment(Consignment newConsignment, long userId) {
         // Get user details from username
-        User user = userDetailsService.loadUserByUsername(username);
+        Optional<User> user = userDetailsService.getUsers(
+                Collections.singletonList(userId)
+        ).stream().findFirst();
+
+        if(user.isEmpty()) {
+            throw new BadRequestException("Unable to find user");
+        }
 
         // Get delivery address details
         Optional<Address> delivery = addressService.getAddresses(
@@ -79,7 +85,7 @@ public class ConsignmentService {
         setConsignmentAddresses(delivery.get(), sender.get(), newConsignment);
 
         // Save consignment after the user id has been assigned
-        setConsignmentUser(user, newConsignment);
+        setConsignmentUser(user.get(), newConsignment);
 
         /*
          * todo:
@@ -99,9 +105,9 @@ public class ConsignmentService {
     }
 
     // Read
-    public List<Consignment> readConsignment(long userId, Pageable pageable) {
+    public List<Consignment> readConsignment(long userId, UserRole userRole, Pageable pageable) {
         // Find consignments under the user
-        return consignmentRepository.findConsignments(userId, pageable);
+        return consignmentRepository.findConsignments(userRole.name(), userId, pageable);
     }
 
     // Update
@@ -117,9 +123,14 @@ public class ConsignmentService {
 
         Consignment con = currentConsignment.get();
 
+        // Validate that the updated consignment has the same Owner ID as the current consignemt Owner ID
+        if (consignmentRequest.getOwnerId() != con.getOwnerId()) {
+            throw new ForbiddenException("Owner ID of existing consignment cannot be changed");
+        }
+
         // Validate if user has permission to update
         // Return 403 if the requestor is a client and the consignment does not belong to the user
-        if(userRole.equals(UserRole.CLIENT) && userId != currentConsignment.get().getClientId()) {
+        if(userRole.equals(UserRole.CLIENT) && userId != currentConsignment.get().getOwnerId()) {
             throw new ForbiddenException("User does not have permission to update this consignment");
         }
 
@@ -127,7 +138,7 @@ public class ConsignmentService {
         boolean userOwnsOrIsParent = userService
                 .getChildren(userId,true)
                 .stream()
-                .anyMatch(child -> child.getId() == con.getClientId());
+                .anyMatch(child -> child.getId() == con.getOwnerId());
 
         if(!userOwnsOrIsParent) {
             throw new ForbiddenException("User does not have permission to update this consignment");
@@ -197,7 +208,7 @@ public class ConsignmentService {
                 .collect(Collectors.toList());
 
         List<Consignment> consignmentsCanDelete = consignments.stream()
-                .filter(consignment -> children.contains(consignment.getClientId()))
+                .filter(consignment -> children.contains(consignment.getOwnerId()))
                 .collect(Collectors.toList());
 
         if (consignmentsCanDelete.size() != consignments.size()) {
@@ -213,8 +224,8 @@ public class ConsignmentService {
     }
 
     private void setConsignmentUser(User user, Consignment consignment) {
-        consignment.setClient(user);
-        consignment.setClientId(user.getId());
+        consignment.setOwner(user);
+        consignment.setOwnerId(user.getId());
     }
 
     private void setConsignmentAddresses(Address delivery, Address sender, Consignment consignment) {

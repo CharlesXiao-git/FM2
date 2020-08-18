@@ -29,7 +29,7 @@ DROP TABLE IF EXISTS consignment;
 CREATE TABLE consignment
 (
     id                       INT                              NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    client_id                INT                              NOT NULL,
+    owner_id                 INT                              NOT NULL,
     sender_address_id        INT                              NOT NULL,
     delivery_address_id      INT                              NOT NULL,
     connote_id               VARCHAR(100), # todo this field may need to be update to be not null
@@ -51,7 +51,7 @@ CREATE TABLE consignment
 
 ## Insert the consignment data from the original table with the required fields
 ## delivery and sender address ID are set to -1 as a placeholder
-INSERT INTO consignment (client_id, sender_address_id, delivery_address_id, dispatch_date_at,
+INSERT INTO consignment (owner_id, sender_address_id, delivery_address_id, dispatch_date_at,
                          address_class, delivery_window_start_at, delivery_window_end_at, original_id)
 SELECT u.id,
        -1,
@@ -85,6 +85,14 @@ UPDATE consignment c
                   AND is_deleted = FALSE) AS x ON c.original_id = x.consignment_id
 SET c.sender_address_id = x.address_id
 WHERE c.sender_address_id = -1;
+
+## Update the consignment table to remove any 0000-00-00 dates
+UPDATE consignment c
+SET c.delivery_window_end_at = NULL
+WHERE YEAR(c.delivery_window_end_at) = 0;
+UPDATE consignment c
+SET c.delivery_window_start_at = NULL
+WHERE YEAR(c.delivery_window_start_at) = 0;
 
 ## Check how many consignments having delivery address ID not updated
 select *

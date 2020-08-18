@@ -1,12 +1,11 @@
 package com.freightmate.harbour.controller;
 
-import com.freightmate.harbour.model.AuthToken;
-import com.freightmate.harbour.model.Consignment;
-import com.freightmate.harbour.model.ConsignmentQueryResult;
-import com.freightmate.harbour.model.ItemType;
+import com.freightmate.harbour.exception.ForbiddenException;
+import com.freightmate.harbour.model.*;
 import com.freightmate.harbour.model.dto.ConsignmentDTO;
 import com.freightmate.harbour.repository.ItemTypeRepository;
 import com.freightmate.harbour.service.ConsignmentService;
+import com.freightmate.harbour.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -30,18 +30,32 @@ public class ConsignmentController {
     @Autowired
     private ItemTypeRepository itemTypeRepository;
 
+    @Autowired
+    private UserService userService;
+
     private static final Logger LOG = LoggerFactory.getLogger(ConsignmentController.class);
 
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<ConsignmentDTO> createConsignment(@RequestBody Consignment consignmentRequest,
                                                             Authentication authentication) {
         // Get the username of the requestor
-        String username = ((AuthToken) authentication.getPrincipal()).getUsername();
+        long userId = ((AuthToken) authentication.getPrincipal()).getUserId();
+
+        // Check that the consignment Owner ID belongs to the logged in user
+        if(consignmentRequest.getOwnerId() != 0 &&
+                userId != consignmentRequest.getOwnerId() &&
+                !userService.isChildOf(userId, consignmentRequest.getOwnerId())
+        ) {
+            throw new ForbiddenException("User does not have permission to create a consignment for the provided owner");
+        }
 
         try {
             return ResponseEntity.ok(
                     ConsignmentDTO.fromConsignment(
-                            consignmentService.createConsignment(consignmentRequest, username)
+                            consignmentService.createConsignment(
+                                    consignmentRequest,
+                                    (consignmentRequest.getOwnerId() != 0 ? consignmentRequest.getOwnerId() : userId)
+                            )
                     )
             );
         }catch (DataAccessException e) {
@@ -54,12 +68,24 @@ public class ConsignmentController {
 
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<ConsignmentQueryResult> readConsignment(Pageable pageable,
+                                                  @RequestParam Optional<Long> ownerId,
                                                   Authentication authentication) {
         // Get the username of the requestor
-        long userId = ((AuthToken) authentication.getPrincipal()).getUserId();
+        AuthToken authToken = (AuthToken) authentication.getPrincipal();
+
+        // Check that the consignment Owner ID belongs to the logged in user
+        if(ownerId.isPresent() &&
+                authToken.getUserId() != ownerId.get() &&
+                !userService.isChildOf(authToken.getUserId(), ownerId.get())
+        ) {
+            throw new ForbiddenException("User does not have permission to read consignment");
+        }
 
         try {
-            List<Consignment> con = consignmentService.readConsignment(userId,pageable);
+            List<Consignment> con = consignmentService.readConsignment(
+                    (ownerId.orElseGet(authToken::getUserId)),
+                    (ownerId.isPresent() ? UserRole.CLIENT : authToken.getRole()),
+                    pageable);
 
             return ResponseEntity.ok(
                     ConsignmentQueryResult

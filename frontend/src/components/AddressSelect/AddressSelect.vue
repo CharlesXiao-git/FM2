@@ -1,8 +1,8 @@
 <template>
     <div class="address-select">
-        <div class="address-select-content col-md-6 order-sm-4 mb-4">
-            <b-button class="address-select-button" v-b-modal.new-address-modal><i class="fas fa-plus"></i> New Address</b-button>
-            <AddressFormModal modal-id="new-address-modal" header-title="New Address" id-label="Client ID" @emit-address="emittedNewAddress" button-name="Add"></AddressFormModal>
+        <div class="address-select-content">
+            <b-button class="address-select-button mb-2" v-b-modal="modalId"><i class="fas fa-plus"></i> New Address</b-button>
+            <AddressFormModal :modal-id="modalId" header-title="New Address" id-label="Address Reference" :client="client" @emit-address="emittedNewAddress" button-name="Add"></AddressFormModal>
             <cool-select
                     v-model="selectedAddress"
                     :items="addresses" class="mt-2"
@@ -29,18 +29,21 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Prop, Vue } from 'vue-property-decorator'
 import AddressFormModal from '@/components/AddressFormModal/AddressFormModal.vue'
 import Alert from '@/components/Alert/Alert.vue'
 import { CoolSelect } from 'vue-cool-select'
 import { Address } from '@/model/Address'
 import { getAuthenticatedToken, getDefaultConfig } from '@/helpers/auth/RequestHelpers'
 import { prepareAddressData } from '@/helpers/AddressHelpers'
+import { clientReference } from '@/helpers/types'
 
 @Component({
   components: { Alert, AddressFormModal, CoolSelect }
 })
 export default class AddressSelect extends Vue {
+  @Prop() client: clientReference
+  @Prop({ default: 'new-address-modal' }) modalId: string
   addresses: Address[] = []
   selectedAddress: Address = null
   noData: boolean = null
@@ -83,6 +86,13 @@ export default class AddressSelect extends Vue {
     return str
   }
 
+  getClientId () {
+    if (this.client && this.client.id) {
+      return this.client.id
+    }
+    return null
+  }
+
   onSearch (search: string) {
     const lettersLimit = 3
 
@@ -96,6 +106,7 @@ export default class AddressSelect extends Vue {
       headers: getAuthenticatedToken(),
       params: {
         addressType: 'DELIVERY',
+        clientId: this.getClientId(),
         criteria: search
       }
     }

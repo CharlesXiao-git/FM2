@@ -2,7 +2,6 @@ package com.freightmate.harbour.service;
 
 import com.freightmate.harbour.Harbour;
 import com.freightmate.harbour.model.Address;
-import com.freightmate.harbour.model.AddressQueryResult;
 import com.freightmate.harbour.model.AddressType;
 import com.freightmate.harbour.model.dto.AddressDTO;
 import com.freightmate.harbour.model.UserRole;
@@ -48,7 +47,7 @@ public class AddressServiceTest {
     @Test
     @Ignore
     public void addressServiceShouldSucceed_WhenCreatingNewAddress() {
-        Address result = this.addressService.createAddress(newAddress, "kurtis");
+        Address result = this.addressService.createAddress(newAddress, 533);
         assert this.newAddress.getAddressLine1().equals(result.getAddressLine1());
     }
 
@@ -76,7 +75,7 @@ public class AddressServiceTest {
                 .contactNo("9800 1234")
                 .build();
 
-        Address result = this.addressService.updateAddress(updatedAddress, newAddress);
+        Address result = this.addressService.updateAddress(updatedAddress, newAddress, 533);
         assert result.getTown().equals(updatedAddress.getTown());
     }
 

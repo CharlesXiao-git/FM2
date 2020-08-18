@@ -3,6 +3,7 @@ import { Address } from '@/model/Address'
 export function prepareAddressData (address: Address): Address {
   const sendAddressData: Address = {
     id: null,
+    clientId: address.clientId,
     addressType: 'DELIVERY',
     referenceId: address.referenceId,
     companyName: address.companyName,

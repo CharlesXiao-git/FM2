@@ -23,10 +23,10 @@ public class Consignment extends BaseEntity<Long> {
 
     @JsonIgnore
     @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)
-    private User client;
+    private User owner;
 
-    @Column(name = "client_id", insertable = false, updatable = false)
-    private long clientId;
+    @Column(name = "owner_id", insertable = false, updatable = false)
+    private long ownerId;
 
     private long senderAddressId;
     private long deliveryAddressId;

@@ -17,7 +17,7 @@
         <div class="address-book-content col-md-11 col-12 ml-xl-auto ml-2 mr-auto mt-4">
             <div class="row">
                 <b-button class="primary-button mb-4" v-b-modal.new-address-modal ><i class="fas mr-2 fa-plus"></i>New Address</b-button>
-                <AddressFormModal modal-id="new-address-modal" header-title="New Address" id-label="Receiver ID" @emit-address="emittedNewAddress" button-name="Add"></AddressFormModal>
+                <AddressFormModal modal-id="new-address-modal" header-title="New Address" id-label="Address Reference" @emit-address="emittedNewAddress" button-name="Add"></AddressFormModal>
             </div>
             <div class="row">
                 <template v-if="loading">Loading...</template>
@@ -75,10 +75,11 @@ export default class AddressBook extends Vue {
     this.resetFlag()
     this.$axios.put('/api/v1/address', prepareAddressData(address), getDefaultConfig())
       .then(response => {
-        this.addresses.splice(this.addresses.indexOf(this.addresses.find(oldAddress => oldAddress.id === address.id)), 1)
-        const updatedAddress = response.data
-        this.addresses.unshift(updatedAddress)
-        this.setAlert('success', 'Address updated successfully')
+        if (response.status === 204) {
+          this.addresses.splice(this.addresses.indexOf(this.addresses.find(oldAddress => oldAddress.id === address.id)), 1)
+          this.addresses.unshift(address)
+          this.setAlert('success', 'Address updated successfully')
+        }
       }, error => {
         this.$log.warn(error)
         this.setAlert('danger', 'Error updating Address')

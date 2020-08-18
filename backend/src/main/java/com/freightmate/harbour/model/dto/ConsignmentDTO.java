@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 @Builder
 public class ConsignmentDTO {
     private long id;
-    private long clientId;
+    private long ownerId;
     private long senderAddressId;
     private long deliveryAddressId;
     private String connoteId;
@@ -29,7 +29,7 @@ public class ConsignmentDTO {
     public static Consignment toConsignment(ConsignmentDTO dto) {
         return Consignment.builder()
                 .id(dto.id)
-                .clientId(dto.clientId)
+                .ownerId(dto.ownerId)
                 .senderAddressId(dto.senderAddressId)
                 .deliveryAddressId(dto.deliveryAddressId)
                 .connoteId(dto.connoteId)
@@ -49,7 +49,7 @@ public class ConsignmentDTO {
     public static ConsignmentDTO fromConsignment(Consignment con) {
         return ConsignmentDTO.builder()
                 .id(con.getId())
-                .clientId(con.getClientId())
+                .ownerId(con.getOwnerId())
                 .senderAddressId(con.getSenderAddressId())
                 .deliveryAddressId(con.getDeliveryAddressId())
                 .connoteId(con.getConnoteId())
