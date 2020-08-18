@@ -6,7 +6,7 @@ let token: string = null
 let parsedToken: DecodedToken = null
 let user: User = null
 
-function updateUser (): void {
+function createNewUser (): void {
   token = getToken() // Get new value
   parsedToken = decodeToken() // Decode new value
   if (parsedToken) {
@@ -16,7 +16,7 @@ function updateUser (): void {
 
 export function currentUser (): User {
   if (!parsedToken || !user || getToken() !== token) {
-    updateUser()
+    createNewUser()
   }
 
   return user
