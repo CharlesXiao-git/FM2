@@ -20,18 +20,3 @@ export function setToken (token: string) {
 export function removeToken () {
   localStorage.removeItem('user-token')
 }
-
-/**
- * Decode the token : base64 decode and splitting
- */
-export function decodeToken () {
-  const token = getToken()
-  if (token) {
-    try {
-      return JSON.parse(atob(token.split('.')[1]))
-    } catch (e) {
-      console.log(e)
-    }
-  }
-  return null
-}
