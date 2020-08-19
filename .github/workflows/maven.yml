@@ -58,19 +58,21 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Setup ECR
-        id: ecr-login
-        run: |
-          $( aws ecr get-login --no-include-email )
+      - name: Run Sonarcloud static analysis
+        id: sonar-analysis
+        run: mvn verify sonar:sonar
 
       - name: Build and tag the image
         id: build-spring
         run: |
-          echo '::set-env name=SONTO::$SONAR_TOKEN' && \
-          echo "::set-env name=SONAR_TOKEN::$SONAR_TOKEN" && \
           docker build \
           -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE:$TAG \
           -f docker/harbour/Dockerfile .
+
+      - name: Setup ECR
+        id: ecr-login
+        run: |
+          $( aws ecr get-login --no-include-email )
 
       - name: Push to ECR
         id: push-ecr
