@@ -24,12 +24,14 @@ env:
   VUE_APP_ROOT_URL: https://api.uat.staging.freightmate.com
   NODE_VERSION: 12.x
   FRONT_END_WORKING_DIR: ./frontend
+  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
 on:
   push:
     branches:
       - master
       - development
+      - feature/cicdsonar
   pull_request:
     branches:
       - master
