@@ -290,19 +290,13 @@ public class AddressController {
     public ResponseEntity deleteAddress(@RequestParam("ids") List<Long> ids,
                                                 Authentication authentication) {
         // Get the User ID of the requestor
-        long userId = ((AuthToken) authentication.getPrincipal()).getUserId();
+        AuthToken authToken = (AuthToken) authentication.getPrincipal();
 
         try {
-            // validate all the address Ids exist
-            List<Address> addressesByIds = addressService.getAddresses(ids);
-            if(ids.size() != addressesByIds.size()) {
-                return ResponseEntity
-                        .status(HttpStatus.BAD_REQUEST)
-                        .build();
-            }
-
             // perform delete address for the user
-            addressService.deleteAddresses(ids, userId);
+            addressService.deleteAddresses(ids,
+                    authToken.getUserId(),
+                    authToken.getRole());
 
             // return 204 if there is a successful delete
             return ResponseEntity

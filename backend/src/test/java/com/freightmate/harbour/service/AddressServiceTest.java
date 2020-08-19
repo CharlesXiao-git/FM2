@@ -85,7 +85,7 @@ public class AddressServiceTest {
     public void addressServiceShouldSucceed_WhenDeletingAnAddress() {
         List<Long> ids = new ArrayList();
         ids.add(this.newAddress.getId());
-        this.addressService.deleteAddresses(ids, 533);
+        this.addressService.deleteAddresses(ids, 533, UserRole.CLIENT);
 
         assert Objects.isNull(
                 this.addressService.getAddresses(

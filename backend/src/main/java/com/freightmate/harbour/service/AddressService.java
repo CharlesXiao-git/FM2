@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -113,7 +115,13 @@ public class AddressService {
     }
 
     // Delete
-    public Integer deleteAddresses(List<Long> addressIds, long userId) {
+    public Integer deleteAddresses(List<Long> addressIds, long userId, UserRole userRole) {
+        // validate all the address Ids exist for the user and their children
+        List<Address> addressesByIds = addressRepository.findAddresses(userRole.name(), userId, addressIds);
+        if(addressIds.size() != addressesByIds.size()) {
+            throw new ForbiddenException("One or more addresses are not allowed to be deleted by the current user");
+        }
+
         // Perform delete to the address
         return addressRepository.deleteAddressesByIds(addressIds, userId);
     }

@@ -72,8 +72,20 @@ public interface AddressRepository extends PagingAndSortingRepository<Address, L
             "deleted_at = NOW(), " +
             "deleted_by = ?2 " +
             "WHERE id IN ?1 " +
-            "AND is_deleted = FALSE "  +
-            "AND NULLIF(COALESCE(client_id, customer_id), 0) = ?2";
+            "AND is_deleted = FALSE";
+
+    String USER_ADDRESSES = "SELECT a.id, a.client_id, a.customer_id, a.address_type, a.reference_id, a.company_name, a.address_line_1,  \n" +
+            "         a.address_line_2, a.town, a.postcode, a.country, a.state, a.contact_name, a.contact_no,\n" +
+            "         a.contact_email, a.notes, a.is_default, a.count_used, a.is_deleted, a.deleted_at, a.created_at,\n" +
+            "         a.updated_at, a.deleted_by, a.created_by, a.updated_by\n" +
+            "FROM address a\n" +
+            "INNER JOIN user cli ON a.client_id = cli.id\n" +
+            "INNER JOIN user cus ON a.customer_id = cus.id\n" +
+            "WHERE a.is_deleted = FALSE\n" +
+            "AND CASE WHEN ?1 = 'CLIENT' THEN ?2 IN (cus.id, cli.id)\n" +
+            "         WHEN ?1 = 'CUSTOMER' THEN ?2 IN (cli.broker_id, cus.id, cli.id)\n" +
+            "         ELSE cli.id = ?2 END\n" +
+            "AND a.id IN ?3";
 
     @Query(value = ADDRESS_BY_IDS, nativeQuery = true)
     List<Address> findAddresses(List<Long> ids);
@@ -88,4 +100,7 @@ public interface AddressRepository extends PagingAndSortingRepository<Address, L
 
     @Query(value = ADDRESS_LINE1_LIKE, nativeQuery = true)
     List<Address> findAddresses(String addressType, String userRole, long userId, String criteria);
+
+    @Query(value = USER_ADDRESSES, nativeQuery = true)
+    List<Address> findAddresses(String userRole, long userId, List<Long> addressIds);
 }
