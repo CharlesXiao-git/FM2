@@ -6,7 +6,7 @@
 # Author: Terry Sposato
 # Date: 05/08/2020
 
-name: Build Spring and VueJS apps, deploy to Fargate and s3/CloudFront
+name: Build Spring and VueJS apps, scan with sonar & deploy to Fargate and s3/CloudFront
 
 env:
   AWS_DEFAULT_REGION: ap-southeast-2
@@ -30,6 +30,7 @@ on:
     branches:
       - master
       - development
+      - feature/cicdsonar
   pull_request:
     branches:
       - master
@@ -102,6 +103,21 @@ jobs:
         with:
           name: spa-dist
           path: ${{env.FRONT_END_WORKING_DIR}}/target/dist
+
+  sonarcloud:
+    name: Static Analysis with sonarcloud
+    id: sonar
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # Disabling shallow clone is recommended for improving relevancy of reporting
+          fetch-depth: 0
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   deploy:
     name: Deploy
