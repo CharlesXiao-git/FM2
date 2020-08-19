@@ -25,6 +25,7 @@ env:
   NODE_VERSION: 12.x
   FRONT_END_WORKING_DIR: ./frontend
   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 on:
   push:
