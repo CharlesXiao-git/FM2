@@ -12,6 +12,7 @@ RUN ls -l
 # Run Maven build
 RUN echo token is $SONAR_TOKEN
 RUN echo token is $sonar_token
+RUN echo token is $jobs.sonar_token
 #RUN mvn -Dsonar.login=$SONAR_TOKEN clean install
 
 # Just using the build artifact and then removing the build-container
