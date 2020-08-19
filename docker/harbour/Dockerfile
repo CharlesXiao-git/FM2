@@ -10,7 +10,7 @@ WORKDIR /harbour
 RUN ls -l
 
 # Run Maven build
-mvn
+RUN mvn clean install verify
 
 # Just using the build artifact and then removing the build-container
 FROM openjdk:11-jdk
