@@ -9,6 +9,13 @@
                     </template>
                 </div>
             </div>
+
+            <div class="consignment-sender-receiver row p-4">
+                <div class="col-md-6">
+                    <DatePicker label="Dispatch date" :min-value="minDispatchDate" />
+                </div>
+            </div>
+
             <div class="consignment-sender-receiver row p-4">
                 <div class="col-md-6">
                     <h3>Sender Details</h3>
@@ -35,14 +42,17 @@ import ClientSelect from '@/components/ClientSelect/ClientSelect.vue'
 import { isUserClient } from '@/helpers/auth/UserHelpers'
 import { ClientReference } from '@/helpers/types'
 import ItemPanel from '@/components/Item/ItemPanel.vue'
+import DatePicker from '@/components/DatePicker/DatePicker.vue'
+import { subDays } from 'date-fns'
 
 @Component({
-  components: { ItemPanel, ClientSelect }
+  components: { ItemPanel, ClientSelect, DatePicker }
 })
 export default class Consignment extends Vue {
   @Prop({ default: 'NEW CONSIGNMENT' }) title: string
   isClient = isUserClient()
   selectedClient: ClientReference = null
+  minDispatchDate: Date = subDays(new Date(), 1)
 
   getSelectedClient (selectedClient: ClientReference) {
     this.selectedClient = selectedClient
