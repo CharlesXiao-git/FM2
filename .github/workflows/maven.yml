@@ -36,6 +36,7 @@ on:
     branches:
       - master
       - development
+
 jobs:
   build_container:
     name: Build Spring Container
@@ -64,6 +65,7 @@ jobs:
 
       - name: Build and tag the image
         id: build-spring
+        sonar_token: ${{ env.SONAR_TOKEN }}
         run: |
           docker build \
           -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE:$TAG \
