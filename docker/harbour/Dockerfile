@@ -13,7 +13,7 @@ RUN ls -l
 RUN mvn clean install
 
 # Run Maven Sonar Tests
-RUN mvn verify sonar:sonar
+RUN mvn -Dsonar.login=$SONAR_TOKEN verify sonar:sonar
 
 # Just using the build artifact and then removing the build-container
 FROM openjdk:11-jdk
