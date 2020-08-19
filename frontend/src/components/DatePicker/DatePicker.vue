@@ -3,7 +3,7 @@
     <div v-if="label" class="col-lg-6 p-0 mt-2">
       <label class="datepicker-label">{{label}}</label>
     </div>
-    <div class="col-lg-6 p-0">
+    <div :class="dpClass">
       <b-form-datepicker
           name="name"
           v-model="value"
@@ -35,6 +35,7 @@ export default class DatePicker extends Vue {
   value: Date = this.defaultValue || null
   dateFormatOptions: object = { year: 'numeric', month: 'numeric', day: 'numeric' }
   datePickerPlaceholder = this.placeholder || 'Select a date'
+  dpClass = this.label ? 'col-lg-6 p-0' : 'col-lg-12 p-0'
 
   change () {
     this.$emit('change', this.value)
