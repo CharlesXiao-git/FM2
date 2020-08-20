@@ -25,7 +25,7 @@ export default class DatePicker extends Vue {
   @Prop() private defaultValue: Date
   @Prop() private minValue: Date
 
-  value = this.defaultValue || null
+  value: Date = this.defaultValue || null
   dateFormatOptions: object = { year: 'numeric', month: 'numeric', day: 'numeric' }
 
   change () {
