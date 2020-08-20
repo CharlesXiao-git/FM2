@@ -61,7 +61,7 @@ jobs:
 
       - name: Run Sonarcloud static analysis
         id: sonar-analysis
-        run: mvn verify sonar:sonar
+        run: mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
 
       - name: Build and tag the image
         id: build-spring
