@@ -11,8 +11,23 @@
             </div>
 
             <div class="consignment-sender-receiver row p-4">
-                <div class="col-md-6 mb-5">
-                    <DatePicker name='dispatch-date' label="Dispatch date" :min-value="minDispatchDate" :default-value="defaultDispatchDate" />
+                <div class="col-md-6 mb-2">
+                    <b-form-group
+                        label-cols-md="12"
+                        label-cols-lg="5"
+                        label-cols-xl="4"
+                        label="Dispatch date"
+                        label-align-sm="left"
+                        label-for="dispatch-date"
+                        label-class="font-weight-bold pt-2 p-0"
+                    >
+                        <DatePicker
+                            name='dispatch-date'
+                            :min-value="minDispatchDate"
+                            :default-value="defaultDispatchDate"
+                            @selected-date="handleDispatchDate"
+                        />
+                    </b-form-group>
                 </div>
             </div>
 
@@ -54,6 +69,11 @@ export default class Consignment extends Vue {
   selectedClient: ClientReference = null
   defaultDispatchDate: Date = new Date()
   minDispatchDate: Date = subDays(this.defaultDispatchDate, 1)
+  dispatchDate: Date = null
+
+  handleDispatchDate (date: Date) {
+    this.dispatchDate = date
+  }
 
   getSelectedClient (selectedClient: ClientReference) {
     this.selectedClient = selectedClient
