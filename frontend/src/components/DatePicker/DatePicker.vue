@@ -1,24 +1,18 @@
 <template>
-  <div class="row">
-    <div v-if="label" class="col-lg-6 p-0 mt-2">
-      <label class="datepicker-label">{{label}}</label>
-    </div>
-    <div :class="dpClass">
-      <b-form-datepicker
-          name="name"
-          v-model="value"
-          :min="minValue"
-          :date-format-options="dateFormatOptions"
-          :placeholder="datePickerPlaceholder"
-          :start-weekday="1"
-          :hide-header="true"
-          selected-variant="success"
-          locale="en-GB"
-          value-as-date
-          @input="change"
-      />
-    </div>
-  </div>
+  <b-form-datepicker
+    :name="name"
+    class="datepicker"
+    v-model="value"
+    :min="minValue"
+    :date-format-options="dateFormatOptions"
+    :placeholder="placeholder"
+    :start-weekday="1"
+    :hide-header="true"
+    selected-variant="success"
+    locale="en-GB"
+    value-as-date
+    @input="change"
+  />
 </template>
 
 <script lang="ts">
@@ -27,18 +21,17 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 @Component
 export default class DatePicker extends Vue {
   @Prop({ required: true }) private name: string
-  @Prop() private label: string
-  @Prop() private placeholder: string
-  @Prop() private minValue: Date
+  @Prop({ default: 'Select a date' }) private placeholder: string
   @Prop() private defaultValue: Date
+  @Prop() private minValue: Date
 
-  value: Date = this.defaultValue || null
+  value = this.defaultValue || null
   dateFormatOptions: object = { year: 'numeric', month: 'numeric', day: 'numeric' }
-  datePickerPlaceholder = this.placeholder || 'Select a date'
-  dpClass = this.label ? 'col-lg-6 p-0' : 'col-lg-12 p-0'
 
   change () {
-    this.$emit('change', this.value)
+    this.$emit('selected-date', this.value)
   }
 }
 </script>
+
+<style scoped lang="scss" src="./DatePicker.scss" />
