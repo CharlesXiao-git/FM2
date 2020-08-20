@@ -32,7 +32,6 @@ on:
     branches:
       - master
       - development
-      - feature/cicdsonar
   pull_request:
     branches:
       - master
