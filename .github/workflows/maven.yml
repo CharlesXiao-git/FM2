@@ -64,12 +64,14 @@ jobs:
         id: sonar-analysis
         run: mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
 
-      - uses: actions/upload-artifact@master
+      - name: Upload backend artifact
+        uses: actions/upload-artifact@master
         with:
           name: backend-jar
           path: ${{env.BACK_END_WORKING_DIR}}/target/*.jar
 
-      - uses: actions/upload-artifact@master
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@master
         with:
           name: spa-dist
           path: ${{env.FRONT_END_WORKING_DIR}}/target/dist
