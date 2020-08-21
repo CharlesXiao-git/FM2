@@ -6,7 +6,7 @@
       </div>
     </div>
 
-    <div v-if="isSelected" class="row padded-row">
+    <div v-if="isSelected" class="row pl-2">
       <div class="col-lg-12 col-xl-5 mt-2 p-0">
         <b-form-group
             label="Receive on date"
@@ -54,5 +54,3 @@ export default class ReceiverTimeSlots extends Vue {
   }
 }
 </script>
-
-<style scoped lang="scss" src="./ReceiverTimeSlots.scss" />
