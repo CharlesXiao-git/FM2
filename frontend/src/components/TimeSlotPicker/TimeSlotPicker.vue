@@ -32,6 +32,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import TimePicker from '@/components/TimeSlotPicker/TimePicker.vue'
 import { TimeSlot } from '@/components/TimeSlotPicker/TimeSlot'
 import { validateTimeSlot } from '@/helpers/ValidationHelpers'
+import { applyTimeToDate } from '@/helpers/DateHelpers'
 
 export type TimePickerData = {
   name: string;
@@ -56,8 +57,7 @@ export default class TimeSlotPicker extends Vue {
   }
 
   handleSelectedTime (response: TimePickerData) {
-    const timeParts = response.time.split(':') // hours, minutes, seconds
-    const date = new Date(this.baseDate.getFullYear(), this.baseDate.getMonth(), this.baseDate.getDate(), parseInt(timeParts[0]), parseInt(timeParts[1]), parseInt(timeParts[2]))
+    const date = applyTimeToDate(this.baseDate, response.time)
 
     // Compare response name
     if (response.name === 'from-timepicker') {
@@ -77,7 +77,6 @@ export default class TimeSlotPicker extends Vue {
     }
 
     if (this.fromDateTime && this.toDateTime) {
-      console.log('Emit')
       this.$emit('selected-slot', new TimeSlot(this.fromDateTime, this.toDateTime))
     }
   }
