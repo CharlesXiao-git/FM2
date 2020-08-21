@@ -40,7 +40,7 @@ on:
       - development
 
 jobs:
-  build_container:
+  build_harbour:
     name: Build Spring Container
     runs-on: ubuntu-latest
     steps:
@@ -69,6 +69,11 @@ jobs:
           name: backend-jar
           path: ${{env.BACK_END_WORKING_DIR}}/target/*.jar
 
+      - uses: actions/upload-artifact@master
+        with:
+          name: spa-dist
+          path: ${{env.FRONT_END_WORKING_DIR}}/target/dist
+
       - name: Load harbour app jar
         id: load-harbour-app
         uses: actions/download-artifact@master
@@ -95,40 +100,11 @@ jobs:
           $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE:$TAG \
           && echo "Image is $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE:$TAG"
 
-  build_spa:
-    name: Build VueTS SPA
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Setup Build Env
-        id: setup-build-spa-env
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{env.NODE_VERSION}}
-
-      - name: Install Dependencies
-        run: npm ci
-        working-directory: ${{env.FRONT_END_WORKING_DIR}}
-
-      - name: Unit Test
-        run: npm run test:unit
-        working-directory: ${{env.FRONT_END_WORKING_DIR}}
-
-      - name: Build
-        run: npm run build --production
-        working-directory: ${{env.FRONT_END_WORKING_DIR}}
-
-      - uses: actions/upload-artifact@master
-        with:
-          name: spa-dist
-          path: ${{env.FRONT_END_WORKING_DIR}}/target/dist
-
   deploy:
     name: Deploy
     if: github.ref == 'refs/heads/development'
     runs-on: ubuntu-latest
-    needs: [build_container, build_spa]
+    needs: [build_harbour]
     steps:
       - uses: actions/checkout@v2
 
