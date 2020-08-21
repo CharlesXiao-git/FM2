@@ -24,6 +24,7 @@ env:
   VUE_APP_ROOT_URL: https://api.uat.staging.freightmate.com
   NODE_VERSION: 12.x
   FRONT_END_WORKING_DIR: ./frontend
+  BACK_END_WORKING_DIR: ./backend
   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -32,6 +33,7 @@ on:
     branches:
       - master
       - development
+      - feature/cicdsonar
   pull_request:
     branches:
       - master
@@ -61,6 +63,11 @@ jobs:
       - name: Run Sonarcloud static analysis
         id: sonar-analysis
         run: mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+
+      - uses: actions/upload-artifact@master
+        with:
+          name: backend-jar
+          path: ${{env.BACK_END_WORKING_DIR}}/target/*.jar
 
       - name: Build and tag the image
         id: build-spring
