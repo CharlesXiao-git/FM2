@@ -23,11 +23,15 @@
                     >
                         <DatePicker
                             name='dispatch-date'
-                            :min-value="minDispatchDate"
-                            :default-value="defaultDispatchDate"
+                            :min-value="minDate"
+                            :default-value="defaultDate"
                             @selected-date="handleDispatchDate"
                         />
                     </b-form-group>
+                </div>
+
+                <div class="col-md-6 mb-2">
+                    <ReceiverTimeSlots @selected-time-slot="handleReceiverTimeslot" />
                 </div>
             </div>
 
@@ -71,17 +75,21 @@ import DatePicker from '@/components/DatePicker/DatePicker.vue'
 import { subDays } from 'date-fns'
 import DeliveryDetails from '@/components/ReceiverDetails/DeliveryDetails.vue'
 import AddressClass from '@/helpers/types/AddressClass'
+import ReceiverTimeSlots from '@/components/ReceiverDetails/ReceiverTimeSlots.vue'
+import { TimeSlot } from '@/components/TimeSlotPicker/TimeSlot'
 
 @Component({
-  components: { ItemPanel, ClientSelect, DatePicker, DeliveryDetails }
+  components: { ItemPanel, ClientSelect, DatePicker, DeliveryDetails, ReceiverTimeSlots }
 })
 export default class Consignment extends Vue {
   @Prop({ default: 'NEW CONSIGNMENT' }) title: string
   isClient = isUserClient()
   selectedClient: ClientReference = null
-  defaultDispatchDate: Date = new Date()
-  minDispatchDate: Date = subDays(this.defaultDispatchDate, 1)
+
   dispatchDate: Date = null
+  receiverTimeSlot: TimeSlot = null
+  defaultDate: Date = new Date()
+  minDate: Date = subDays(this.defaultDate, 1)
 
   addressClass: AddressClass = 'BUSINESS'
   specialInstructions: string = null
@@ -90,6 +98,10 @@ export default class Consignment extends Vue {
 
   handleDispatchDate (date: Date) {
     this.dispatchDate = date
+  }
+
+  handleReceiverTimeslot (timeslot: TimeSlot) {
+    this.receiverTimeSlot = timeslot
   }
 
   getSelectedClient (selectedClient: ClientReference) {
