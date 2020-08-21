@@ -31,6 +31,7 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import TimePicker from '@/components/TimeSlotPicker/TimePicker.vue'
 import { TimeSlot } from '@/components/TimeSlotPicker/TimeSlot'
+import { validateTimeSlot } from '@/helpers/ValidationHelpers'
 
 export type TimePickerData = {
   name: string;
@@ -54,35 +55,29 @@ export default class TimeSlotPicker extends Vue {
     this.timeSlotErrorMsg = null
   }
 
-  isTimeRangeValid (from: Date, to: Date): boolean {
-    if (from && to) {
-      return from < to
-    }
-    return true
-  }
-
   handleSelectedTime (response: TimePickerData) {
     const timeParts = response.time.split(':') // hours, minutes, seconds
     const date = new Date(this.baseDate.getFullYear(), this.baseDate.getMonth(), this.baseDate.getDate(), parseInt(timeParts[0]), parseInt(timeParts[1]), parseInt(timeParts[2]))
 
     // Compare response name
     if (response.name === 'from-timepicker') {
-      if (this.isTimeRangeValid(date, this.toDateTime)) {
+      if (validateTimeSlot(date, this.toDateTime)) {
         this.fromDateTime = date
         this.resetTimeRangeErrorMsg()
       } else {
-        this.setTimeRangeErrorMsg()
+        return this.setTimeRangeErrorMsg()
       }
     } else if (response.name === 'to-timepicker') {
-      if (this.isTimeRangeValid(this.fromDateTime, date)) {
+      if (validateTimeSlot(this.fromDateTime, date)) {
         this.toDateTime = date
         this.resetTimeRangeErrorMsg()
       } else {
-        this.setTimeRangeErrorMsg()
+        return this.setTimeRangeErrorMsg()
       }
     }
 
-    if (this.fromDateTime && this.toDateTime && this.isTimeRangeValid(this.fromDateTime, this.toDateTime)) {
+    if (this.fromDateTime && this.toDateTime) {
+      console.log('Emit')
       this.$emit('selected-slot', new TimeSlot(this.fromDateTime, this.toDateTime))
     }
   }

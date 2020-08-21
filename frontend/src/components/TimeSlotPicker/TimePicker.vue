@@ -22,7 +22,7 @@ export default class TimePicker extends Vue {
     @Prop({ required: true }) name: string
     @Prop({ default: 'Time' }) private placeholder: string
     @Prop({ default: false }) private disabled: boolean
-    time = ''
+    time: string = null
 
     inputChange () {
       this.$emit('selected-time', { time: this.time, name: this.name })
