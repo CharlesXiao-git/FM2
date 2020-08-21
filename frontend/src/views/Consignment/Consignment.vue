@@ -86,10 +86,10 @@ export default class Consignment extends Vue {
   isClient = isUserClient()
   selectedClient: ClientReference = null
 
-  dispatchDate: Date = null
-  receiverTimeSlot: TimeSlot = null
   defaultDate: Date = new Date()
+  dispatchDate: Date = this.defaultDate
   minDate: Date = subDays(this.defaultDate, 1)
+  receiverTimeSlot: TimeSlot = null
 
   addressClass: AddressClass = 'BUSINESS'
   specialInstructions: string = null

@@ -8,6 +8,7 @@
     :placeholder="placeholder"
     :start-weekday="1"
     :hide-header="true"
+    reset-button
     selected-variant="success"
     locale="en-GB"
     value-as-date
