@@ -1,16 +1,11 @@
-# Docker multi-stage build
-
-# 1. Building the App with Maven
-FROM maven:3-jdk-11
+# Download the build artifact and add to this container
+FROM openjdk:11-jdk
 
 ADD . /harbour
 WORKDIR /harbour
 
 # Just echo so we can see, if everything is there :)
 RUN ls -l
-
-# Just using the build artifact and then removing the build-container
-FROM openjdk:11-jdk
 
 MAINTAINER James Boyce
 
