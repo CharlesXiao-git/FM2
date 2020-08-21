@@ -15,7 +15,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     	<frontend-maven-plugin.version>1.9.1</frontend-maven-plugin.version>
 
-		<sonar.sources>src,public,target</sonar.sources>
+		<sonar.sources>src</sonar.sources>
 	</properties>
 
 	<build>
