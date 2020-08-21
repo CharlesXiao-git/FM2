@@ -8,7 +8,17 @@
                 label-for="from-timepicker"
                 label-class="font-weight-bold pt-2"
             >
-                <TimePicker name="from-timepicker" @selected-time="handleSelectedTime" :disabled="!baseDate" />
+                <b-form-timepicker
+                    v-model="from"
+                    name="from-timepicker"
+                    :hide-header="true"
+                    placeholder="Time"
+                    :disabled="!baseDate"
+                    no-close-button
+                    minutes-step="15"
+                    class="timepicker"
+                    locale="en"
+                    @input="handleFromTime" />
             </b-form-group>
         </div>
         <div class="col-md-12 col-lg-6 col-xl-4 p-0">
@@ -19,7 +29,17 @@
                 label-for="to-timepicker"
                 label-class="font-weight-bold pt-2"
             >
-                <TimePicker name="to-timepicker" @selected-time="handleSelectedTime" :disabled="!baseDate" />
+                <b-form-timepicker
+                    v-model="to"
+                    name="to-timepicker"
+                    :hide-header="true"
+                    placeholder="Time"
+                    :disabled="!baseDate"
+                    no-close-button
+                    minutes-step="15"
+                    class="timepicker"
+                    locale="en"
+                    @input="handleToTime" />
             </b-form-group>
         </div>
 
@@ -28,22 +48,17 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
-import TimePicker from '@/components/TimeSlotPicker/TimePicker.vue'
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import { TimeSlot } from '@/components/TimeSlotPicker/TimeSlot'
 import { validateTimeSlot } from '@/helpers/ValidationHelpers'
 import { applyTimeToDate } from '@/helpers/DateHelpers'
 
-export type TimePickerData = {
-  name: string;
-  time: string;
-}
-@Component({
-  components: { TimePicker }
-})
+@Component
 export default class TimeSlotPicker extends Vue {
   @Prop({ required: true }) baseDate: Date
 
+  from: string = null
+  to: string = null
   fromDateTime: Date = null
   toDateTime: Date = null
   timeSlotErrorMsg: string = null
@@ -56,29 +71,45 @@ export default class TimeSlotPicker extends Vue {
     this.timeSlotErrorMsg = null
   }
 
-  handleSelectedTime (response: TimePickerData) {
-    const date = applyTimeToDate(this.baseDate, response.time)
-
-    // Compare response name
-    if (response.name === 'from-timepicker') {
-      if (validateTimeSlot(date, this.toDateTime)) {
-        this.fromDateTime = date
-        this.resetTimeRangeErrorMsg()
-      } else {
-        return this.setTimeRangeErrorMsg()
-      }
-    } else if (response.name === 'to-timepicker') {
-      if (validateTimeSlot(this.fromDateTime, date)) {
-        this.toDateTime = date
-        this.resetTimeRangeErrorMsg()
-      } else {
-        return this.setTimeRangeErrorMsg()
-      }
+  handleFromTime (time: string) {
+    const date = applyTimeToDate(this.baseDate, time)
+    if (!validateTimeSlot(date, this.toDateTime)) {
+      return this.setTimeRangeErrorMsg()
     }
 
+    this.fromDateTime = date
+    this.resetTimeRangeErrorMsg()
+    this.selectSlot()
+  }
+
+  handleToTime (time: string) {
+    const date = applyTimeToDate(this.baseDate, time)
+    if (!validateTimeSlot(this.fromDateTime, date)) {
+      return this.setTimeRangeErrorMsg()
+    }
+
+    this.toDateTime = date
+    this.resetTimeRangeErrorMsg()
+    this.selectSlot()
+  }
+
+  selectSlot () {
     if (this.fromDateTime && this.toDateTime) {
       this.$emit('selected-slot', new TimeSlot(this.fromDateTime, this.toDateTime))
     }
   }
+
+  @Watch('baseDate', { immediate: true, deep: true })
+  onChangeBaseDate () {
+    this.from = null
+    this.to = null
+    this.fromDateTime = null
+    this.toDateTime = null
+    this.timeSlotErrorMsg = null
+    this.$forceUpdate()
+    this.$emit('selected-slot', null)
+  }
 }
 </script>
+
+<style scoped lang="scss" src="./TimeSlotPicker.scss" />

@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator'
+import { Component, Vue } from 'vue-property-decorator'
 import { subDays } from 'date-fns'
 import DatePicker from '@/components/DatePicker/DatePicker.vue'
 import TimeSlotPicker from '@/components/TimeSlotPicker/TimeSlotPicker.vue'
