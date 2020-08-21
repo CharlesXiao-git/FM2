@@ -43,3 +43,9 @@ $header-background-color: #495463;
   border: none !important;
   text-transform: uppercase;
 }
+
+.custom-radio, .custom-checkbox {
+  label, inputs {
+    cursor: pointer;
+  }
+}

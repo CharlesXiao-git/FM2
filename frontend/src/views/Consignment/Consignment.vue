@@ -10,7 +10,7 @@
                 </div>
             </div>
 
-            <div class="consignment-sender-receiver row p-4">
+            <div class="consignment-dispatch-date row p-4">
                 <div class="col-md-6 mb-2">
                     <b-form-group
                         label-cols-md="12"
@@ -38,7 +38,17 @@
                 </div>
                 <div class="col-md-6">
                     <h3>Receiver Details</h3>
+
                     <slot name="receiver"></slot>
+
+                    <div class="mt-3 ml-2">
+                        <DeliveryDetails
+                          @selected-address-class="getAddressClass"
+                          @selected-special-instructions="getSpecialInstructions"
+                          @selected-auth-to-leave="getAuthToLeave"
+                          @selected-tailgate-required="getTailgateRequired"
+                        />
+                    </div>
                 </div>
             </div>
         </div>
@@ -59,9 +69,12 @@ import { ClientReference } from '@/helpers/types'
 import ItemPanel from '@/components/Item/ItemPanel.vue'
 import DatePicker from '@/components/DatePicker/DatePicker.vue'
 import { subDays } from 'date-fns'
+import DeliveryDetails from '@/components/ReceiverDetails/DeliveryDetails.vue'
+
+export type AddressClassType = 'BUSINESS' | 'RESIDENTIAL'
 
 @Component({
-  components: { ItemPanel, ClientSelect, DatePicker }
+  components: { ItemPanel, ClientSelect, DatePicker, DeliveryDetails }
 })
 export default class Consignment extends Vue {
   @Prop({ default: 'NEW CONSIGNMENT' }) title: string
@@ -71,6 +84,11 @@ export default class Consignment extends Vue {
   minDispatchDate: Date = subDays(this.defaultDispatchDate, 1)
   dispatchDate: Date = null
 
+  addressClass: AddressClassType = null
+  specialInstructions: string = null
+  isAuthToLeave: boolean = null
+  isTailgateRequired: boolean = null
+
   handleDispatchDate (date: Date) {
     this.dispatchDate = date
   }
@@ -78,6 +96,22 @@ export default class Consignment extends Vue {
   getSelectedClient (selectedClient: ClientReference) {
     this.selectedClient = selectedClient
     this.$emit('selected-client', this.selectedClient)
+  }
+
+  getAddressClass (addressClass: AddressClassType) {
+    this.addressClass = addressClass
+  }
+
+  getSpecialInstructions (specialInstructions: string) {
+    this.specialInstructions = specialInstructions
+  }
+
+  getAuthToLeave (authToLeave: boolean) {
+    this.isAuthToLeave = authToLeave
+  }
+
+  getTailgateRequired (tailgateRequired: boolean) {
+    this.isTailgateRequired = tailgateRequired
   }
 }
 </script>
