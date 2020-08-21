@@ -41,7 +41,7 @@ on:
 
 jobs:
   build_harbour:
-    name: Build Spring Container
+    name: Build & Verify Backend & Frontend Modules
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
