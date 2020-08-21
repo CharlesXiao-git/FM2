@@ -33,7 +33,7 @@ on:
     branches:
       - master
       - development
-      - feature/cicdsonar
+
   pull_request:
     branches:
       - master
@@ -68,6 +68,13 @@ jobs:
         with:
           name: backend-jar
           path: ${{env.BACK_END_WORKING_DIR}}/target/*.jar
+
+      - name: Load harbour app jar
+        id: load-harbour-app
+        uses: actions/download-artifact@master
+        with:
+          name: backend-jar
+          path: ./
 
       - name: Build and tag the image
         id: build-spring
