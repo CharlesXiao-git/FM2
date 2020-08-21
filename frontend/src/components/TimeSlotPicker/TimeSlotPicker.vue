@@ -1,31 +1,29 @@
 <template>
-    <div>
-        <div class="row">
-            <div class="col-md-12 col-lg-6 col-xl-4 p-0 mr-2">
-                <b-form-group
-                    label="From"
-                    label-align-sm="left"
-                    label-for="from-timepicker"
-                    label-class="font-weight-bold pt-2"
-                >
-                    <TimePicker name="from-timepicker" @selected-time="handleSelectedTime" :disabled="!baseDate" />
-                </b-form-group>
-            </div>
-            <div class="col-md-12 col-lg-6 col-xl-4 p-0">
-                <b-form-group
-                    label="To"
-                    label-align-sm="left"
-                    label-for="to-timepicker"
-                    label-class="font-weight-bold pt-2"
-                >
-                    <TimePicker name="to-timepicker" @selected-time="handleSelectedTime" :disabled="!baseDate" />
-                </b-form-group>
-            </div>
+    <div class="row">
+        <div class="col-md-12 col-lg-6 col-xl-4 p-0 mr-2">
+            <b-form-group
+                class="mb-0"
+                label="From"
+                label-align-sm="left"
+                label-for="from-timepicker"
+                label-class="font-weight-bold pt-2"
+            >
+                <TimePicker name="from-timepicker" @selected-time="handleSelectedTime" :disabled="!baseDate" />
+            </b-form-group>
+        </div>
+        <div class="col-md-12 col-lg-6 col-xl-4 p-0">
+            <b-form-group
+                class="mb-0"
+                label="To"
+                label-align-sm="left"
+                label-for="to-timepicker"
+                label-class="font-weight-bold pt-2"
+            >
+                <TimePicker name="to-timepicker" @selected-time="handleSelectedTime" :disabled="!baseDate" />
+            </b-form-group>
         </div>
 
-        <div class="row">
-            <div v-if="timeSlotErrorMsg" class="error-msg">{{timeSlotErrorMsg}}</div>
-        </div>
+        <div v-if="timeSlotErrorMsg" class="error-msg p-0 ml-0 col-12">{{timeSlotErrorMsg}}</div>
     </div>
 </template>
 
@@ -64,7 +62,6 @@ export default class TimeSlotPicker extends Vue {
   }
 
   handleSelectedTime (response: TimePickerData) {
-    console.log(this.baseDate)
     const timeParts = response.time.split(':') // hours, minutes, seconds
     const date = new Date(this.baseDate.getFullYear(), this.baseDate.getMonth(), this.baseDate.getDate(), parseInt(timeParts[0]), parseInt(timeParts[1]), parseInt(timeParts[2]))
 
