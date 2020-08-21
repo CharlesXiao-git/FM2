@@ -10,7 +10,7 @@ RUN ls -l
 MAINTAINER James Boyce
 
 # Add Spring Boot app.jar to Container
-COPY --from=0 "backend*.jar" app.jar
+COPY "backend*.jar" app.jar
 
 ENV JAVA_OPTS=""
 
