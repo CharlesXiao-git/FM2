@@ -24,19 +24,24 @@ env:
   VUE_APP_ROOT_URL: https://api.uat.staging.freightmate.com
   NODE_VERSION: 12.x
   FRONT_END_WORKING_DIR: ./frontend
+  BACK_END_WORKING_DIR: ./backend
+  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 on:
   push:
     branches:
       - master
       - development
+
   pull_request:
     branches:
       - master
       - development
+
 jobs:
-  build_container:
-    name: Build Spring Container
+  build_harbour:
+    name: Build & Verify Backend & Frontend Modules
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -55,10 +60,28 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Setup ECR
-        id: ecr-login
-        run: |
-          $( aws ecr get-login --no-include-email )
+      - name: Build Artifacts, test & run Sonar static analysis
+        id: build-test-analyse-artifacts
+        run: mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+
+      - name: Upload backend artifact
+        uses: actions/upload-artifact@master
+        with:
+          name: backend-jar
+          path: ${{env.BACK_END_WORKING_DIR}}/target/*.jar
+
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@master
+        with:
+          name: spa-dist
+          path: ${{env.FRONT_END_WORKING_DIR}}/target/dist
+
+      - name: Load harbour app jar
+        id: load-harbour-app
+        uses: actions/download-artifact@master
+        with:
+          name: backend-jar
+          path: ./
 
       - name: Build and tag the image
         id: build-spring
@@ -67,6 +90,11 @@ jobs:
           -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE:$TAG \
           -f docker/harbour/Dockerfile .
 
+      - name: Setup ECR
+        id: ecr-login
+        run: |
+          $( aws ecr get-login --no-include-email )
+
       - name: Push to ECR
         id: push-ecr
         run: |
@@ -74,40 +102,11 @@ jobs:
           $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE:$TAG \
           && echo "Image is $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE:$TAG"
 
-  build_spa:
-    name: Build VueTS SPA
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Setup Build Env
-        id: setup-build-spa-env
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{env.NODE_VERSION}}
-
-      - name: Install Dependencies
-        run: npm ci
-        working-directory: ${{env.FRONT_END_WORKING_DIR}}
-
-      - name: Unit Test
-        run: npm run test:unit
-        working-directory: ${{env.FRONT_END_WORKING_DIR}}
-
-      - name: Build
-        run: npm run build --production
-        working-directory: ${{env.FRONT_END_WORKING_DIR}}
-
-      - uses: actions/upload-artifact@master
-        with:
-          name: spa-dist
-          path: ${{env.FRONT_END_WORKING_DIR}}/target/dist
-
   deploy:
     name: Deploy
     if: github.ref == 'refs/heads/development'
     runs-on: ubuntu-latest
-    needs: [build_container, build_spa]
+    needs: [build_harbour]
     steps:
       - uses: actions/checkout@v2
 
