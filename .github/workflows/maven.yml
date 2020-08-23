@@ -60,8 +60,8 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Run Sonarcloud static analysis
-        id: sonar-analysis
+      - name: Build Artifacts, test & run Sonar static analysis
+        id: build-test-analyse-artifacts
         run: mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
 
       - name: Upload backend artifact
