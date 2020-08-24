@@ -5,10 +5,33 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 ### Added
-- INFRA | Base AWS VPC Environment
 ### Changed
 ### Removed
 ### Fixed
+### Security
+
+## [0.3.0] 2020-08-23  (Unreleased to production)
+### Added
+- INFRA | Base AWS VPC Environment
+- INFRA | Created proper health endpoint that calls DB
+- INFRA | Staging App and API deployed to https://uat.staging.freightmate,com & https://api.staging.freightmate.com respectively
+- INFRA | CI/CD pipeline to auto deploy to staging environment
+- FRONTEND | Select and create delivery address on the create consignment page
+- FRONTEND | Consignment items UI
+- BACKEND | Address Search functionality
+- BACKEND | Consignment item CRUD
+- BACKEND | Auto populate created_by, updated_by and deleted_by ids and creating a unified BaseEntity POJO
+### Changed
+- BACKEND | Consignment CRUD to allow brokers & customers to create a consignment for a client
+- BACKEND | JWT content now includes id, along with preferred units. 
+- BACKEND | Authorisation principal is now an AuthToken POJO instead of a username
+### Removed
+### Fixed
+- BACKEND | Existing CRUD Authorization (Broker,Customer editing clients)
+- BACKEND | Auspost API bug for single Locality response
+- BACKEND | Create Consignment endpoint gracefully response to empty request
+- FRONTEND | Inconsistent Button text for confirm modal
+- FRONTEND | Display username correctly when changing accounts  
 ### Security
 
 ## [0.2.1] - 2020-08-04 (Unreleased to production)
@@ -41,6 +64,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 `Beginning of changelog`
 
-[Unreleased]: https://github.com/Freightmate/harbour/compare/0.2.1...HEAD
+[Unreleased]: https://github.com/Freightmate/harbour/compare/0.3.0...HEAD
 [0.2.0]: https://github.com/Freightmate/harbour/compare/0.0.0...0.2.0
 [0.2.1]: https://github.com/Freightmate/harbour/compare/0.2.0...0.2.1
+[0.3.0]: https://github.com/Freightmate/harbour/compare/0.2.1...0.3.0
