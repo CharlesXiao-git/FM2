@@ -32,7 +32,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { extractUserFromToken, setToken } from '@/service/AuthService'
+import { setToken } from '@/helpers/auth/StorageHelpers'
 
 @Component
 export default class Login extends Vue {
@@ -49,9 +49,8 @@ export default class Login extends Vue {
         .then(response => {
           const token = response.data
           setToken(token)
-          const user = extractUserFromToken(token)
           this.validation = true
-          this.$router.push({ name: 'Home', params: { role: user.role } })
+          this.$router.push({ name: 'Home' })
         }, error => {
           if (error.response.data !== null) {
             this.errorMessage = error.response.data

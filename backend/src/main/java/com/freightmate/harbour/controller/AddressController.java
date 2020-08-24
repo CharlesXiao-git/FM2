@@ -1,12 +1,16 @@
 package com.freightmate.harbour.controller;
 
-import com.freightmate.harbour.helper.ListHelper;
+import com.freightmate.harbour.exception.ForbiddenException;
 import com.freightmate.harbour.model.*;
-import com.freightmate.harbour.model.dto.AddressDto;
+import com.freightmate.harbour.model.dto.AddressDTO;
 import com.freightmate.harbour.service.AddressService;
 import com.freightmate.harbour.service.PostCodeService;
+import com.freightmate.harbour.service.UserService;
 import org.apache.logging.log4j.util.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -24,6 +28,7 @@ import java.util.Objects;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/address")
@@ -34,59 +39,37 @@ public class AddressController {
     @Autowired
     private AddressService addressService;
 
+    @Autowired
+    private UserService userService;
+
+    private static final Logger LOG = LoggerFactory.getLogger(AddressController.class);
+
     /**
      * Lookup using locality string or postcode and combine results
-     * @param postcode number in range 100-9999 for a Australian locality
-     * @param locality String to search for eg "keysb"
+     * @param locality String to search for eg "keysb" or "3000"
      * @return list of matches, 204 when no results but lookup succeeded
      */
     @RequestMapping(path="/locality", method = RequestMethod.GET)
-    public ResponseEntity<AuspostLocalityWrapper> fetchLocality(
-            @Param("postcode") String postcode,
-            @Param("locality") String locality){
-
-        // no point calculating more than once.
-        boolean isInvalidPostcode = postCodeService.isInvalidPostcode(postcode);
+    public ResponseEntity<AuspostLocalityWrapper> fetchLocality(@Param("locality") String locality){
 
         // Make sure we have a valid request
-        if(isInvalidPostcode && Strings.isBlank(locality)){
+        if(Strings.isBlank(locality)){
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .build();
         }
-
-        //  create our wrapper object to extend with result from both requests
-        AuspostLocalityWrapper wrapper = new AuspostLocalityWrapper();
-
         try {
-            // if we have a post code do a postcode lookup
-            if (!isInvalidPostcode){
-                AuspostLocalityWrapper postCodeResponse = postCodeService
-                        .getLocality(postcode)
-                        .getLocalitiesWrapper();
+            AuspostLocalityWrapper wrapper = postCodeService.getLocality(locality);
 
-                // add any results we have to the wrapper to be returned
-                wrapper.setLocalities(
-                        ListHelper.extend(
-                                postCodeResponse.getLocalities(),
-                                wrapper.getLocalities()
-                        )
-                );
+            // When we call auspost if we don't get any localities back lets send a 204
+            if (Objects.isNull(wrapper.getLocalities()) || wrapper.getLocalities().isEmpty()) {
+                return ResponseEntity
+                        .status(HttpStatus.NO_CONTENT)
+                        .build();
             }
 
-            if (!Strings.isBlank(locality)){
-                AuspostLocalityWrapper localityResponse = postCodeService
-                        .getLocality(locality)
-                        .getLocalitiesWrapper();      // if we have a locality string do a lookup
+            return ResponseEntity.ok(wrapper);
 
-                // add any results we have to the wrapper to be returned
-                wrapper.setLocalities(
-                        ListHelper.extend(
-                                localityResponse.getLocalities(),
-                                wrapper.getLocalities()
-                        )
-                );
-            }
         } catch (HttpClientErrorException e) {
             // If something unexpected happens. Send a 500
             return ResponseEntity
@@ -94,14 +77,6 @@ public class AddressController {
                     .build();
         }
 
-        // When we call auspost if we don't get any localities back lets send a 204
-        if (Objects.isNull(wrapper.getLocalities()) || wrapper.getLocalities().isEmpty()){
-            return ResponseEntity
-                    .status(HttpStatus.NO_CONTENT)
-                    .build();
-        }
-
-        return ResponseEntity.ok(wrapper);
     }
 
     /**
@@ -110,6 +85,7 @@ public class AddressController {
      *
      * @param addressType       optional enumerated string of DELIVERY and SENDER that identifies the resultset of the query
      *                          Omitting this argument will result the query to take both types
+     * @param clientId          The targeted clientId. Will override the logged in user.
      * @param pageable          pagination for the query resultset. This is done by passing the page and size parameter in the URL
      * @param authentication    Spring security authentication object to get the current session user info. Not needed
      *                          to pass in the API URL
@@ -117,23 +93,47 @@ public class AddressController {
      */
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<AddressQueryResult> readAddressBook(@RequestParam Optional<AddressType> addressType,
+                                                              @RequestParam Optional<Long> clientId,
                                                               Pageable pageable,
                                                               Authentication authentication) {
-        // Get the username of the requestor
-        String username = (String) authentication.getPrincipal();
+        // Get the User ID of the requestor
+        AuthToken authToken = (AuthToken) authentication.getPrincipal();
+
+        // Check whether the Client ID belongs to the logged in user
+        if(clientId.isPresent()) {
+            if(!userService.isChildOf(authToken.getUserId(), clientId.get())) {
+                throw new ForbiddenException("User does not have permission to read the address");
+            }
+        }
 
         try {
             // perform read to address repository by calling the address book service
-            AddressQueryResult addressQueryResult = addressService.readAddress(username, addressType.orElse(AddressType.ANY), pageable);
+            List<AddressDTO> addresses = addressService
+                    .readAddress(
+                            clientId.orElse(authToken.getUserId()),
+                            (clientId.isEmpty() ? authToken.getRole() : UserRole.CLIENT),
+                            addressType.orElse(AddressType.ANY),
+                            pageable
+                    )
+                    .stream()
+                    .map(AddressDTO::fromAddress)
+                    .collect(Collectors.toList());
 
-            if (addressQueryResult.getCount() == 0) {
+            if (addresses.size() == 0) {
                 // Return 204 if zero result
                 return ResponseEntity
                         .status(HttpStatus.NO_CONTENT)
                         .build();
             }
 
-            return ResponseEntity.ok(addressQueryResult);
+            return ResponseEntity.ok(
+                    AddressQueryResult
+                            .builder()
+                            .addresses(addresses)
+                            .count(addresses.size())
+                            .build()
+            );
+
         } catch (HttpClientErrorException e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -145,14 +145,16 @@ public class AddressController {
      * Address book controller to create new address by validating the suburb information before insertion
      *
      * @param addressRequest    Expecting a JSON formatted body with the new address details
-     * @param authentication    Spring security authentication object to get the current session user info. Not needed
+     * @param authentication    Spring security authentication object to get the current
+     *                          session user info. Not needed
      *                          to pass in the API URL
      * @return the new address after successful insertion. 400 code will be returned if unable to validate or insert
      */
     @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<Address> createAddress(@RequestBody Address addressRequest, Authentication authentication) {
-        // Get the username of the requestor
-        String username = (String) authentication.getPrincipal();
+    public ResponseEntity<AddressDTO> createAddress(@RequestBody Address addressRequest,
+                                                    Authentication authentication) {
+        // Get the user ID of the requestor
+        long userId = ((AuthToken) authentication.getPrincipal()).getUserId();
 
         // validate postcode
         if(postCodeService.isInvalidPostcode(String.valueOf(addressRequest.getPostcode()))){
@@ -176,9 +178,19 @@ public class AddressController {
         addressRequest.setPostcode(matchingLocals.get(0).getPostcode());
         addressRequest.setState(matchingLocals.get(0).getState());
 
+        // Check whether the Client ID belongs to the logged in user
+        if(Objects.nonNull(addressRequest.getClientId())) {
+            if(!userService.isChildOf(userId, addressRequest.getClientId())) {
+                throw new ForbiddenException("User does not have permission to update the address");
+            }
+        }
+
         try {
             // perform create address
-            Address result = addressService.createAddress(addressRequest, username);
+            Address result = addressService.createAddress(
+                    addressRequest,
+                    (Objects.nonNull(addressRequest.getClientId()) ? addressRequest.getClientId() : userId)
+            );
 
             if(Objects.isNull(result)) {
                 // return 500 if address service is unable to create the record
@@ -187,7 +199,7 @@ public class AddressController {
                         .build();
             }
 
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(AddressDTO.fromAddress(result));
 
         } catch (HttpClientErrorException e) {
             return ResponseEntity
@@ -200,16 +212,19 @@ public class AddressController {
      * Address book controller to update existing address. Any non-null fields provided by the update request
      * will update the existing data. Null fields will be ignored.
      *
-     * @param addressRequest    Expecting a JSON formatted body with the updated address details
+     * @param addressDto    Expecting a JSON formatted body with the updated address details
      * @return the updated address after successfully updated. 400 code will be returned if unable to validate or update
      */
     @RequestMapping(method = RequestMethod.PUT)
-    public ResponseEntity<Address> updateAddress(@RequestBody AddressDto addressRequest) {
+    public ResponseEntity updateAddress(@RequestBody AddressDTO addressDto, Authentication authentication) {
+        // Get user details from the logged in user
+        AuthToken authToken = (AuthToken) authentication.getPrincipal();
+
         // validate if the address id exists
         //Address currentAddress = addressService.getAddressById(addressRequest.getId());
         Address currentAddress = addressService.getAddresses(
                 Collections.singletonList(
-                        addressRequest.getId()
+                        addressDto.getId()
                 )
         ).get(0);
 
@@ -220,14 +235,14 @@ public class AddressController {
         }
 
         // validate postcode
-        if(postCodeService.isInvalidPostcode(String.valueOf(addressRequest.getPostcode()))){
+        if(postCodeService.isInvalidPostcode(String.valueOf(addressDto.getPostcode()))){
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .build();
         }
 
         // validate suburb (town) name
-        List<AuspostLocality> matchingLocals = postCodeService.getMatchingLocalitiesBySuburb(addressRequest.convertDtoToAddress());
+        List<AuspostLocality> matchingLocals = postCodeService.getMatchingLocalitiesBySuburb(AddressDTO.toAddress(addressDto));
 
         // if no matching suburb name return bad request
         if (matchingLocals.size() == 0) {
@@ -237,13 +252,13 @@ public class AddressController {
         }
 
         // Set the Auspost suburb, postcode and state into the new address to ensure that we have consistent data
-        addressRequest.setTown(matchingLocals.get(0).getLocation());
-        addressRequest.setPostcode(matchingLocals.get(0).getPostcode());
-        addressRequest.setState(matchingLocals.get(0).getState());
+        addressDto.setTown(matchingLocals.get(0).getLocation());
+        addressDto.setPostcode(matchingLocals.get(0).getPostcode());
+        addressDto.setState(matchingLocals.get(0).getState());
 
         try {
             // perform update address
-            Address result = addressService.updateAddress(addressRequest, currentAddress);
+            Address result = addressService.updateAddress(addressDto, currentAddress, authToken.getUserId());
 
             if(Objects.isNull(result)) {
                 // return bad request if address service is unable to create the record
@@ -252,7 +267,9 @@ public class AddressController {
                         .build();
             }
 
-            return ResponseEntity.ok(result);
+            return ResponseEntity
+                    .status(HttpStatus.NO_CONTENT)
+                    .build();
         } catch (HttpClientErrorException e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -270,34 +287,119 @@ public class AddressController {
      */
     @Transactional
     @RequestMapping(method = RequestMethod.DELETE)
-    public ResponseEntity<String> deleteAddress(@RequestParam("ids") List<Long> ids,
+    public ResponseEntity deleteAddress(@RequestParam("ids") List<Long> ids,
                                                 Authentication authentication) {
-        // Get the username of the requestor
-        String username = (String) authentication.getPrincipal();
+        // Get the User ID of the requestor
+        AuthToken authToken = (AuthToken) authentication.getPrincipal();
 
         try {
-            // validate all the address Ids exist
-            List<Address> addressesByIds = addressService.getAddresses(ids);
-            if(ids.size() != addressesByIds.size()) {
-                return ResponseEntity
-                        .status(HttpStatus.BAD_REQUEST)
-                        .build();
+            // perform delete address for the user
+            addressService.deleteAddresses(ids,
+                    authToken.getUserId(),
+                    authToken.getRole());
+
+            // return 204 if there is a successful delete
+            return ResponseEntity
+                    .status(HttpStatus.NO_CONTENT)
+                    .build();
+
+        } catch (HttpClientErrorException e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .build();
+        }
+    }
+
+    @RequestMapping(path="/search", method = RequestMethod.POST)
+    public ResponseEntity<List<AddressDTO>> searchAddress(@RequestParam Optional<AddressType> addressType,
+                                                          @RequestParam Optional<Long> clientId,
+                                                          @RequestParam String criteria,
+                                                          Authentication authentication) {
+        // Get the User ID of the requestor
+        AuthToken authToken = (AuthToken) authentication.getPrincipal();
+
+        // Check if the client ID belongs to the logged in user
+        if(clientId.isPresent()) {
+            if (!userService.isChildOf(authToken.getUserId(), clientId.get())) {
+                throw new ForbiddenException("User does not have permission to search address");
+            }
+        }
+        try {
+            return ResponseEntity
+                    .ok(
+                        addressService.searchAddresses(
+                                criteria,
+                                (clientId.isEmpty() ? authToken.getRole() : UserRole.CLIENT),
+                                clientId.orElse(authToken.getUserId()),
+                                addressType.orElse(AddressType.ANY)
+                        )
+                        .stream()
+                        .map(AddressDTO::fromAddress)
+                        .collect(Collectors.toList())
+                    );
+        } catch (DataAccessException e) {
+            LOG.error("Unable to access database: ", e);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .build();
+        }
+
+    }
+
+    /**
+     * Fetch a default address.
+     * If the user is a customer or broker, we should be able to fetch their children's addresses too.
+     * If no clientId is provided look up the currently logged in user
+     * If no address type is provided lookup sender addess
+     * @param addressType SENDER or DELIVERY will return SENDER by default
+     * @param clientId the id of a clientId to lookup, if not the current user
+     * @param authentication Spring provided authentication object
+     * @return An Address DTO containing the Sender/Delivery default address
+     */
+    @RequestMapping(path="/default", method = RequestMethod.GET)
+    public ResponseEntity<AddressDTO> readDefaultAddress(@RequestParam Optional<AddressType> addressType,
+                                                         @RequestParam Optional<Long> clientId,
+                                                         Authentication authentication) {
+
+        // Get the User ID of the requestor
+        AuthToken authToken = (AuthToken) authentication.getPrincipal();
+
+        try {
+            // check if the optional clientId is provided. If so, check the caller is the client /is a parent of the client
+            if(clientId.isPresent() && authToken.getUserId() != clientId.get()) {
+
+                List<Long> children = userService
+                        .getChildren(authToken.getUserId())
+                        .stream()
+                        .map(User::getId)
+                        .collect(Collectors.toList());
+
+                if (children.isEmpty() || !children.contains(clientId.get())){
+                    ResponseEntity
+                            .status(HttpStatus.BAD_REQUEST)
+                            .build();
+                }
             }
 
-            // perform delete address for the user
-            Integer result = addressService.deleteAddress(ids, username);
 
-            // return 204 if there is nothing deleted
-            if(result == 0) {
+            // perform read to address repository by calling the address book service
+            Address address = addressService
+                    .getDefaultAddress(
+                            clientId.orElse(authToken.getUserId()),
+                            authToken.getRole(),
+                            addressType.orElse(AddressType.SENDER)
+                    );
+
+            if (Objects.isNull(address)) {
+                // Return 204 if zero result
                 return ResponseEntity
                         .status(HttpStatus.NO_CONTENT)
                         .build();
             }
 
-            return ResponseEntity
-                    .ok("The following addresses have been deleted: " + ids.toString());
+            return ResponseEntity.ok(AddressDTO.fromAddress(address));
 
-        } catch (HttpClientErrorException e) {
+        } catch (DataAccessException e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .build();

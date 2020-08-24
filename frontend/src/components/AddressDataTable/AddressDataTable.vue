@@ -16,9 +16,9 @@
       <b-button :disabled="this.selectedItems.length < 1" class="secondary-button ml-2 mb-2" v-b-modal.confirm-action-modal><i class="fas mr-2 fa-trash-alt" />Delete</b-button>
       <ConfirmActionModal modal-id="confirm-action-modal" button-name="Yes, delete it!" button-class="warning-button" @confirmed="deleteItems">
         <template v-slot:content>
-          <i class="fa fa-exclamation-triangle fa-2x"/>
+          <i class="fa fa-exclamation-triangle fa-2x"/><br/>
           <h3>Delete selected address(es)?</h3>
-          <p>Are you sure? You will not be able to recover the addresses once deleted.</p>
+          <p>Are you sure? <br/> You will not be able to recover the addresses once deleted.</p>
         </template>
       </ConfirmActionModal>
     </div>
@@ -30,7 +30,7 @@
           <b-button class="edit-button" @click="getModal(data.item, $event.target)"><i class="fas fa-edit"></i></b-button>
       </template>
     </b-table>
-    <AddressFormModal modal-id="update-modal" header-title="Update Address" id-label="Receiver ID" :address="modalContent" button-name="Update" @emit-address="emittedAddress"></AddressFormModal>
+    <AddressFormModal modal-id="update-modal" header-title="Update Address" id-label="Address Reference" :address="modalContent" :client="client" button-name="Update" @emit-address="emittedAddress"></AddressFormModal>
     <div class="justify-content-center row my-1">
       <b-pagination size="md" :total-rows="totalRows" :per-page="perPage" v-model="currentPage" />
     </div>
@@ -42,6 +42,9 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import AddressFormModal from '@/components/AddressFormModal/AddressFormModal.vue'
 import { Address } from '@/model/Address'
 import ConfirmActionModal from '@/components/ConfirmActionModal/ConfirmActionModal.vue'
+import { prepareAddressData } from '@/helpers/AddressHelpers'
+import { getDefaultConfig } from '@/helpers/auth/RequestHelpers'
+import { clientReference } from '@/helpers/types'
 
 @Component({
   components: { ConfirmActionModal, AddressFormModal }
@@ -81,31 +84,28 @@ export default class AddressTable extends Vue {
   totalRows = this.addresses ? this.addresses.length : this.perPage
 
   modalContent: Address = null
+  client: clientReference = null
 
   emittedAddress (address: Address) {
     this.$emit('emit-address', address)
   }
 
   getModal (item: Address, button: object) {
-    this.prepareData(item)
+    this.modalContent = prepareAddressData(item)
+    this.populateClient(item.clientId)
     this.$root.$emit('bv::show::modal', 'update-modal', button)
   }
 
-  prepareData (address: Address) {
-    this.modalContent = new Address(
-      address.id,
-      address.referenceId,
-      address.companyName,
-      address.addressLine1,
-      address.addressLine2,
-      address.town,
-      address.postcode,
-      address.state,
-      address.contactName,
-      address.contactNo,
-      address.contactEmail,
-      address.notes
-    )
+  populateClient (clientId: number) {
+    this.$axios.get('/api/v1/user/children', getDefaultConfig())
+      .then(response => {
+        const clientOptions = Object.keys(response.data).sort()
+          .map(key => ({ id: Number(response.data[key]), name: key }))
+
+        this.client = clientOptions.find(client => client.id === clientId)
+      }, error => {
+        this.$log.error(error.response.data)
+      })
   }
 
   deleteItems () {

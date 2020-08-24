@@ -8,7 +8,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { isTokenValid } from '@/service/AuthService'
+import { isTokenValid } from '@/helpers/auth/TokenHelpers'
 
 @Component
 export default class App extends Vue {
@@ -27,7 +27,6 @@ export default class App extends Vue {
 #app {
     font-family: "Montserrat", sans-serif !important;
     -moz-osx-font-smoothing: grayscale;
-    background-color: $primary;
     height: 100%;
 }
 </style>

@@ -17,7 +17,7 @@
         <div class="address-book-content col-md-11 col-12 ml-xl-auto ml-2 mr-auto mt-4">
             <div class="row">
                 <b-button class="primary-button mb-4" v-b-modal.new-address-modal ><i class="fas mr-2 fa-plus"></i>New Address</b-button>
-                <AddressFormModal modal-id="new-address-modal" header-title="New Address" id-label="Receiver ID" @emit-address="emittedNewAddress" button-name="Add"></AddressFormModal>
+                <AddressFormModal modal-id="new-address-modal" header-title="New Address" id-label="Address Reference" @emit-address="emittedNewAddress" button-name="Add"></AddressFormModal>
             </div>
             <div class="row">
                 <template v-if="loading">Loading...</template>
@@ -36,10 +36,11 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { Address } from '@/model/Address'
-import { getAuthenticatedToken, getDefaultConfig } from '@/service/AuthService'
+import { getAuthenticatedToken, getDefaultConfig } from '@/helpers/auth/RequestHelpers'
 import AddressDataTable from '@/components/AddressDataTable/AddressDataTable.vue'
 import AddressFormModal from '@/components/AddressFormModal/AddressFormModal.vue'
 import Alert from '@/components/Alert/Alert.vue'
+import { prepareAddressData } from '@/helpers/AddressHelpers'
 
 @Component({
   components: { AddressDataTable, AddressFormModal, Alert }
@@ -59,7 +60,7 @@ export default class AddressBook extends Vue {
 
   emittedNewAddress (address: Address) {
     this.resetFlag()
-    this.$axios.post('/api/v1/address', this.prepareAddressData(address), getDefaultConfig())
+    this.$axios.post('/api/v1/address', prepareAddressData(address), getDefaultConfig())
       .then(response => {
         address = response.data
         this.addresses.unshift(address)
@@ -72,11 +73,13 @@ export default class AddressBook extends Vue {
 
   emittedUpdatedAddress (address: Address) {
     this.resetFlag()
-    this.$axios.put('/api/v1/address', this.prepareAddressData(address), getDefaultConfig())
+    this.$axios.put('/api/v1/address', prepareAddressData(address), getDefaultConfig())
       .then(response => {
-        address = response.data
-        this.addresses.unshift(address)
-        this.setAlert('success', 'Address updated successfully')
+        if (response.status === 204) {
+          this.addresses.splice(this.addresses.indexOf(this.addresses.find(oldAddress => oldAddress.id === address.id)), 1)
+          this.addresses.unshift(address)
+          this.setAlert('success', 'Address updated successfully')
+        }
       }, error => {
         this.$log.warn(error)
         this.setAlert('danger', 'Error updating Address')
@@ -119,29 +122,6 @@ export default class AddressBook extends Vue {
       headers: getAuthenticatedToken(),
       params: params
     }
-  }
-
-  prepareAddressData (address: Address) {
-    const sendAddressData: Address = {
-      id: null,
-      addressType: 'DELIVERY',
-      referenceId: address.referenceId,
-      companyName: address.companyName,
-      addressLine1: address.addressLine1,
-      addressLine2: address.addressLine2,
-      town: address.town,
-      postcode: address.postcode,
-      state: address.state,
-      contactName: address.contactName,
-      contactNo: address.contactNo,
-      contactEmail: address.contactEmail,
-      notes: address.notes
-    }
-    if (address.id) {
-      sendAddressData.id = address.id
-    }
-
-    return sendAddressData
   }
 
   created (): void {

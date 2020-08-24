@@ -15,20 +15,23 @@ public class UserService {
     UserService(@Autowired UserDetailsService detailsService){
         this.detailsService = detailsService;
     }
-    public List<User> getChildren(User user) {
-        return this.getChildren(user, false);
+
+    public List<User> getChildren(long userId) {
+        return this.getChildren(userId, false);
     }
 
-    public List<User> getChildren(String username) {
-        return this.getChildren(detailsService.loadUserByUsername(username), false);
-    }
-
-    public List<User> getChildren(User user, Boolean selfIfNoChildren) {
-        //todo replace with id from token when JWT is updated
-        List<User> children = detailsService.getChildren(user.getId());
+    public List<User> getChildren(long userId, Boolean selfIfNoChildren) {
+        List<User> children = detailsService.getChildren(userId);
         if(children.isEmpty() && selfIfNoChildren) {
-            return Collections.singletonList(user);
+            return detailsService.getUsers(Collections.singletonList(userId));
         }
         return children;
+    }
+
+    public boolean isChildOf(long parentUserId, long childUserId) {
+        return this
+                .getChildren(parentUserId, true)
+                .stream()
+                .anyMatch(child -> child.getId() == childUserId);
     }
 }

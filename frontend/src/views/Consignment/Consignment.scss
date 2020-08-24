@@ -1,0 +1,34 @@
+.consignment-content {
+  background-color: $content-background-color;
+}
+.consignment-sub-heading {
+  background-color: $header-background-color;
+  color: #ffffff;
+}
+
+.consignment-sender-receiver h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  border-bottom: 0.0625rem solid #495463;
+  padding-bottom: 7px;
+  margin-bottom: 16px;
+}
+
+::v-deep .row {
+  margin: 0;
+}
+
+::v-deep .custom-select {
+  float: right;
+}
+
+::v-deep .row {
+  margin: 0 !important;
+}
+
+.consignment-sender-address {
+  font-size: 1.1em;
+  font-weight: 300;
+  line-height: 1.3em;
+  color: #999999
+}

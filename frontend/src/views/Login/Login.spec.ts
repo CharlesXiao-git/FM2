@@ -1,6 +1,6 @@
 import { shallowMount } from '@vue/test-utils'
 import Login from '@/views/Login/Login.vue'
-import localVue from '@/helpers/test/LocalVue'
+import localVue from '@/helpers/test/LocalVueHelpers'
 
 describe('Login.vue', () => {
   it('renders Login component correctly', () => {

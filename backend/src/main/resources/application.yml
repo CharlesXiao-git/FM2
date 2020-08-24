@@ -4,7 +4,7 @@ server:
   port: ${SPRING_PORT:8098}
 spring:
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3307/freightmate_db}
+    url: ${DB_URL:jdbc:mysql://localhost:3307/freightmate}
     username: ${DB_USER:root}
     password: ${DB_PASSWORD:freightmate}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -14,6 +14,11 @@ spring:
     properties:
       hibernate:
         check_nullability: true
+  data:
+    web:
+      pageable:
+        default-page-size: 99999
+        max-page-size: 99999
 jwt:
   secret: ${JWT_SECRET:THISSHOULDNOTMAKETOPROUCTION}
   expiry: 86400 #24 hours in seconds
@@ -22,3 +27,7 @@ auspost:
 http:
   connect-timeout-seconds: 10
   read-timeout-seconds: 55
+management:
+  endpoint:
+    health:
+      show-details: always

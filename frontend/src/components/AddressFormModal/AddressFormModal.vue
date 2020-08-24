@@ -8,6 +8,12 @@
                         <b-form-input v-model="referenceId" class="form-control" type="text" placeholder="Optional" />
                     </div>
                 </div>
+                <div v-if="!isClient" class="form-group row">
+                    <label class="col-lg-3 col-form-label form-control-label">Client</label>
+                    <div class="col-lg-9">
+                       <ClientSelect :client="client" @selected-client="getSelectedClient"></ClientSelect>
+                    </div>
+                </div>
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label form-control-label">Company Name</label>
                     <div class="col-lg-9">
@@ -58,7 +64,7 @@
                                 disable-filtering-by-search
                                 @search="onSearch">
                             <template #no-data>
-                                {{ noData ? "No information found by request." : "We need at least 3 letters / numbers to search" }}
+                                {{ noData ? "No address found." : "We need at least 3 letters / numbers to search" }}
                             </template>
                             <template #item="{ item }">
                                 <div class="item">
@@ -94,12 +100,16 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { BvModalEvent } from 'bootstrap-vue'
 import { CoolSelect } from 'vue-cool-select'
-import { getAuthenticatedToken } from '@/service/AuthService'
+import { getAuthenticatedToken } from '@/helpers/auth/RequestHelpers'
+import { isUserClient } from '@/helpers/auth/UserHelpers'
 import { Address } from '@/model/Address'
-import { validateEmailField, validateStringField } from '@/helpers/Validator'
+import { validateEmailField, validateStringField } from '@/helpers/ValidationHelpers'
+import ClientSelect from '@/components/ClientSelect/ClientSelect.vue'
+import { clientReference } from '@/helpers/types'
 
 @Component({
   components: {
+    ClientSelect,
     CoolSelect
   }
 })
@@ -108,6 +118,7 @@ export default class AddressFormModal extends Vue {
     @Prop({ required: true }) headerTitle: string
     @Prop({ required: true }) idLabel: string
     @Prop({ required: true }) buttonName: string
+    @Prop() client: clientReference
     @Prop() address: Address
 
     referenceId: string = null
@@ -118,6 +129,9 @@ export default class AddressFormModal extends Vue {
     contactNumber: string = null
     contactEmail: string = null
     specialInstructions: string = null
+
+    isClient = isUserClient()
+    selectedClientId: number = this.client ? this.client.id : null
 
     validateCompanyNameFlag: boolean = null
     validateContactNameFlag: boolean = null
@@ -170,12 +184,19 @@ export default class AddressFormModal extends Vue {
       this.$axios.get('/api/v1/address/locality', config)
         .then(response => {
           this.items = response.data.localities
+        }, error => {
           if (!this.items.length) {
             this.noData = true
+          } else {
+            this.$log.error(error)
           }
-        }, error => {
-          this.$log.error(error)
         })
+    }
+
+    getSelectedClient (selectedClient: clientReference) {
+      if (selectedClient && selectedClient.id) {
+        this.selectedClientId = selectedClient.id
+      }
     }
 
     resetModal () {
@@ -195,6 +216,7 @@ export default class AddressFormModal extends Vue {
       this.validateLocationFlag = null
       this.items = []
       this.noData = null
+      this.selectedClientId = null
     }
 
     handleSubmit (bvModalEvt: BvModalEvent) {
@@ -210,6 +232,9 @@ export default class AddressFormModal extends Vue {
       this.validateLocation()
 
       if (this.validateCompanyNameFlag && this.validateContactNameFlag && (this.validateContactEmailFlag === null || this.validateContactEmailFlag) && this.validateAddressLineFlag && !this.validateLocationFlag) {
+        if (!this.selectedClientId && this.client && this.client.id) {
+          this.selectedClientId = this.client.id
+        }
         const emitAddress = new Address(
           this.getId(),
           this.referenceId,
@@ -222,7 +247,8 @@ export default class AddressFormModal extends Vue {
           this.contactName,
           this.contactNumber,
           this.contactEmail,
-          this.specialInstructions
+          this.specialInstructions,
+          this.selectedClientId
         )
         this.$emit('emit-address', emitAddress)
         this.$nextTick(() => {

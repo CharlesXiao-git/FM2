@@ -1,6 +1,10 @@
 package com.freightmate.harbour.service;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.freightmate.harbour.model.AuspostLocalityResponse;
+import com.freightmate.harbour.model.AuspostLocalityWrapper;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -17,13 +21,22 @@ public class PostCodeServiceTest {
     @Test
     @Ignore
     public void ShouldCallAuspost_WhenProvidedCorrectApiKey(){
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, true);
+
+
         RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder();
-        PostCodeService _service = new PostCodeService(restTemplateBuilder.build(),FAKE_KEY);
+        PostCodeService _service = new PostCodeService(
+                restTemplateBuilder.build(),
+                FAKE_KEY,
+                mapper
+        );
 
-        AuspostLocalityResponse localityResponse = _service.getLocality("3018");
+        AuspostLocalityWrapper localityWrapper = _service.getLocality("3000");
 
-        assert !localityResponse.getLocalitiesWrapper().getLocalities().isEmpty();
-        LOG.info("Successfully loaded response: {}", localityResponse);
+        assert !localityWrapper.getLocalities().isEmpty();
+        LOG.info("Successfully loaded response: {}", localityWrapper);
     }
 
 }

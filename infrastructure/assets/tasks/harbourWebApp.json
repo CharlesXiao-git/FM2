@@ -1,0 +1,60 @@
+[
+  {
+    "name": "${ApplicationContainerName}",
+    "image": "${ApplicationImage}",
+    "cpu": 1024,
+    "memory": 2048,
+    "essential": true,
+
+    "command": [
+      "java $JAVA_OPTS -Xmx2G -jar /app.jar"
+    ],
+    "entryPoint": [
+      "sh", "-c"
+    ],
+
+    "portMappings": [
+      {
+        "containerPort": ${SpringPort},
+        "protocol": "tcp"
+      }
+    ],
+
+    "environment": [
+      {
+        "name": "DB_URL",
+        "value": "jdbc:mysql://${DatabaseHost}:3306/${DatabaseName}"
+      },
+      {
+        "name": "DB_USER",
+        "value": "${DatabaseUsername}"
+      },
+      {
+        "name": "SPRING_PORT",
+        "value": "${SpringPort}"
+      }
+    ],
+    "secrets": [
+      {
+        "name": "DB_PASSWORD",
+        "valueFrom": "${DatabasePassword}"
+      },
+      {
+        "name": "AUSPOST_API_KEY",
+        "valueFrom": "${AusPostApiKey}"
+      },
+      {
+        "name": "JWT_SECRET",
+        "valueFrom": "${JwtSecret}"
+      }
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${CloudWatchLogGroup}",
+        "awslogs-region": "${AwsRegion}",
+        "awslogs-stream-prefix": "ecs"
+      }
+    }
+  }
+]

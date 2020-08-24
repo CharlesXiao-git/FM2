@@ -156,6 +156,8 @@ public class AuthService {
                 .withIssuer("FreightMate")
                 .withClaim("userRole", user.getUserRole().toString())
                 .withClaim("email", user.getEmail())
+                .withClaim("id", user.getId())
+                .withClaim("preferredUnit", user.getPreferredUnit().name())
                 .sign(algorithm);
     }
 

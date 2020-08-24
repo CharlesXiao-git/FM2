@@ -20,7 +20,7 @@
                             Create New
                         </b-button>
                         <b-collapse class="menu-items" id="create-new-collapse">
-                            <b-nav-item>
+                            <b-nav-item to="/consignment">
                                 Consignment
                             </b-nav-item>
                             <b-nav-item>
@@ -145,13 +145,14 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Vue } from 'vue-property-decorator'
+import { userRole } from '@/helpers/auth/UserHelpers'
 
 @Component
 export default class Sidebar extends Vue {
   visible = true
   sidebarClass = 'd-none d-md-block'
-  @Prop() private role: string
+  role: string = userRole()
 
   toggleMenuBar () {
     this.sidebarClass = ''

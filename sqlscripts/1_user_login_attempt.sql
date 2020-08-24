@@ -1,4 +1,4 @@
-USE freightmate_db;
+USE freightmate;
 
 DROP TABLE IF EXISTS user_login_attempt;
 

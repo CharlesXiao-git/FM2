@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import ConfirmActionModal from '@/components/ConfirmActionModal/ConfirmActionModal.vue'
-import localVue from '@/helpers/test/LocalVue'
+import localVue from '@/helpers/test/LocalVueHelpers'
 import '@testing-library/jest-dom'
 
 describe('<ConfirmActionModal />', () => {
