@@ -1,0 +1,19 @@
+{
+  "name": "harbour-importers",
+  "version": "1.0.0",
+  "description": "Home for all JS import scripts ",
+  "main": "bin/fileImporter.js",
+  "bin": {
+    "harbourImport": "./bin/fileImporter.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "James Boyce <james.boyce@slalom.com>",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "yargonaut": "^1.1.4",
+    "yargs": "^15.4.1"
+  }
+}
