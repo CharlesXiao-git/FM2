@@ -23,13 +23,15 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Prop, Vue } from 'vue-property-decorator'
 import AddressClass from '@/helpers/types/AddressClass'
 
 @Component
 export default class DeliveryDetails extends Vue {
+  @Prop({ default: '' }) private notes: string
+
   addressClass: AddressClass = 'BUSINESS'
-  specialInstructions: string = null
+  specialInstructions: string = this.notes
   isAllowedToLeave = false
   isTailgateRequired = false
 
