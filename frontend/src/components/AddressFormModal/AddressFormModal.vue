@@ -105,7 +105,7 @@ import { isUserClient } from '@/helpers/auth/UserHelpers'
 import { Address } from '@/model/Address'
 import { validateEmailField, validateStringField } from '@/helpers/ValidationHelpers'
 import ClientSelect from '@/components/ClientSelect/ClientSelect.vue'
-import { clientReference } from '@/helpers/types'
+import { ClientReference } from '@/helpers/types'
 
 @Component({
   components: {
@@ -118,7 +118,8 @@ export default class AddressFormModal extends Vue {
     @Prop({ required: true }) headerTitle: string
     @Prop({ required: true }) idLabel: string
     @Prop({ required: true }) buttonName: string
-    @Prop() client: clientReference
+    @Prop({ default: 'DELIVERY' }) addressType: string
+    @Prop() client: ClientReference
     @Prop() address: Address
 
     referenceId: string = null
@@ -158,6 +159,7 @@ export default class AddressFormModal extends Vue {
         this.contactNumber = this.address.contactNo
         this.contactEmail = this.address.contactEmail
         this.specialInstructions = this.address.notes
+        this.addressType = this.address.addressType
         this.onSearch(this.address.postcode.toString())
         this.showHelperText = true
       }
@@ -193,7 +195,7 @@ export default class AddressFormModal extends Vue {
         })
     }
 
-    getSelectedClient (selectedClient: clientReference) {
+    getSelectedClient (selectedClient: ClientReference) {
       if (selectedClient && selectedClient.id) {
         this.selectedClientId = selectedClient.id
       }
@@ -248,7 +250,8 @@ export default class AddressFormModal extends Vue {
           this.contactNumber,
           this.contactEmail,
           this.specialInstructions,
-          this.selectedClientId
+          this.selectedClientId,
+          this.addressType
         )
         this.$emit('emit-address', emitAddress)
         this.$nextTick(() => {

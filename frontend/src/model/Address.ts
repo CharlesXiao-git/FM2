@@ -14,7 +14,7 @@ export class Address {
   notes: string // Special Instructions
   clientId: number = null
 
-  constructor (id: string, referenceId: string, companyName: string, addressLine1: string, addressLine2: string, town: string, postcode: number, state: string, contactName: string, contactNo: string, contactEmail: string, notes: string, clientId: number = null) {
+  constructor (id: string, referenceId: string, companyName: string, addressLine1: string, addressLine2: string, town: string, postcode: number, state: string, contactName: string, contactNo: string, contactEmail: string, notes: string, clientId: number = null, addressType: string) {
     this.id = id
     this.referenceId = referenceId
     this.companyName = companyName
@@ -28,5 +28,6 @@ export class Address {
     this.contactEmail = contactEmail
     this.notes = notes
     this.clientId = clientId
+    this.addressType = addressType
   }
 }

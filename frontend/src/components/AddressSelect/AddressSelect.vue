@@ -2,9 +2,10 @@
     <div class="address-select">
         <div class="address-select-content">
             <b-button class="address-select-button mb-2" v-b-modal="modalId"><i class="fas fa-plus"></i> New Address</b-button>
-            <AddressFormModal :modal-id="modalId" header-title="New Address" id-label="Address Reference" :client="client" @emit-address="emittedNewAddress" button-name="Add"></AddressFormModal>
+            <AddressFormModal :address-type="addressType" :modal-id="modalId" header-title="New Address" id-label="Address Reference" :client="client" @emit-address="emittedNewAddress" button-name="Add"></AddressFormModal>
             <cool-select
                     v-model="selectedAddress"
+                    v-on:input="emitSelectedAddress"
                     :items="addresses" class="mt-2"
                     disable-filtering-by-search
                     @search="onSearch"
@@ -29,24 +30,29 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import AddressFormModal from '@/components/AddressFormModal/AddressFormModal.vue'
 import Alert from '@/components/Alert/Alert.vue'
 import { CoolSelect } from 'vue-cool-select'
 import { Address } from '@/model/Address'
 import { getAuthenticatedToken, getDefaultConfig } from '@/helpers/auth/RequestHelpers'
 import { prepareAddressData } from '@/helpers/AddressHelpers'
-import { clientReference } from '@/helpers/types'
+import { ClientReference } from '@/helpers/types'
 
 @Component({
   components: { Alert, AddressFormModal, CoolSelect }
 })
 export default class AddressSelect extends Vue {
-  @Prop() client: clientReference
+  @Prop({ default: 'DELIVERY' }) addressType: string
+  @Prop() client: ClientReference
   @Prop({ default: 'new-address-modal' }) modalId: string
   addresses: Address[] = []
   selectedAddress: Address = null
   noData: boolean = null
+
+  emitSelectedAddress () {
+    this.$emit('selected-address', this.selectedAddress)
+  }
 
   emittedNewAddress (address: Address) {
     this.$axios.post('/api/v1/address', prepareAddressData(address), getDefaultConfig())
@@ -105,7 +111,7 @@ export default class AddressSelect extends Vue {
     const config = {
       headers: getAuthenticatedToken(),
       params: {
-        addressType: 'DELIVERY',
+        addressType: this.addressType,
         clientId: this.getClientId(),
         criteria: search
       }
@@ -120,6 +126,13 @@ export default class AddressSelect extends Vue {
       }, error => {
         this.$log.error(error)
       })
+  }
+
+  @Watch('client', { immediate: true, deep: true })
+  onChangeClient () {
+    this.selectedAddress = null
+    this.addresses = []
+    this.$forceUpdate()
   }
 }
 </script>

@@ -12,13 +12,13 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { getDefaultConfig } from '@/helpers/auth/RequestHelpers'
-import { clientReference } from '@/helpers/types'
+import { ClientReference } from '@/helpers/types'
 
 @Component
 export default class ClientSelect extends Vue {
-  @Prop() client: clientReference
+  @Prop() client: ClientReference
   disabledSelect = false
-  selectedClient: clientReference = null
+  selectedClient: ClientReference = null
   clientOptions: object[] = null
 
   emitSelectedClient () {

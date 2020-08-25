@@ -1,4 +1,4 @@
-export type clientReference = {
+export type ClientReference = {
   id: number;
   name: string;
 }
