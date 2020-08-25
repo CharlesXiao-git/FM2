@@ -31,7 +31,7 @@
                 </div>
 
                 <div class="col-md-6">
-                    <ReceiverTimeSlots @selected-time-slot="handleReceiverTimeslot" />
+                    <ReceiverTimeSlots @selected-time-slot="handleReceiverTimeslot" :dispatch-date="dispatchDate" />
                 </div>
             </div>
 

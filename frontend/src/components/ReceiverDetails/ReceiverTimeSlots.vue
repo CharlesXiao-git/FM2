@@ -16,7 +16,8 @@
         >
           <DatePicker
               name='receive-date'
-              :min-value="minDate"
+              :min-value="dispatchDate"
+              :show-reset-btn="showDatePickerResetBtn"
               @selected-date="handleReceivedDate"
           />
         </b-form-group>
@@ -29,8 +30,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
-import { subDays } from 'date-fns'
+import { Component, Vue, Prop } from 'vue-property-decorator'
 import DatePicker from '@/components/DatePicker/DatePicker.vue'
 import TimeSlotPicker from '@/components/TimeSlotPicker/TimeSlotPicker.vue'
 import { TimeSlot } from '@/model/TimeSlot.ts'
@@ -39,8 +39,10 @@ import { TimeSlot } from '@/model/TimeSlot.ts'
   components: { DatePicker, TimeSlotPicker }
 })
 export default class ReceiverTimeSlots extends Vue {
+  @Prop({ required: true }) private dispatchDate: Date
+
+  showDatePickerResetBtn = true
   isSelected = false
-  minDate: Date = subDays(new Date(), 1)
   selectedDate: Date = null
   timeSlot: TimeSlot = null
 
