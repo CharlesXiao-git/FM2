@@ -15,10 +15,6 @@ resource "aws_lb" "ApplicationAPIWeb" {
 
   enable_deletion_protection = false
 
-  //  access_logs {
-  //    bucket = ""
-  //  }
-
   tags = {
     Environment = terraform.workspace
     Application = var.application-name
@@ -31,6 +27,18 @@ resource "aws_lb_target_group" "ApplicationAPITargetGroup" {
   protocol    = "HTTP"
   vpc_id      = aws_vpc.application.id
   target_type = "ip"
+
+  health_check {
+    path = "/actuator/health"
+    protocol = "http"
+    port = 80
+    interval = 30
+    enabled = true
+    timeout = 5
+    healthy_threshold = 3
+    unhealthy_threshold = 2
+  }
+
 }
 
 resource "aws_lb_listener" "ApplicationAPI" {
