@@ -9,7 +9,7 @@
       </b-form-group>
     </div>
 
-    <div class="row">
+    <div class="row pr-2">
       <b-form-input v-model="specialInstructions" placeholder="Special instructions" @input="selectedSpecialInstructions"></b-form-input>
     </div>
 
@@ -24,13 +24,14 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
+import AddressClass from '@/helpers/types/AddressClass'
 
 @Component
 export default class DeliveryDetails extends Vue {
-  addressClass: string = null
+  addressClass: AddressClass = 'BUSINESS'
   specialInstructions: string = null
-  isAllowedToLeave: boolean = null
-  isTailgateRequired: boolean = null
+  isAllowedToLeave = false
+  isTailgateRequired = false
 
   selectedAddressClass () {
     this.$emit('selected-address-class', this.addressClass)

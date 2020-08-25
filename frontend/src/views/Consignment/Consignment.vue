@@ -10,8 +10,8 @@
                 </div>
             </div>
 
-            <div class="consignment-dispatch-date row p-4">
-                <div class="col-md-6 mb-2">
+            <div class="consignment-dispatch-date row px-4 pt-4">
+                <div class="col-md-6">
                     <b-form-group
                         label-cols-md="12"
                         label-cols-lg="5"
@@ -70,8 +70,7 @@ import ItemPanel from '@/components/Item/ItemPanel.vue'
 import DatePicker from '@/components/DatePicker/DatePicker.vue'
 import { subDays } from 'date-fns'
 import DeliveryDetails from '@/components/ReceiverDetails/DeliveryDetails.vue'
-
-export type AddressClassType = 'BUSINESS' | 'RESIDENTIAL'
+import AddressClass from '@/helpers/types/AddressClass'
 
 @Component({
   components: { ItemPanel, ClientSelect, DatePicker, DeliveryDetails }
@@ -84,10 +83,10 @@ export default class Consignment extends Vue {
   minDispatchDate: Date = subDays(this.defaultDispatchDate, 1)
   dispatchDate: Date = null
 
-  addressClass: AddressClassType = null
+  addressClass: AddressClass = 'BUSINESS'
   specialInstructions: string = null
-  isAuthToLeave: boolean = null
-  isTailgateRequired: boolean = null
+  isAuthToLeave = false
+  isTailgateRequired = false
 
   handleDispatchDate (date: Date) {
     this.dispatchDate = date
@@ -98,7 +97,7 @@ export default class Consignment extends Vue {
     this.$emit('selected-client', this.selectedClient)
   }
 
-  getAddressClass (addressClass: AddressClassType) {
+  getAddressClass (addressClass: AddressClass) {
     this.addressClass = addressClass
   }
 
