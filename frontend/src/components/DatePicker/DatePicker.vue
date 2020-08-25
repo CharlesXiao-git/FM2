@@ -9,6 +9,7 @@
     :start-weekday="1"
     :hide-header="true"
     reset-button
+    reset-button-variant="outline-success"
     selected-variant="success"
     locale="en-GB"
     value-as-date
