@@ -12,7 +12,7 @@
                     v-model="from"
                     name="from-timepicker"
                     :hide-header="true"
-                    placeholder="Time"
+                    placeholder="Select time"
                     :disabled="!baseDate"
                     no-close-button
                     minutes-step="15"
@@ -33,7 +33,7 @@
                     v-model="to"
                     name="to-timepicker"
                     :hide-header="true"
-                    placeholder="Time"
+                    placeholder="Select time"
                     :disabled="!baseDate"
                     no-close-button
                     minutes-step="15"
@@ -49,7 +49,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
-import { TimeSlot } from '@/components/TimeSlotPicker/TimeSlot'
+import { TimeSlot } from '@/model/TimeSlot'
 import { validateTimeSlot } from '@/helpers/ValidationHelpers'
 import { applyTimeToDate } from '@/helpers/DateHelpers'
 

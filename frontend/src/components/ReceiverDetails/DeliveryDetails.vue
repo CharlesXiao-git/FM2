@@ -24,7 +24,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import AddressClass from '@/helpers/types/AddressClass'
+import AddressClass from '@/helpers/types/AddressClass.ts'
 
 @Component
 export default class DeliveryDetails extends Vue {

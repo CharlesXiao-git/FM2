@@ -30,7 +30,7 @@
                     </b-form-group>
                 </div>
 
-                <div class="col-md-6 mb-2">
+                <div class="col-md-6">
                     <ReceiverTimeSlots @selected-time-slot="handleReceiverTimeslot" />
                 </div>
             </div>
@@ -74,9 +74,9 @@ import ItemPanel from '@/components/Item/ItemPanel.vue'
 import DatePicker from '@/components/DatePicker/DatePicker.vue'
 import { subDays } from 'date-fns'
 import DeliveryDetails from '@/components/ReceiverDetails/DeliveryDetails.vue'
-import AddressClass from '@/helpers/types/AddressClass'
+import AddressClass from '@/helpers/types/AddressClass.ts'
 import ReceiverTimeSlots from '@/components/ReceiverDetails/ReceiverTimeSlots.vue'
-import { TimeSlot } from '@/components/TimeSlotPicker/TimeSlot'
+import { TimeSlot } from '@/model/TimeSlot'
 
 @Component({
   components: { ItemPanel, ClientSelect, DatePicker, DeliveryDetails, ReceiverTimeSlots }

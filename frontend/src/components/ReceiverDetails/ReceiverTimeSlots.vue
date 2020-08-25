@@ -33,7 +33,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import { subDays } from 'date-fns'
 import DatePicker from '@/components/DatePicker/DatePicker.vue'
 import TimeSlotPicker from '@/components/TimeSlotPicker/TimeSlotPicker.vue'
-import { TimeSlot } from '@/components/TimeSlotPicker/TimeSlot'
+import { TimeSlot } from '@/model/TimeSlot.ts'
 
 @Component({
   components: { DatePicker, TimeSlotPicker }
