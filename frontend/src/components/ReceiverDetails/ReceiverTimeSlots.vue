@@ -17,7 +17,7 @@
           <DatePicker
               name='receive-date'
               :min-value="dispatchDate"
-              :show-reset-btn="showDatePickerResetBtn"
+              :show-reset-btn="true"
               @selected-date="handleReceivedDate"
           />
         </b-form-group>
@@ -39,9 +39,8 @@ import { TimeSlot } from '@/model/TimeSlot.ts'
   components: { DatePicker, TimeSlotPicker }
 })
 export default class ReceiverTimeSlots extends Vue {
-  @Prop({ required: true }) private dispatchDate: Date
+  @Prop({ default: new Date() }) private dispatchDate: Date
 
-  showDatePickerResetBtn = true
   isSelected = false
   selectedDate: Date = null
   timeSlot: TimeSlot = null
