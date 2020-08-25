@@ -2,7 +2,7 @@
 module.exports = {
   productionSourceMap: false,
   configureWebpack: {
-    "devtool": "source-map"
+    devtool: 'source-map'
   },
   // proxy all webpack dev-server requests starting with /api
   // to our Spring Boot backend (localhost:8088) using http-proxy-middleware
