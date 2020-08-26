@@ -29,13 +29,13 @@ resource "aws_lb_target_group" "ApplicationAPITargetGroup" {
   target_type = "ip"
 
   health_check {
-    path = "/actuator/health"
-    protocol = "http"
-    port = 80
-    interval = 30
-    enabled = true
-    timeout = 5
-    healthy_threshold = 3
+    path                = "/actuator/health"
+    protocol            = "http"
+    port                = 80
+    interval            = 30
+    enabled             = true
+    timeout             = 5
+    healthy_threshold   = 3
     unhealthy_threshold = 2
   }
 

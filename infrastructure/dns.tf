@@ -17,10 +17,10 @@ data "aws_route53_zone" "Public" {
 }
 
 resource "aws_route53_record" "BastionHost" {
-  name = lower("bastion.${terraform.workspace}.staging.${data.aws_route53_zone.Public.name}")
-  type = "A"
+  name    = lower("bastion.${terraform.workspace}.staging.${data.aws_route53_zone.Public.name}")
+  type    = "A"
   zone_id = data.aws_route53_zone.Public.id
-  ttl = 300
+  ttl     = 300
 
   records = [aws_eip.BastionHostEip.public_ip]
 }

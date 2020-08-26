@@ -26,6 +26,10 @@ resource "aws_ecs_service" "WebService" {
   launch_type      = "FARGATE"
   platform_version = "1.3.0"
 
+  lifecycle {
+    ignore_changes = [task_definition]
+  }
+
   network_configuration {
     subnets          = [aws_subnet.ApplicationSubnet1.id, aws_subnet.ApplicationSubnet2.id]
     security_groups  = [aws_security_group.ApplicationECSTasks.id]
@@ -66,7 +70,7 @@ data "template_file" "ApplicationContainerDefinition" {
   vars = {
     ApplicationImage         = "${aws_ecr_repository.Application.repository_url}:latest"
     ApplicationContainerName = var.application-ecs-container-name
-    DatabaseHost             = aws_rds_cluster.ApplicationDatabase.endpoint
+    DatabaseHost             = aws_rds_cluster.ApplicationDatabase57.endpoint
     DatabaseName             = var.application-database-name
     DatabaseUsername         = var.application-database-username
     DatabasePassword         = aws_ssm_parameter.DatabaseApplicationDatabasePassword.arn

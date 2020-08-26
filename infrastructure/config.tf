@@ -21,7 +21,7 @@ provider "aws" {
 }
 
 provider "aws" {
-  alias   = "us-east-1"
+  alias = "us-east-1"
 
   version = ">= 2.68, < 3.0.0"
   region  = "us-east-1"

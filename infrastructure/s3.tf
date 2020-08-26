@@ -25,23 +25,6 @@ resource "aws_s3_bucket" "AppClient" {
     max_age_seconds = 300
   }
 
-  policy = <<POLICY
-{
-  "Version":"2012-10-17",
-  "Statement":[
-    {
-      "Sid":"AddPerm",
-      "Effect":"Allow",
-      "Principal": "*",
-      "Action":["s3:GetObject"],
-      "Resource":[
-        "arn:aws:s3:::${lower(terraform.workspace)}.staging.${trimsuffix(data.aws_route53_zone.Public.name, ".")}/*"
-      ]
-    }
-  ]
-}
-POLICY
-
   tags = {
     Environment = terraform.workspace
     Application = var.application-name
@@ -49,14 +32,15 @@ POLICY
 }
 
 resource "aws_s3_bucket_policy" "AppClientCloudFrontPolicy" {
-  bucket = aws_s3_bucket.AppClient.id
-  policy = data.template_file.S3ClientBucketPolicy.rendered
+  bucket     = aws_s3_bucket.AppClient.id
+  depends_on = [aws_cloudfront_origin_access_identity.ClientDistribution]
+  policy     = data.template_file.S3ClientBucketPolicy.rendered
 }
 
 data template_file "S3ClientBucketPolicy" {
   template = file("assets/policies/S3BucketClientPolicy.json")
   vars = {
-    S3BucketResource = "arn:aws:s3:::${lower(terraform.workspace)}.staging.${trimsuffix(data.aws_route53_zone.Public.name, ".")}/*"
+    S3BucketResource       = "arn:aws:s3:::${lower(terraform.workspace)}.staging.${trimsuffix(data.aws_route53_zone.Public.name, ".")}/*"
     CloudFrontDistribution = aws_cloudfront_origin_access_identity.ClientDistribution.iam_arn
   }
 }
