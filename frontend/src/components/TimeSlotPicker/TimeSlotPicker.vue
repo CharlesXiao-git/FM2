@@ -1,50 +1,55 @@
 <template>
-    <div class="row">
-        <div class="col-md-12 col-lg-6 pl-0">
-            <b-form-group
-                class="mb-0"
-                label="From"
-                label-align-sm="left"
-                label-for="from-timepicker"
-                label-class="font-weight-bold pt-2"
-            >
-                <b-form-timepicker
-                    v-model="from"
-                    name="from-timepicker"
-                    :hide-header="true"
-                    placeholder="Select time"
-                    :disabled="!baseDate"
-                    no-close-button
-                    minutes-step="15"
-                    class="timepicker"
-                    locale="en"
-                    @input="handleFromTime" />
-            </b-form-group>
-        </div>
-        <div class="col-md-12 col-lg-6 pl-0">
-            <b-form-group
-                class="mb-0"
-                label="To"
-                label-align-sm="left"
-                label-for="to-timepicker"
-                label-class="font-weight-bold pt-2"
-            >
-                <b-form-timepicker
-                    v-model="to"
-                    name="to-timepicker"
-                    :hide-header="true"
-                    placeholder="Select time"
-                    :disabled="!baseDate"
-                    no-close-button
-                    minutes-step="15"
-                    class="timepicker"
-                    locale="en"
-                    @input="handleToTime" />
-            </b-form-group>
+    <div>
+        <div class="row">
+            <div class="col-md-12 col-lg-6 pl-0">
+                <b-form-group
+                    class="mb-0"
+                    label="From"
+                    label-align-sm="left"
+                    label-for="from-timepicker"
+                    label-class="font-weight-bold pt-2"
+                >
+                    <b-form-timepicker
+                        v-model="from"
+                        name="from-timepicker"
+                        :hide-header="true"
+                        placeholder="Select time"
+                        :disabled="!baseDate"
+                        no-close-button
+                        minutes-step="15"
+                        class="timepicker"
+                        locale="en"
+                        @input="handleFromTime" />
+                </b-form-group>
+            </div>
+            <div class="col-md-12 col-lg-6 pl-0">
+                <b-form-group
+                    class="mb-0"
+                    label="To"
+                    label-align-sm="left"
+                    label-for="to-timepicker"
+                    label-class="font-weight-bold pt-2"
+                >
+                    <b-form-timepicker
+                        v-model="to"
+                        name="to-timepicker"
+                        :hide-header="true"
+                        placeholder="Select time"
+                        :disabled="!baseDate"
+                        no-close-button
+                        minutes-step="15"
+                        class="timepicker"
+                        locale="en"
+                        @input="handleToTime" />
+                </b-form-group>
+            </div>
         </div>
 
-        <div v-if="timeSlotErrorMsg" class="error-msg p-0 ml-0 col-12">{{timeSlotErrorMsg}}</div>
+        <div class="row p-0">
+            <div v-if="timeSlotErrorMsg" class="error-msg p-0 ml-0">{{timeSlotErrorMsg}}</div>
+        </div>
     </div>
+
 </template>
 
 <script lang="ts">
