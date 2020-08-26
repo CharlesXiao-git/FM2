@@ -13,9 +13,6 @@
             <div class="consignment-dispatch-date row px-4 pt-4">
                 <div class="col-md-6">
                     <b-form-group
-                        label-cols-md="12"
-                        label-cols-lg="5"
-                        label-cols-xl="4"
                         label="Dispatch date"
                         label-align-sm="left"
                         label-for="dispatch-date"
@@ -23,11 +20,15 @@
                     >
                         <DatePicker
                             name='dispatch-date'
-                            :min-value="minDispatchDate"
-                            :default-value="defaultDispatchDate"
+                            :min-value="minDate"
+                            :default-value="defaultDate"
                             @selected-date="handleDispatchDate"
                         />
                     </b-form-group>
+                </div>
+
+                <div class="col-md-6">
+                    <ReceiverTimeSlots @selected-time-slot="handleReceiverTimeslot" :dispatch-date="dispatchDate" />
                 </div>
             </div>
 
@@ -70,18 +71,22 @@ import ItemPanel from '@/components/Item/ItemPanel.vue'
 import DatePicker from '@/components/DatePicker/DatePicker.vue'
 import { subDays } from 'date-fns'
 import DeliveryDetails from '@/components/ReceiverDetails/DeliveryDetails.vue'
-import AddressClass from '@/helpers/types/AddressClass'
+import AddressClass from '@/helpers/types/AddressClass.ts'
+import ReceiverTimeSlots from '@/components/ReceiverDetails/ReceiverTimeSlots.vue'
+import { TimeSlot } from '@/model/TimeSlot'
 
 @Component({
-  components: { ItemPanel, ClientSelect, DatePicker, DeliveryDetails }
+  components: { ItemPanel, ClientSelect, DatePicker, DeliveryDetails, ReceiverTimeSlots }
 })
 export default class Consignment extends Vue {
   @Prop({ default: 'NEW CONSIGNMENT' }) title: string
   isClient = isUserClient()
   selectedClient: ClientReference = null
-  defaultDispatchDate: Date = new Date()
-  minDispatchDate: Date = subDays(this.defaultDispatchDate, 1)
-  dispatchDate: Date = null
+
+  defaultDate: Date = new Date()
+  dispatchDate: Date = this.defaultDate
+  minDate: Date = subDays(this.defaultDate, 1)
+  receiverTimeSlot: TimeSlot = null
 
   addressClass: AddressClass = 'BUSINESS'
   specialInstructions: string = null
@@ -90,6 +95,10 @@ export default class Consignment extends Vue {
 
   handleDispatchDate (date: Date) {
     this.dispatchDate = date
+  }
+
+  handleReceiverTimeslot (timeslot: TimeSlot) {
+    this.receiverTimeSlot = timeslot
   }
 
   getSelectedClient (selectedClient: ClientReference) {
