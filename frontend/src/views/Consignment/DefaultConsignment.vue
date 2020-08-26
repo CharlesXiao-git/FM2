@@ -3,7 +3,7 @@
         <template v-slot:sender>
             <template v-if="senderAddress">
                 <strong>{{ senderAddress.companyName }}</strong>
-                <p class="consignment-sender-address"> {{ senderAddress.addressLine1 }}
+                <p class="consignment-default-address"> {{ senderAddress.addressLine1 }}
                     <template v-if="senderAddress.addressLine2">
                         , {{ senderAddress.addressLine2 }}
                     </template>

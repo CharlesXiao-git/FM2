@@ -6,7 +6,7 @@
         <template v-slot:receiver>
             <template v-if="receiverAddress">
                 <strong>{{ receiverAddress.companyName }}</strong>
-                <p class="consignment-receiver-address"> {{ receiverAddress.addressLine1 }}
+                <p class="consignment-default-address"> {{ receiverAddress.addressLine1 }}
                     <template v-if="receiverAddress.addressLine2">
                         , {{ receiverAddress.addressLine2 }}
                     </template>
