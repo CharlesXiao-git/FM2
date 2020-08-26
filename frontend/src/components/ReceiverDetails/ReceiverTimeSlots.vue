@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import DatePicker from '@/components/DatePicker/DatePicker.vue'
 import TimeSlotPicker from '@/components/TimeSlotPicker/TimeSlotPicker.vue'
 import { TimeSlot } from '@/model/TimeSlot.ts'
@@ -56,6 +56,13 @@ export default class ReceiverTimeSlots extends Vue {
   handleTimeSlot (timeSlot: TimeSlot) {
     this.timeSlot = timeSlot
     this.$emit('selected-time-slot', this.timeSlot)
+  }
+
+  @Watch('dispatchDate', { immediate: true, deep: true })
+  onDispatchDate () {
+    this.selectedDate = null
+    this.timeSlot = null
+    this.$forceUpdate()
   }
 }
 </script>

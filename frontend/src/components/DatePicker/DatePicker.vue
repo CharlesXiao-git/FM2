@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 
 @Component
 export default class DatePicker extends Vue {
@@ -33,6 +33,12 @@ export default class DatePicker extends Vue {
 
   change () {
     this.$emit('selected-date', this.value)
+  }
+
+  @Watch('minValue', { immediate: true, deep: true })
+  onChangeMinValue () {
+    this.value = this.defaultValue || null
+    this.$forceUpdate()
   }
 }
 </script>
