@@ -56,3 +56,10 @@ $header-background-color: #495463;
   font-size: 80%;
   color: #dc3545;
 }
+
+.delete-btn, .delete-btn:hover, .delete-btn:focus {
+  color: $secondary;
+  background: none;
+  border: none;
+  box-shadow: none;
+}
