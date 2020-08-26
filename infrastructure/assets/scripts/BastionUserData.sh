@@ -7,9 +7,16 @@ sudo yum install -y https://dev.mysql.com/get/mysql57-community-release-el7-11.n
 sudo yum install -y mysql-community-client python3 jq
 sudo -Hu ec2-user pip3 install --user mycli
 
-# Append keys to Authorized Keys
-aws ssm get-parameter --region ${Region} --name ${SshKeysParam} | jq -rM '.Parameter.Value' | tr , '\n' >> /home/ec2-user/.ssh/authorized_keys
-sudo chown ec2-user:ec2-user /home/ec2-user/.ssh/authorized_keys
+# Create individual users and add their public keys
+aws ssm get-parameter --region ${Region} --name ${SshKeysParam} | jq -rM '.Parameter.Value' | tr , '\n' > /tmp/keys
+while read -r enc pubkey name; do
+  sudo adduser "$name"
+  sudo mkdir "/home/$name/.ssh/"
+  echo "$enc $pubkey $name" | sudo tee "/home/$name/.ssh/authorized_keys"
+  sudo chown -R "$name:$name" "/home/$name/.ssh/"
+  sudo chmod 600 "/home/$name/.ssh/authorized_keys"
+done < /tmp/keys
+sudo rm -f /tmp/keys
 
 # Alias Database URL to env-db-host
 DBHOST="$(aws ssm get-parameter --region ${Region} --name ${EnvDbHost} | jq -rM '.Parameter.Value')"
