@@ -13,9 +13,6 @@
             <div class="consignment-dispatch-date row px-4 pt-4">
                 <div class="col-md-6">
                     <b-form-group
-                        label-cols-md="12"
-                        label-cols-lg="5"
-                        label-cols-xl="4"
                         label="Dispatch date"
                         label-align-sm="left"
                         label-for="dispatch-date"

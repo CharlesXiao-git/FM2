@@ -1,6 +1,6 @@
 <template>
     <div class="row">
-        <div class="col-md-12 col-lg-6 col-xl-4 p-0 mr-2">
+        <div class="col-md-12 col-lg-6 pl-0">
             <b-form-group
                 class="mb-0"
                 label="From"
@@ -21,7 +21,7 @@
                     @input="handleFromTime" />
             </b-form-group>
         </div>
-        <div class="col-md-12 col-lg-6 col-xl-4 p-0">
+        <div class="col-md-12 col-lg-6 pl-0">
             <b-form-group
                 class="mb-0"
                 label="To"
