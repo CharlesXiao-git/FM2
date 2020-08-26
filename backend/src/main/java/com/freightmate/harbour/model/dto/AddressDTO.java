@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -55,6 +57,11 @@ public class AddressDTO {
     }
 
     public static AddressDTO fromAddress(Address address) {
+
+        if(Objects.isNull(address)) {
+            return null;
+        }
+
         return AddressDTO.builder()
                 .id(address.getId())
                 .addressLine1(address.getAddressLine1())

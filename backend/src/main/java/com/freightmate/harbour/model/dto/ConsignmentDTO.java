@@ -7,16 +7,21 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 @Builder
 public class ConsignmentDTO {
     private long id;
     private long ownerId;
     private long senderAddressId;
     private long deliveryAddressId;
+    private AddressDTO senderAddress;
+    private AddressDTO deliveryAddress;
     private String connoteId;
     private LocalDateTime dispatchDateAt;
     private LocalDateTime deliveryWindowStartAt;
@@ -47,11 +52,18 @@ public class ConsignmentDTO {
     }
 
     public static ConsignmentDTO fromConsignment(Consignment con) {
+
+        if (Objects.isNull(con)) {
+            return null;
+        }
+
         return ConsignmentDTO.builder()
                 .id(con.getId())
                 .ownerId(con.getOwnerId())
                 .senderAddressId(con.getSenderAddressId())
                 .deliveryAddressId(con.getDeliveryAddressId())
+                .senderAddress(AddressDTO.fromAddress(con.getSenderAddress()))
+                .deliveryAddress(AddressDTO.fromAddress(con.getDeliveryAddress()))
                 .connoteId(con.getConnoteId())
                 .dispatchDateAt(con.getDispatchDateAt())
                 .deliveryWindowStartAt(con.getDeliveryWindowStartAt())

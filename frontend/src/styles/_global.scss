@@ -11,7 +11,7 @@ $header-background-color: #495463;
 // Styles
 .primary-button {
   color: #fff;
-  background-color: #80bf45 !important;
+  background-color: $secondary !important;
   border: none !important;
   text-transform: uppercase;
   padding: 0.5em 1.1em;

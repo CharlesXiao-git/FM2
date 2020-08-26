@@ -41,7 +41,7 @@
                         </b-collapse>
                     </b-nav-item>
                     <b-nav-item>
-                        <b-button>
+                        <b-button to="/consignment/list">
                             <i class="fas mr-1 fa-folder-open"></i>
                             Consignments
                         </b-button>

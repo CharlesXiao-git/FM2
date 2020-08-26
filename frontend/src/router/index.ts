@@ -3,6 +3,7 @@ import VueRouter, { RouteConfig } from 'vue-router'
 import Login from '@/views/Login/Login.vue'
 import Home from '@/views/Home/Home.vue'
 import AddressBook from '@/views/AddressBook/AddressBook.vue'
+import ConsignmentList from '@/views/Consignment/ConsignmentList.vue'
 import DefaultConsignment from '@/views/Consignment/DefaultConsignment.vue'
 import ThirdPartyConsignment from '@/views/Consignment/ThirdPartyConsignment.vue'
 import ReturnConsignment from '@/views/Consignment/ReturnConsignment.vue'
@@ -53,6 +54,13 @@ const routes: Array<RouteConfig> = [
     name: 'AddressBook',
     meta: { layout: 'home' },
     component: AddressBook,
+    props: true
+  },
+  {
+    path: '/consignment/list',
+    name: 'ConsignmentList',
+    meta: { layout: 'home' },
+    component: ConsignmentList,
     props: true
   }
 ]

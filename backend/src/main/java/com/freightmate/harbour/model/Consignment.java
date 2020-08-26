@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -28,8 +30,22 @@ public class Consignment extends BaseEntity<Long> {
     @Column(name = "owner_id", insertable = false, updatable = false)
     private long ownerId;
 
+    // TODO remove the notfound action once good data is ensured
+    @ManyToOne(targetEntity = Address.class, fetch = FetchType.LAZY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private Address senderAddress;
+
+    @Column(name = "sender_address_id", insertable = false, updatable = false)
     private long senderAddressId;
+
+    // TODO remove the notfound action once good data is ensured
+    @ManyToOne(targetEntity = Address.class, fetch = FetchType.LAZY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private Address deliveryAddress;
+
+    @Column(name = "delivery_address_id", insertable = false, updatable = false)
     private long deliveryAddressId;
+
     private String connoteId;
 
     private LocalDateTime dispatchDateAt;

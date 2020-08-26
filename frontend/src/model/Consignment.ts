@@ -1,8 +1,7 @@
 export class Consignment {
   id: string
-  clientId: string
-  senderAddressId: string
-  deliveryAddressId: string
+  fromCompanyName: string
+  toCompanyName: string
   connoteId: string | null
   dispatchDateAt: Date
   deliveryWindowStartAt: Date | null
@@ -10,12 +9,17 @@ export class Consignment {
   addressClass: string
   isAllowedToLeave: boolean
   isTailgateRequired: boolean
+  carrier: string
+  serviceType: string
+  receiverSuburb: string
+  senderSuburb: string
 
-  constructor (id: string, clientId: string, senderAddressId: string, deliveryAddressId: string, connoteId: string | null, dispatchDateAt: Date, deliveryWindowStartAt: Date | null, deliveryWindowEndAt: Date | null, addressClass: string, isAllowedToLeave: boolean, isTailgateRequired: boolean) {
+  constructor (id: string, fromCompanyName: string, toCompanyName: string, carrier: string, serviceType: string, receiverSuburb: string,
+               senderSuburb: string, connoteId: string | null, dispatchDateAt: Date, deliveryWindowStartAt: Date | null,
+               deliveryWindowEndAt: Date | null, addressClass: string, isAllowedToLeave: boolean, isTailgateRequired: boolean) {
     this.id = id
-    this.clientId = clientId
-    this.senderAddressId = senderAddressId
-    this.deliveryAddressId = deliveryAddressId
+    this.fromCompanyName = fromCompanyName
+    this.toCompanyName = toCompanyName
     this.connoteId = connoteId
     this.dispatchDateAt = dispatchDateAt
     this.deliveryWindowStartAt = deliveryWindowStartAt
@@ -23,5 +27,9 @@ export class Consignment {
     this.addressClass = addressClass
     this.isAllowedToLeave = isAllowedToLeave
     this.isTailgateRequired = isTailgateRequired
+    this.carrier = carrier
+    this.serviceType = serviceType
+    this.receiverSuburb = receiverSuburb
+    this.senderSuburb = senderSuburb
   }
 }
