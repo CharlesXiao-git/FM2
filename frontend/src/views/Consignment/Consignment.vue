@@ -32,22 +32,27 @@
                 </div>
             </div>
 
-            <div class="consignment-sender-receiver row p-4">
+            <div class="consignment-sender-receiver row px-4 py-2">
                 <div class="col-md-6">
                     <h3>Sender Details</h3>
                     <slot name="sender"></slot>
                 </div>
                 <div class="col-md-6">
                     <h3>Receiver Details</h3>
-
                     <slot name="receiver"></slot>
-
+                </div>
+            </div>
+            <div class="consignment-sender-receiver row">
+                <div class="col-md-6">
+                    <!-- Handled by, packed by, managed by selection-->
+                </div>
+                <div class="col-md-6">
                     <div class="mt-3 ml-2">
                         <DeliveryDetails
-                          @selected-address-class="getAddressClass"
-                          @selected-special-instructions="getSpecialInstructions"
-                          @selected-auth-to-leave="getAuthToLeave"
-                          @selected-tailgate-required="getTailgateRequired"
+                                @selected-address-class="getAddressClass"
+                                @selected-special-instructions="getSpecialInstructions"
+                                @selected-auth-to-leave="getAuthToLeave"
+                                @selected-tailgate-required="getTailgateRequired"
                         />
                     </div>
                 </div>
@@ -74,12 +79,15 @@ import DeliveryDetails from '@/components/ReceiverDetails/DeliveryDetails.vue'
 import AddressClass from '@/helpers/types/AddressClass.ts'
 import ReceiverTimeSlots from '@/components/ReceiverDetails/ReceiverTimeSlots.vue'
 import { TimeSlot } from '@/model/TimeSlot'
+import { Address } from '@/model/Address'
 
 @Component({
   components: { ItemPanel, ClientSelect, DatePicker, DeliveryDetails, ReceiverTimeSlots }
 })
 export default class Consignment extends Vue {
   @Prop({ default: 'NEW CONSIGNMENT' }) title: string
+  @Prop() senderAddress: Address
+  @Prop() receiverAddress: Address
   isClient = isUserClient()
   selectedClient: ClientReference = null
 

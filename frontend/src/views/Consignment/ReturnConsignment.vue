@@ -1,5 +1,5 @@
 <template>
-    <Consignment title="RETURN CONSIGNMENT" @selected-client="getSelectedClient">
+    <Consignment title="RETURN CONSIGNMENT" :sender-address="senderAddress" :receiver-address="receiverAddress" @selected-client="getSelectedClient">
         <template v-slot:sender>
             <AddressSelect modal-id="sender-address-select" :client="selectedClient" @selected-address="getSelectedAddress"></AddressSelect>
         </template>
