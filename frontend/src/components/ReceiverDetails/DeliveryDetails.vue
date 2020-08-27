@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import AddressClass from '@/helpers/types/AddressClass.ts'
 
 @Component
@@ -49,6 +49,13 @@ export default class DeliveryDetails extends Vue {
 
   selectedTailgateRequired () {
     this.$emit('selected-tailgate-required', this.isTailgateRequired)
+  }
+
+  @Watch('notes', { immediate: true, deep: true })
+  onChangeReceiverAddress () {
+    this.specialInstructions = this.notes
+    this.$forceUpdate()
+    this.selectedSpecialInstructions()
   }
 }
 </script>

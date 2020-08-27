@@ -53,6 +53,7 @@
                                 @selected-special-instructions="getSpecialInstructions"
                                 @selected-auth-to-leave="getAuthToLeave"
                                 @selected-tailgate-required="getTailgateRequired"
+                                :notes="notes"
                         />
                     </div>
                 </div>
@@ -68,7 +69,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import ClientSelect from '@/components/ClientSelect/ClientSelect.vue'
 import { isUserClient } from '@/helpers/auth/UserHelpers'
 import { ClientReference } from '@/helpers/types'
@@ -88,6 +89,8 @@ export default class Consignment extends Vue {
   @Prop({ default: 'NEW CONSIGNMENT' }) title: string
   @Prop({ required: true }) senderAddress: Address
   @Prop({ required: true }) receiverAddress: Address
+
+  notes = this.receiverAddress ? this.receiverAddress.notes : ''
   isClient = isUserClient()
   selectedClient: ClientReference = null
 
@@ -128,6 +131,12 @@ export default class Consignment extends Vue {
 
   getTailgateRequired (tailgateRequired: boolean) {
     this.isTailgateRequired = tailgateRequired
+  }
+
+  @Watch('receiverAddress', { immediate: true, deep: true })
+  onChangeReceiverAddress () {
+    this.notes = this.receiverAddress.notes
+    this.$forceUpdate()
   }
 }
 </script>
