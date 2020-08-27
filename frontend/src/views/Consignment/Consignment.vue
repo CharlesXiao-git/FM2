@@ -86,8 +86,8 @@ import { Address } from '@/model/Address'
 })
 export default class Consignment extends Vue {
   @Prop({ default: 'NEW CONSIGNMENT' }) title: string
-  @Prop() senderAddress: Address
-  @Prop() receiverAddress: Address
+  @Prop({ required: true }) senderAddress: Address
+  @Prop({ required: true }) receiverAddress: Address
   isClient = isUserClient()
   selectedClient: ClientReference = null
 
