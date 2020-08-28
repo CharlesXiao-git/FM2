@@ -1,7 +1,7 @@
 <template>
   <div class="row p-0 mt-2 pl-2">
     <div class="col-md-11 col-lg-6 col-xl-4 p-0">
-      <b-input v-model="reference.value" placeholder="Reference number" @change="changeReference"></b-input>
+      <b-input v-model="reference.value" placeholder="Reference number" @input="changeReference"></b-input>
     </div>
 
     <div class="col-1 p-0">
