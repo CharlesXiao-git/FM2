@@ -144,7 +144,7 @@ export default class Consignment extends Vue {
 
   @Watch('receiverAddress', { immediate: true, deep: true })
   onChangeReceiverAddress () {
-    this.notes = this.receiverAddress.notes
+    this.notes = this.receiverAddress ? this.receiverAddress.notes : ''
     this.$forceUpdate()
   }
 }
