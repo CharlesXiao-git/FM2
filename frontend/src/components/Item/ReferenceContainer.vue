@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import ReferenceForm from '@/components/Item/ReferenceForm.vue'
 import Reference from '@/helpers/types/Reference'
 
@@ -31,6 +31,10 @@ import Reference from '@/helpers/types/Reference'
 export default class ReferenceContainer extends Vue {
   references: Array<Reference> = []
   disableAdd = false
+
+  created () {
+    this.newReferenceForm()
+  }
 
   newReferenceForm () {
     const reference: Reference = { id: this.getNextId(), value: '' }
@@ -51,17 +55,16 @@ export default class ReferenceContainer extends Vue {
     if (referenceIndex !== -1) {
       this.references[referenceIndex] = reference
       this.disableAdd = false
-      this.updatedReferences()
     }
   }
 
   handleDeletedReference (reference: Reference) {
     this.references.splice(this.references.indexOf(reference), 1)
     this.disableAdd = false
-    this.updatedReferences()
   }
 
-  updatedReferences () {
+  @Watch('references', { immediate: true, deep: true })
+  onChangeReferences () {
     this.$emit('updated-references', this.references)
   }
 }
