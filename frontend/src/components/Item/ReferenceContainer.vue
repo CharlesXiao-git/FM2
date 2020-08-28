@@ -47,19 +47,16 @@ export default class ReferenceContainer extends Vue {
   }
 
   handleExistingReference (reference: Reference) {
-    const existingReference: Reference = this.references.filter(ref => ref.id === reference.id)[0]
-
-    if (existingReference) {
-      existingReference.value = reference.value
+    const referenceIndex = this.references.indexOf(reference)
+    if (referenceIndex !== -1) {
+      this.references[referenceIndex] = reference
       this.disableAdd = false
       this.updatedReferences()
-    } else {
-      console.error('Reference id not found')
     }
   }
 
   handleDeletedReference (reference: Reference) {
-   this.references.splice(this.references.indexOf(reference), 1)
+    this.references.splice(this.references.indexOf(reference), 1)
     this.disableAdd = false
     this.updatedReferences()
   }
