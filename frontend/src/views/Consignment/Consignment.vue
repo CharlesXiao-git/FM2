@@ -84,7 +84,6 @@ import ReceiverTimeSlots from '@/components/ReceiverDetails/ReceiverTimeSlots.vu
 import { TimeSlot } from '@/model/TimeSlot'
 import { Address } from '@/model/Address'
 import ReferenceContainer from '@/components/Item/ReferenceContainer.vue'
-import Reference from '@/helpers/types/Reference'
 
 @Component({
   components: { ItemPanel, ClientSelect, DatePicker, DeliveryDetails, ReceiverTimeSlots, ReferenceContainer }
@@ -108,7 +107,7 @@ export default class Consignment extends Vue {
   isAuthToLeave = false
   isTailgateRequired = false
 
-  references: Array<Reference> = []
+  references: string[] = []
 
   handleDispatchDate (date: Date) {
     this.dispatchDate = date
@@ -139,7 +138,7 @@ export default class Consignment extends Vue {
     this.isTailgateRequired = tailgateRequired
   }
 
-  getReferences (references: Array<Reference>) {
+  getReferences (references: string[]) {
     this.references = references
   }
 

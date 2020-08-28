@@ -29,7 +29,7 @@ import Reference from '@/helpers/types/Reference'
   components: { ReferenceForm }
 })
 export default class ReferenceContainer extends Vue {
-  references: Array<Reference> = []
+  references: Reference[] = []
   disableAdd = false
 
   created () {
@@ -65,7 +65,7 @@ export default class ReferenceContainer extends Vue {
 
   @Watch('references', { immediate: true, deep: true })
   onChangeReferences () {
-    this.$emit('updated-references', this.references)
+    this.$emit('updated-references', this.references.map(ref => ref.value))
   }
 }
 </script>
