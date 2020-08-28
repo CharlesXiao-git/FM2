@@ -1,5 +1,5 @@
 <template>
-    <Consignment @selected-client="getSelectedClient">
+    <Consignment :sender-address="senderAddress" :receiver-address="receiverAddress" @selected-client="getSelectedClient">
         <template v-slot:sender>
             <template v-if="senderAddress">
                 <strong>{{ senderAddress.companyName }}</strong>
