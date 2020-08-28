@@ -59,8 +59,7 @@ export default class ReferenceContainer extends Vue {
   }
 
   handleDeletedReference (reference: Reference) {
-    const otherReferences: Array<Reference> = this.references.filter(ref => ref.id !== reference.id)
-    this.references = otherReferences
+   this.references.splice(this.references.indexOf(reference), 1)
     this.disableAdd = false
     this.updatedReferences()
   }
