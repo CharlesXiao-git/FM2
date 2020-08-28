@@ -63,6 +63,8 @@
             <div class="consignment-sub-heading mt-5 pt-2 pb-1 pl-4">
                 <h3>ITEM INFO</h3>
             </div>
+
+            <ReferenceContainer @updated-references="getReferences" />
             <ItemPanel />
         </div>
     </div>
@@ -81,9 +83,10 @@ import AddressClass from '@/helpers/types/AddressClass.ts'
 import ReceiverTimeSlots from '@/components/ReceiverDetails/ReceiverTimeSlots.vue'
 import { TimeSlot } from '@/model/TimeSlot'
 import { Address } from '@/model/Address'
+import ReferenceContainer from '@/components/Item/ReferenceContainer.vue'
 
 @Component({
-  components: { ItemPanel, ClientSelect, DatePicker, DeliveryDetails, ReceiverTimeSlots }
+  components: { ItemPanel, ClientSelect, DatePicker, DeliveryDetails, ReceiverTimeSlots, ReferenceContainer }
 })
 export default class Consignment extends Vue {
   @Prop({ default: 'NEW CONSIGNMENT' }) title: string
@@ -103,6 +106,8 @@ export default class Consignment extends Vue {
   specialInstructions: string = null
   isAuthToLeave = false
   isTailgateRequired = false
+
+  references: string[] = []
 
   handleDispatchDate (date: Date) {
     this.dispatchDate = date
@@ -131,6 +136,10 @@ export default class Consignment extends Vue {
 
   getTailgateRequired (tailgateRequired: boolean) {
     this.isTailgateRequired = tailgateRequired
+  }
+
+  getReferences (references: string[]) {
+    this.references = references
   }
 
   @Watch('receiverAddress', { immediate: true, deep: true })
