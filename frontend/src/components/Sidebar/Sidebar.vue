@@ -20,13 +20,13 @@
                             Create New
                         </b-button>
                         <b-collapse class="menu-items" id="create-new-collapse">
-                            <b-nav-item to="/consignment">
+                            <b-nav-item to="/consignment/default">
                                 Consignment
                             </b-nav-item>
-                            <b-nav-item>
+                            <b-nav-item to="/consignment/return">
                                 Return
                             </b-nav-item>
-                            <b-nav-item>
+                            <b-nav-item to="/consignment/third-party">
                                 3rd Party Pickup
                             </b-nav-item>
                             <b-nav-item>
@@ -41,7 +41,7 @@
                         </b-collapse>
                     </b-nav-item>
                     <b-nav-item>
-                        <b-button>
+                        <b-button to="/consignment/list">
                             <i class="fas mr-1 fa-folder-open"></i>
                             Consignments
                         </b-button>

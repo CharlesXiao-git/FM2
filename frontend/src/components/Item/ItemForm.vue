@@ -79,7 +79,7 @@ type itemTypeOption = {
 }
 
 @Component
-export default class ItemPanel extends Vue {
+export default class ItemForm extends Vue {
   @Prop() item: Item
   @Prop() itemTypes: ItemType[]
   quantity = 1
@@ -285,4 +285,4 @@ export default class ItemPanel extends Vue {
 }
 </script>
 
-<style scoped lang="scss" src="./ItemPanel.scss"></style>
+<style scoped lang="scss" src="./ItemForm.scss"></style>

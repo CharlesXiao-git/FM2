@@ -40,6 +40,12 @@ resource "aws_ssm_parameter" "DatabaseApplicationDatabasePassword" {
   }
 }
 
+resource "aws_ssm_parameter" "DatabaseEndpoint" {
+  name  = join("-", [var.application-name, terraform.workspace, "database-endpoint"])
+  type  = "String"
+  value = aws_rds_cluster.ApplicationDatabase57.endpoint
+}
+
 resource "aws_ssm_parameter" "JWTSecret" {
   name  = "${var.application-name}-${terraform.workspace}-jwt-secret"
   type  = "SecureString"
@@ -59,5 +65,19 @@ resource "aws_ssm_parameter" "AusPostAPIKey" {
   tags = {
     Environment = terraform.workspace
     Application = var.application-name
+  }
+
+  lifecycle {
+    ignore_changes = [value]
+  }
+}
+
+resource "aws_ssm_parameter" "BastionHostPubKeys" {
+  name  = join("-", [var.application-name, terraform.workspace, "Bastion-Host-Keys"])
+  type  = "StringList"
+  value = "foo,bar"
+
+  lifecycle {
+    ignore_changes = [value]
   }
 }

@@ -16,20 +16,21 @@ terraform {
 }
 
 provider "aws" {
-  version = "~> 2.68"
+  version = ">= 2.68, < 3.0.0"
   region  = var.aws-region
 }
 
 provider "aws" {
-  alias   = "us-east-1"
-  version = "~> 2.68"
+  alias = "us-east-1"
+
+  version = ">= 2.68, < 3.0.0"
   region  = "us-east-1"
 }
 
 provider "template" {
-  version = "~> 2.1"
+  version = "2.1"
 }
 
 provider "random" {
-  version = "~> 2.2"
+  version = "2.2"
 }

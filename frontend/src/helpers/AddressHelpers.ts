@@ -20,6 +20,9 @@ export function prepareAddressData (address: Address): Address {
   if (address.id) {
     sendAddressData.id = address.id
   }
+  if (address.addressType) {
+    sendAddressData.addressType = address.addressType
+  }
 
   return sendAddressData
 }

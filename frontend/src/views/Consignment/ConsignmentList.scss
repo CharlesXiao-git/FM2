@@ -1,0 +1,69 @@
+.consignments {
+  background: #f1f4f6;
+  height: 100%;
+  margin: 0;
+}
+
+.consignments-header {
+  background: rgba(255, 255, 255, 0.45);
+  width: 100%;
+}
+
+.consignments-alert {
+  width: 100%;
+  text-align: center;
+  z-index: 1020;
+  height: 0;
+}
+
+.img-container {
+  font-size: 1.5rem;
+  color: #7187a4;
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0.83333333rem;
+  background: #fff;
+  box-shadow: 0 0.46875rem 2.1875rem rgba(4, 9, 20, 0.03),
+  0 0.9375rem 1.40625rem rgba(4, 9, 20, 0.03),
+  0 0.25rem 0.53125rem rgba(4, 9, 20, 0.05),
+  0 0.125rem 0.1875rem rgba(4, 9, 20, 0.03);
+  border-radius: 0.25rem;
+  width: 60px;
+  height: 60px;
+}
+
+.consignments-content {
+  margin: 32px;
+}
+
+h5 {
+  margin: 0.5rem 0;
+  text-align: left;
+  font-size: 1.23em;
+  font-weight: 600;
+  opacity: 0.6;
+}
+
+p {
+  font-size: 0.88rem;
+  opacity: 0.6;
+  margin: 0;
+}
+
+::v-deep .row {
+  margin: 16px 0 0 0 !important;
+}
+
+::v-deep .btn-secondary.active {
+  background-color: $secondary !important;
+}
+
+::v-deep .btn-secondary {
+  border: none;
+  padding:16px;
+  margin:16px;
+  border-radius: 0;
+}

@@ -26,28 +26,30 @@ public interface AddressRepository extends PagingAndSortingRepository<Address, L
     // the respective ID field to get the addresses under that ID
     //
     // Lastly after we got all the addresses, we perform the search using LIKE condition on the concatenated fields
-    String ADDRESS_LINE1_LIKE = "SELECT x.id, x.client_id, x.customer_id, x.address_type, x.reference_id, x.company_name, x.address_line_1, " +
+    String ADDRESS_LIKE = "SELECT x.id, x.client_id, x.customer_id, x.address_type, x.reference_id, x.company_name, x.address_line_1, " +
             "       x.address_line_2, x.town, x.postcode, x.country, x.state, x.contact_name, x.contact_no, " +
             "       x.contact_email, x.notes, x.is_default, x.count_used, x.is_deleted, x.deleted_at, x.created_at, " +
             "       x.updated_at, x.deleted_by, x.created_by, x.updated_by " +
             "FROM ( " +
             "SELECT a.*, " +
-            "       CONCAT(COALESCE(a.reference_id, ''), a.contact_name, a.company_name, a.address_line_1, a.address_line_2, a.town, " +
+            "       CONCAT_WS(COALESCE(a.reference_id, ''), a.contact_name, a.company_name, a.address_line_1, a.address_line_2, a.town, " +
             "           a.postcode, a.state) concat_address_details " +
-            "FROM address a " +
-            "         LEFT JOIN user cli ON a.client_id = cli.id " +
-            "         LEFT JOIN user cus ON a.customer_id = cus.id " +
-            "WHERE a.is_deleted = FALSE " +
-            "  AND CASE " +
-            "          WHEN ?1 = 'ANY' THEN a.address_type IN ('DELIVERY', 'SENDER') " +
-            "          ELSE a.address_type = ?1 " +
-            "    END " +
-            "  AND CASE " +
-            "          WHEN ?2 = 'CUSTOMER' THEN cus.id = ?3 " +
-            "          WHEN ?2 = 'CLIENT' THEN cli.id = ?3 " +
-            "          ELSE cli.broker_id = ?3 " + // User might be a broker
-            "    END) AS x " +
-            "WHERE x.concat_address_details LIKE CONCAT('%', ?4, '%');";
+            "FROM address a" +
+            "               LEFT JOIN user cli ON a.client_id = cli.id" +
+            "               LEFT JOIN user cus ON a.customer_id = cus.id" +
+            "               LEFT JOIN user curr ON curr.id = ?3" +
+            "      WHERE a.is_deleted = FALSE" +
+            "        AND CASE" +
+            "                WHEN ?1 = 'ANY' THEN a.address_type IN ('DELIVERY', 'SENDER')" +
+            "                ELSE a.address_type = ?1" +
+            "          END" +
+            "        AND CASE" +
+            "                WHEN ?2 = 'BROKER' THEN ?3 in (cli.broker_id, cus.id, cli.id)" +
+            "                WHEN ?2 = 'CUSTOMER' THEN ?3 in (cus.id, cli.id, cli.customer_id)" +
+            "                WHEN ?2 = 'CLIENT' AND a.client_id IS NULL THEN a.customer_id = curr.customer_id" +
+            "                ELSE ?3 = cli.id" +
+            "          END) AS x " +
+            "WHERE lower(x.concat_address_details) LIKE lower(CONCAT('%', ?4, '%'))";
 
     String ADDRESS_BY_USERID = "SELECT a.id, a.client_id, a.customer_id, a.address_type, a.reference_id, a.company_name, a.address_line_1, " +
             "             a.address_line_2, a.town, a.postcode, a.country, a.state, a.contact_name, a.contact_no, " +
@@ -98,7 +100,7 @@ public interface AddressRepository extends PagingAndSortingRepository<Address, L
     @Query(value = DELETE_BY_IDS, nativeQuery = true)
     Integer deleteAddressesByIds(List<Long> addressIds, long userId);
 
-    @Query(value = ADDRESS_LINE1_LIKE, nativeQuery = true)
+    @Query(value = ADDRESS_LIKE, nativeQuery = true)
     List<Address> findAddresses(String addressType, String userRole, long userId, String criteria);
 
     @Query(value = USER_ADDRESSES, nativeQuery = true)

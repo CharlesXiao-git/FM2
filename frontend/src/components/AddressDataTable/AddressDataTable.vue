@@ -44,7 +44,7 @@ import { Address } from '@/model/Address'
 import ConfirmActionModal from '@/components/ConfirmActionModal/ConfirmActionModal.vue'
 import { prepareAddressData } from '@/helpers/AddressHelpers'
 import { getDefaultConfig } from '@/helpers/auth/RequestHelpers'
-import { clientReference } from '@/helpers/types'
+import { ClientReference } from '@/helpers/types'
 
 @Component({
   components: { ConfirmActionModal, AddressFormModal }
@@ -84,7 +84,7 @@ export default class AddressTable extends Vue {
   totalRows = this.addresses ? this.addresses.length : this.perPage
 
   modalContent: Address = null
-  client: clientReference = null
+  client: ClientReference = null
 
   emittedAddress (address: Address) {
     this.$emit('emit-address', address)

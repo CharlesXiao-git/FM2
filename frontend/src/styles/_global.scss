@@ -11,7 +11,7 @@ $header-background-color: #495463;
 // Styles
 .primary-button {
   color: #fff;
-  background-color: #80bf45 !important;
+  background-color: $secondary !important;
   border: none !important;
   text-transform: uppercase;
   padding: 0.5em 1.1em;
@@ -42,4 +42,24 @@ $header-background-color: #495463;
   background-color: rgb(221, 107, 85) !important;
   border: none !important;
   text-transform: uppercase;
+}
+
+.custom-radio, .custom-checkbox {
+  label, input {
+    cursor: pointer;
+  }
+}
+
+.error-msg {
+  width: 100%;
+  margin: 0.5rem;
+  font-size: 80%;
+  color: #dc3545;
+}
+
+.delete-btn, .delete-btn:hover, .delete-btn:focus {
+  color: $secondary;
+  background: none;
+  border: none;
+  box-shadow: none;
 }

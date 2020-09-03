@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import App from './App.vue'
-import axios, { AxiosStatic } from 'axios'
+import axios, { AxiosInstance } from 'axios'
 import BootstrapVue from 'bootstrap-vue'
 import router from './router'
 import 'bootstrap/dist/css/bootstrap.css'
@@ -25,7 +25,10 @@ const options = {
   showConsoleColors: true
 }
 Vue.use(VueLoggerPlugin, options)
-Vue.prototype.$axios = axios
+Vue.prototype.$axios = axios.create({
+  baseURL: process.env.VUE_APP_API_URL || 'http://localhost:8080',
+  timeout: process.env.VUE_APP_DEFAULT_AXIOS_TIMEOUT || 20000
+})
 Vue.use(BootstrapVue)
 Vue.use(CoolSelectPlugin)
 Vue.component('default-layout', Default)
@@ -33,7 +36,7 @@ Vue.component('home-layout', Home)
 
 declare module 'vue/types/vue' {
   interface Vue {
-    $axios: AxiosStatic;
+    $axios: AxiosInstance;
   }
 }
 
@@ -41,4 +44,3 @@ new Vue({
   router,
   render: h => h(App)
 }).$mount('#app')
-axios.defaults.baseURL = process.env.VUE_APP_ROOT_URL || 'http://localhost:8080'

@@ -20,5 +20,5 @@ resource "aws_cloudwatch_log_group" "ApplicationLogGroup" {
 
 resource "aws_cloudwatch_log_stream" "ApplicationLogStream" {
   log_group_name = aws_cloudwatch_log_group.ApplicationLogGroup.name
-  name = "${var.application-name}-${terraform.workspace}-api-stream"
+  name           = "${var.application-name}-${terraform.workspace}-api-stream"
 }

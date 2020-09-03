@@ -90,3 +90,41 @@ data "template_file" "ApplicationWebPolicy" {
     ])
   }
 }
+
+
+
+resource "aws_iam_role" "EC2BastionHostRole" {
+  name        = "${var.application-name}-${terraform.workspace}-EC2BastionHostRole"
+  path        = "/Harbour/${terraform.workspace}/roles/"
+  description = "Role for EC2 Bastion Host"
+
+  assume_role_policy = file("assets/policies/EC2STSAssumePolicy.json")
+
+  tags = {
+    Environment = terraform.workspace
+    Application = var.application-name
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "BastionHostRolePolicyAttachment" {
+  policy_arn = aws_iam_policy.BastionHostPolicy.arn
+  role       = aws_iam_role.EC2BastionHostRole.name
+}
+
+resource "aws_iam_policy" "BastionHostPolicy" {
+  name        = "${var.application-name}${terraform.workspace}BastionHostPolicy"
+  description = "Policy rules allowing the Harbour Bastion Host to transact with AWS resources."
+  path        = "/Harbour/${terraform.workspace}/policies/"
+  policy      = data.template_file.BastionHostPolicy.rendered
+
+}
+
+data "template_file" "BastionHostPolicy" {
+  template = file("assets/policies/EC2BastionHostPolicy.json")
+
+  vars = {
+    KeysParam             = aws_ssm_parameter.BastionHostPubKeys.arn
+    DatabaseEndpointParam = aws_ssm_parameter.DatabaseEndpoint.arn
+    BastionHostIpAddress  = aws_instance.BastionHost.private_ip
+  }
+}

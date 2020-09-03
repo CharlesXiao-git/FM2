@@ -59,5 +59,5 @@ resource "random_password" "JWTSecretKey" {
 
 variable "bastion-key-name" {
   description = "Bastion host keyboard"
-  default = "freightmate-Harbour-bastion"
+  default     = "freightmate-Harbour-bastion"
 }

@@ -9,7 +9,7 @@
 
 // Client App Bucket CDN
 resource "aws_cloudfront_distribution" "ApplicationClient" {
-  enabled             = false
+  enabled             = true
   default_root_object = "index.html"
   aliases             = [trimsuffix(lower("${terraform.workspace}.staging.${data.aws_route53_zone.Public.name}"), ".")]
 
@@ -55,6 +55,10 @@ resource "aws_cloudfront_distribution" "ApplicationClient" {
     domain_name = aws_s3_bucket.AppClient.bucket_regional_domain_name
     origin_id   = "myS3Origin"
     origin_path = ""
+
+    s3_origin_config {
+      origin_access_identity = aws_cloudfront_origin_access_identity.ClientDistribution.cloudfront_access_identity_path
+    }
   }
 
   restrictions {
@@ -76,5 +80,8 @@ resource "aws_cloudfront_distribution" "ApplicationClient" {
   }
 }
 
+resource "aws_cloudfront_origin_access_identity" "ClientDistribution" {
+  comment = "${var.application-name}-${terraform.workspace}-OriginAccessIdentity"
+}
 
 // TODO: Create CloudFront Distribution for Static Assets
