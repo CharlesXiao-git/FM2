@@ -1,7 +1,5 @@
 package com.freightmate.harbour.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.freightmate.harbour.model.dto.ItemDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,8 +11,6 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @SuperBuilder
 @AllArgsConstructor
@@ -23,12 +19,20 @@ import java.util.stream.Collectors;
 @Setter
 public class Consignment extends BaseEntity<Long> {
 
-    @JsonIgnore
-    @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)
-    private User owner;
+    @ManyToOne(targetEntity = UserClient.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_client_id")
+    private UserClient userClient;
 
-    @Column(name = "owner_id", insertable = false, updatable = false)
-    private long ownerId;
+    @Column(name = "user_client_id", insertable = false, updatable = false)
+    private long userClientId;
+
+    // todo Quote model
+    // @Column(name = "quote_id", insertable = false, updatable = false)
+     private Long quoteId;
+
+    // todo Manifest model
+    // @Column(name = "manifest_id", insertable = false, updatable = false)
+     private Long manifestId;
 
     // TODO remove the notfound action once good data is ensured
     @ManyToOne(targetEntity = Address.class, fetch = FetchType.LAZY)
@@ -46,21 +50,61 @@ public class Consignment extends BaseEntity<Long> {
     @Column(name = "delivery_address_id", insertable = false, updatable = false)
     private long deliveryAddressId;
 
-    private String connoteId;
-
-    private LocalDateTime dispatchDateAt;
-    private LocalDateTime deliveryWindowStartAt;
-    private LocalDateTime deliveryWindowEndAt;
-
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private AddressClass addressClass;
+    private AddressClass deliveryAddressClass;
 
-    @Column(nullable = false)
-    private Boolean isAllowedToLeave;
-
-    @Column(nullable = false)
+    private String connoteNumber;
+    private String whoPays;
+    private String paymentAccountNumber;
+    private Boolean authorityToLeave;
+    private LocalDateTime dispatchedAt;
+    private LocalDateTime deliveryWindowBegin;
+    private LocalDateTime deliveryWindowEnd;
+    private String specialInstructions;
+    private Float scaleFrom;
+    private Float scaleTo;
+    private Float baseCharge;
+    private Float rateCharge;
+    private Float minCharge;
+    private Float fuel;
+    private Float cubicConversionRate;
+    private ConsignmentType consignmentType;
+    private Float residentialAddressCharge;
     private Boolean isTailgateRequired;
+    private Float tailgateCharge;
+    private Float dgCharge;
+    private Float oversizeCharge;
+    private String status;
+    private LocalDateTime statusBooked;
+    private LocalDateTime statusInTransit;
+    private LocalDateTime statusOutForDelivery;
+    private LocalDateTime statusDelivered;
+    private LocalDateTime statusUnableToDeliver;
+    private String statusNote;
+    private Boolean statusLate;
+    private LocalDateTime statusLatestTimestamp;
+    private Float totalItemWeight;
+    private Float totalItemCubic;
+    private Integer totalItemQty;
+    private Float freightCost;
+
+    @Column(name = "cat_1_fee")
+    private Float cat1Fee;
+    private Float fuelLevy;
+
+    @Column(name = "cat_2_fee")
+    private Float cat2Fee;
+    private Float gst;
+    private Float totalCost;
+    private Boolean poa;
+
+    @Column(name = "service_title_1")
+    private String serviceTitle1;
+    @Column(name = "service_title_2")
+    private String serviceTitle2;
+    @Column(name = "service_title_3")
+    private String serviceTitle3;
 
     @OneToMany(targetEntity = Item.class,
             cascade = CascadeType.ALL,
@@ -68,14 +112,7 @@ public class Consignment extends BaseEntity<Long> {
             orphanRemoval = true)
     private List<Item> items;
 
-    @Column(nullable = false)
-    Boolean isDeleted;
-    LocalDateTime deletedAt;
-    Long deletedBy;
-
     public Consignment() {
-        this.isAllowedToLeave = false;
-        this.isTailgateRequired = false;
         this.isDeleted = false;
     }
 

@@ -1,6 +1,5 @@
 package com.freightmate.harbour.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,7 +8,7 @@ import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
 import javax.validation.constraints.Pattern;
-import java.time.LocalDateTime;
+import java.util.Objects;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,7 +16,6 @@ import java.time.LocalDateTime;
 @Getter
 @Entity
 public class User extends BaseEntity<Long> {
-
     @Column (nullable = false, unique = true, length = 100)
     String username;
 
@@ -33,32 +31,42 @@ public class User extends BaseEntity<Long> {
     @Column (nullable = false)
     String email;
 
-    String brokerServiceEmail;
-
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    User broker;
-
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    User customer;
-
-    @Column(nullable = false)
-    Boolean isManifestingActive;
-
-    @Column (nullable = false)
-    @Enumerated(EnumType.STRING)
-    UserRole userRole;
-
     @Enumerated(EnumType.STRING)
     Unit preferredUnit;
-
-    @Column (length = 512)
+    Boolean isAdmin;
     String token;
-    LocalDateTime tokenCreatedAt;
 
-    @Column(nullable = false)
-    Boolean isDeleted;
-    LocalDateTime deletedAt;
-    Long deletedBy;
+    // If we are a client this should be defined.
+    @OneToOne(mappedBy = "user", fetch = FetchType.EAGER)
+    UserClient userClient;
+
+    // If we are a customer this should be defined.
+    @OneToOne(mappedBy = "user", fetch = FetchType.EAGER)
+    UserCustomer userCustomer;
+
+    // If we are a broker this should be defined.
+    @OneToOne(mappedBy = "user", fetch = FetchType.EAGER)
+    UserBroker userBroker;
+
+    public boolean isUserCustomer() {
+        return Objects.nonNull(userCustomer);
+    }
+
+    public boolean isUserBroker() {
+        return Objects.nonNull(userBroker);
+    }
+
+    public boolean isUserClient() { return Objects.nonNull(userClient); }
+
+    public UserRole getUserRole(){
+        if(this.isUserBroker()){
+            return UserRole.BROKER;
+        }
+
+        if(this.isUserCustomer()){
+            return UserRole.CUSTOMER;
+        }
+
+        return UserRole.CLIENT;
+    }
 }

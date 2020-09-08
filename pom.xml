@@ -27,7 +27,7 @@
 
 		<!-- Analyse with sonarcloud -->
 		<sonar.projectKey>Freightmate_harbour</sonar.projectKey>
-		<sonar.moduleKey>${artifactId}</sonar.moduleKey>
+		<sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
 		<sonar.organization>freightmate</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>

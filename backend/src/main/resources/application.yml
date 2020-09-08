@@ -8,6 +8,7 @@ spring:
     username: ${DB_USER:root}
     password: ${DB_PASSWORD:freightmate}
     driver-class-name: com.mysql.cj.jdbc.Driver
+    default-batch-size: 1000
   jpa:
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     show-sql: true

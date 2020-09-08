@@ -128,22 +128,22 @@ export default class AddressBook extends Vue {
     const config = {
       headers: getAuthenticatedToken(),
       params: {
-        addressType: 'DELIVERY',
-        page: 0,
-        size: 10000
+        addressType: 'DELIVERY'
       }
     }
 
     this.$axios.get('/api/v1/address', config)
       .then(response => {
-        this.addresses = response.data.addresses
-        this.addresses.reverse()
+        if (response.data && response.data.addresses) {
+          this.addresses = response.data.addresses
+          this.addresses.reverse()
+        }
+        this.noAddresses = this.addresses.length === 0
         this.loading = false
-        this.noAddresses = response.data.addresses.length === 0
       }, error => {
         this.loading = false
         this.errorFetching = true
-        this.$log.error(error.response.data)
+        this.$log.error(error.response)
       })
   }
 }

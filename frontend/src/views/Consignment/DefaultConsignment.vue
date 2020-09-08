@@ -2,12 +2,12 @@
     <Consignment :sender-address="senderAddress" :receiver-address="receiverAddress" @selected-client="getSelectedClient">
         <template v-slot:sender>
             <template v-if="senderAddress">
-                <strong>{{ senderAddress.companyName }}</strong>
+                <strong>{{ senderAddress.company }}</strong>
                 <p class="consignment-default-address"> {{ senderAddress.addressLine1 }}
                     <template v-if="senderAddress.addressLine2">
                         , {{ senderAddress.addressLine2 }}
                     </template>
-                    , {{ senderAddress.town }}, {{ senderAddress.state }}, {{ senderAddress.postcode }}
+                    , {{ senderAddress.suburb.name }}, {{ senderAddress.suburb.state }}, {{ senderAddress.suburb.postcode }}
                 </p>
             </template>
         </template>
@@ -35,7 +35,7 @@ export default class DefaultConsignment extends Vue {
 
   getSelectedClient (selectedClient: ClientReference) {
     this.selectedClient = selectedClient
-    this.getSenderAddress(this.selectedClient.id)
+    this.getSenderAddress(this.selectedClient ? this.selectedClient.id : null)
   }
 
   getSelectedAddress (address: Address) {

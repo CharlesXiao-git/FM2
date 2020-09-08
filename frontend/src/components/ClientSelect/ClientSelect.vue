@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import { getDefaultConfig } from '@/helpers/auth/RequestHelpers'
 import { ClientReference } from '@/helpers/types'
 
@@ -40,10 +40,14 @@ export default class ClientSelect extends Vue {
       })
   }
 
-  updated () {
+  @Watch('client', { immediate: true, deep: true })
+  clientChanged () {
     if (this.client) {
       this.selectedClient = this.client
       this.disabledSelect = true
+    } else {
+      this.selectedClient = null
+      this.disabledSelect = false
     }
   }
 }

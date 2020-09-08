@@ -49,6 +49,13 @@
 			<version>${mysql.version}</version>
 		</dependency>
 
+		<!-- CSV Parser-->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-csv</artifactId>
+			<version>1.8</version>
+		</dependency>
+
 		<!-- Testing -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -100,6 +107,13 @@
 			<groupId>org.modelmapper</groupId>
 			<artifactId>modelmapper</artifactId>
 			<version>2.3.8</version>
+		</dependency>
+
+		<!-- Additional Hibernate Types that are not supported by the Hibernate ORM core -->
+		<dependency>
+			<groupId>com.vladmihalcea</groupId>
+			<artifactId>hibernate-types-52</artifactId>
+			<version>2.9.13</version>
 		</dependency>
 
 	</dependencies>

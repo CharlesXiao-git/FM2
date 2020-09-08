@@ -26,12 +26,16 @@ class HarbourFileImporter {
 
     static ENDPOINTS = {
         "zones": {
-            url: "/api/v1/zones",
+            url: "/api/v1/carrier-zone",
             contentType: "text/csv"
         },
         "ratecards": {
-            url: "/api/v1/ratecards",
+            url: "/api/v1/ratecard",
             contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        },
+        "suburbs": {
+            url: "/api/v1/suburb",
+            contentType: "text/csv"
         }
     }
 
@@ -53,13 +57,13 @@ class HarbourFileImporter {
         return axios.post(
             url,
             {
-                "content": bytes,
-                "filename": path.basename(filePath),
+                content: bytes,
+                filename: path.basename(filePath),
                 "Content-Type": HarbourFileImporter.ENDPOINTS[endpoint]['contentType']
             },
             {
-                "headers": {
-                    'authorization': token,
+                headers: {
+                    "authorization": token,
                     "Content-Type": "application/json"
                 }
             }

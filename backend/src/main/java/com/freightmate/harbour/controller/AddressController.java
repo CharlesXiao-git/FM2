@@ -3,30 +3,25 @@ package com.freightmate.harbour.controller;
 import com.freightmate.harbour.exception.ForbiddenException;
 import com.freightmate.harbour.model.*;
 import com.freightmate.harbour.model.dto.AddressDTO;
-import com.freightmate.harbour.service.AddressService;
-import com.freightmate.harbour.service.PostCodeService;
-import com.freightmate.harbour.service.UserService;
+import com.freightmate.harbour.model.dto.SuburbDTO;
+import com.freightmate.harbour.service.*;
 import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.data.repository.query.Param;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 
 import javax.transaction.Transactional;
 import java.util.Collections;
-import java.util.Objects;
-
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -41,6 +36,12 @@ public class AddressController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private UserDetailsService detailsService;
+
+    @Autowired
+    private SuburbService suburbService;
 
     private static final Logger LOG = LoggerFactory.getLogger(AddressController.class);
 
@@ -91,7 +92,7 @@ public class AddressController {
      *                          to pass in the API URL
      * @return list of paginated addresses, return 204 if there is no result
      */
-    @RequestMapping(method = RequestMethod.GET)
+    @GetMapping
     public ResponseEntity<AddressQueryResult> readAddressBook(@RequestParam Optional<AddressType> addressType,
                                                               @RequestParam Optional<Long> clientId,
                                                               Pageable pageable,
@@ -134,7 +135,8 @@ public class AddressController {
                             .build()
             );
 
-        } catch (HttpClientErrorException e) {
+        } catch (DataAccessException e) {
+            LOG.error("Cannot read address: ", e);
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .build();
@@ -150,14 +152,14 @@ public class AddressController {
      *                          to pass in the API URL
      * @return the new address after successful insertion. 400 code will be returned if unable to validate or insert
      */
-    @RequestMapping(method = RequestMethod.POST)
+    @PostMapping
     public ResponseEntity<AddressDTO> createAddress(@RequestBody Address addressRequest,
                                                     Authentication authentication) {
         // Get the user ID of the requestor
         long userId = ((AuthToken) authentication.getPrincipal()).getUserId();
 
         // validate postcode
-        if(postCodeService.isInvalidPostcode(String.valueOf(addressRequest.getPostcode()))){
+        if(suburbService.isInvalidPostcode(String.valueOf(addressRequest.getSuburb().getPostcode()))){
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .build();
@@ -172,24 +174,21 @@ public class AddressController {
                     .status(HttpStatus.BAD_REQUEST)
                     .build();
         }
-
-        // Set the Auspost suburb, postcode and state into the new address to ensure that we have consistent data
-        addressRequest.setTown(matchingLocals.get(0).getLocation());
-        addressRequest.setPostcode(matchingLocals.get(0).getPostcode());
-        addressRequest.setState(matchingLocals.get(0).getState());
+        // First we ensure that the suburb we pull from DB are having the value as per Auspost
+        Suburb suburb = suburbService.populateSuburbFromAuspost(matchingLocals);
+        // Second we set the suburb into the new address request object
+        addressRequest.setSuburb(suburb);
 
         // Check whether the Client ID belongs to the logged in user
-        if(Objects.nonNull(addressRequest.getClientId())) {
-            if(!userService.isChildOf(userId, addressRequest.getClientId())) {
-                throw new ForbiddenException("User does not have permission to update the address");
-            }
+        if (Objects.nonNull(addressRequest.getUserClientId()) && !userService.isChildOf(userId, addressRequest.getUserClientId())) {
+            throw new ForbiddenException("User does not have permission to update the address");
         }
 
         try {
             // perform create address
             Address result = addressService.createAddress(
                     addressRequest,
-                    (Objects.nonNull(addressRequest.getClientId()) ? addressRequest.getClientId() : userId)
+                    (Objects.nonNull(addressRequest.getUserClientId()) ? addressRequest.getUserClientId() : userId)
             );
 
             if(Objects.isNull(result)) {
@@ -201,12 +200,15 @@ public class AddressController {
 
             return ResponseEntity.ok(AddressDTO.fromAddress(result));
 
-        } catch (HttpClientErrorException e) {
+        } catch (DataAccessException e) {
+            LOG.error("Cannot create address: ", e);
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .build();
         }
     }
+
+
 
     /**
      * Address book controller to update existing address. Any non-null fields provided by the update request
@@ -215,10 +217,20 @@ public class AddressController {
      * @param addressDto    Expecting a JSON formatted body with the updated address details
      * @return the updated address after successfully updated. 400 code will be returned if unable to validate or update
      */
+    @Transactional
     @RequestMapping(method = RequestMethod.PUT)
     public ResponseEntity updateAddress(@RequestBody AddressDTO addressDto, Authentication authentication) {
         // Get user details from the logged in user
         AuthToken authToken = (AuthToken) authentication.getPrincipal();
+
+        // Get the user
+        Optional<User> user = detailsService.getUsers(
+                Collections.singletonList(authToken.getUserId())
+        ).stream().findFirst();
+
+        if (user.isEmpty()) {
+            throw new ForbiddenException("User is not permitted to update the address");
+        }
 
         // validate if the address id exists
         //Address currentAddress = addressService.getAddressById(addressRequest.getId());
@@ -229,20 +241,36 @@ public class AddressController {
         ).get(0);
 
         if(Objects.isNull(currentAddress)) {
-        return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .build();
-        }
-
-        // validate postcode
-        if(postCodeService.isInvalidPostcode(String.valueOf(addressDto.getPostcode()))){
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .build();
         }
 
+        // validate postcode
+        if(suburbService.isInvalidPostcode(
+                String.valueOf(
+                        addressDto
+                                .getSuburb()
+                                .getPostcode()
+                )
+        )){
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .build();
+        }
+        // Get the owner
+        // todo: maybe write a wrapper function to do all this optional thingy
+        Optional<User> owner = detailsService.getUsers(
+                Collections.singletonList(addressDto.getUserClientId())
+        ).stream().findFirst();
+
         // validate suburb (town) name
-        List<AuspostLocality> matchingLocals = postCodeService.getMatchingLocalitiesBySuburb(AddressDTO.toAddress(addressDto));
+        List<AuspostLocality> matchingLocals = postCodeService.getMatchingLocalitiesBySuburb(
+                AddressDTO.toAddress(
+                        addressDto,
+                        (owner.orElseGet(user::get))
+                )
+        );
 
         // if no matching suburb name return bad request
         if (matchingLocals.size() == 0) {
@@ -251,12 +279,12 @@ public class AddressController {
                     .build();
         }
 
-        // Set the Auspost suburb, postcode and state into the new address to ensure that we have consistent data
-        addressDto.setTown(matchingLocals.get(0).getLocation());
-        addressDto.setPostcode(matchingLocals.get(0).getPostcode());
-        addressDto.setState(matchingLocals.get(0).getState());
-
         try {
+            // First we ensure that the suburb we pull from DB are having the value as per Auspost
+            Suburb suburb = suburbService.populateSuburbFromAuspost(matchingLocals);
+            // Second we set the suburb into the new address request object
+            addressDto.setSuburb(SuburbDTO.fromSuburb(suburb));
+
             // perform update address
             Address result = addressService.updateAddress(addressDto, currentAddress, authToken.getUserId());
 
@@ -270,7 +298,8 @@ public class AddressController {
             return ResponseEntity
                     .status(HttpStatus.NO_CONTENT)
                     .build();
-        } catch (HttpClientErrorException e) {
+        } catch (DataAccessException e) {
+            LOG.error("Cannot update address: ", e);
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .build();
@@ -303,7 +332,8 @@ public class AddressController {
                     .status(HttpStatus.NO_CONTENT)
                     .build();
 
-        } catch (HttpClientErrorException e) {
+        } catch (DataAccessException e) {
+            LOG.error("Cannot delete address: ", e);
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .build();
@@ -386,7 +416,7 @@ public class AddressController {
             Address address = addressService
                     .getDefaultAddress(
                             clientId.orElse(authToken.getUserId()),
-                            authToken.getRole(),
+                            (clientId.isEmpty() ? authToken.getRole() : UserRole.CLIENT),
                             addressType.orElse(AddressType.SENDER)
                     );
 

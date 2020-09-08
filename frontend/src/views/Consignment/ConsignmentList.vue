@@ -15,14 +15,16 @@
       </div>
     </div>
     <div class="consignments-content col-md-11 col-12 ml-xl-auto ml-2 mr-auto mt-4">
+      <div class="row">
         <b-form-group>
           <b-form-radio-group
-              v-model="selected"
-              :options="options"
-              buttons
-              name="radios-btn-default"
+                  v-model="selected"
+                  :options="options"
+                  buttons
+                  name="radios-btn-default"
           ></b-form-radio-group>
         </b-form-group>
+      </div>
       <div class="row">
         <template v-if="loading">Loading...</template>
         <template v-else>

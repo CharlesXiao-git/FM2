@@ -8,13 +8,12 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 import java.util.List;
 
-public interface AddressRepository extends PagingAndSortingRepository<Address, Long> {
-    String ADDRESS_BY_IDS = "SELECT a.id, a.address_type, a.customer_id, a.client_id, a.reference_id, a.company_name, a.address_line_1, " +
-            "       a.address_line_2, a.town, a.postcode, a.country, a.state, a.contact_name, a.contact_no, " +
-            "       a.contact_email, a.notes, a.is_default, a.count_used, a.is_deleted, a.deleted_at, a.created_at, " +
-            "       a.updated_at, a.deleted_by, a.created_by, a.updated_by " +
-            "FROM address a " +
-            "WHERE a.id IN ?1 " +
+public interface AddressRepository extends PagingAndSortingRepository<Address, Long>{
+    String ADDRESS_BY_IDS = "SELECT a.id, a.user_client_id, a.user_customer_id, a.user_broker_id, a.address_type, a.reference_id, a.company, a.address_line_1,  \n" +
+            "       a.suburb_id, a.address_line_2, a.contact_name, a.phone_number, a.email, a.special_instructions, \n" +
+            "       a.is_default, a.is_deleted, a.deleted_at, a.created_at, a.updated_at, a.deleted_by, a.created_by, a.updated_by\n" +
+            "FROM address a\n" +
+            "WHERE a.id IN ?1\n" +
             "AND a.is_deleted = FALSE";
 
     // The following query is to perform a search to the address details. The search will be performed to a combination
@@ -26,68 +25,88 @@ public interface AddressRepository extends PagingAndSortingRepository<Address, L
     // the respective ID field to get the addresses under that ID
     //
     // Lastly after we got all the addresses, we perform the search using LIKE condition on the concatenated fields
-    String ADDRESS_LIKE = "SELECT x.id, x.client_id, x.customer_id, x.address_type, x.reference_id, x.company_name, x.address_line_1, " +
-            "       x.address_line_2, x.town, x.postcode, x.country, x.state, x.contact_name, x.contact_no, " +
-            "       x.contact_email, x.notes, x.is_default, x.count_used, x.is_deleted, x.deleted_at, x.created_at, " +
-            "       x.updated_at, x.deleted_by, x.created_by, x.updated_by " +
-            "FROM ( " +
-            "SELECT a.*, " +
-            "       CONCAT_WS(COALESCE(a.reference_id, ''), a.contact_name, a.company_name, a.address_line_1, a.address_line_2, a.town, " +
-            "           a.postcode, a.state) concat_address_details " +
-            "FROM address a" +
-            "               LEFT JOIN user cli ON a.client_id = cli.id" +
-            "               LEFT JOIN user cus ON a.customer_id = cus.id" +
-            "               LEFT JOIN user curr ON curr.id = ?3" +
-            "      WHERE a.is_deleted = FALSE" +
-            "        AND CASE" +
-            "                WHEN ?1 = 'ANY' THEN a.address_type IN ('DELIVERY', 'SENDER')" +
-            "                ELSE a.address_type = ?1" +
-            "          END" +
-            "        AND CASE" +
-            "                WHEN ?2 = 'BROKER' THEN ?3 in (cli.broker_id, cus.id, cli.id)" +
-            "                WHEN ?2 = 'CUSTOMER' THEN ?3 in (cus.id, cli.id, cli.customer_id)" +
-            "                WHEN ?2 = 'CLIENT' AND a.client_id IS NULL THEN a.customer_id = curr.customer_id" +
-            "                ELSE ?3 = cli.id" +
-            "          END) AS x " +
-            "WHERE lower(x.concat_address_details) LIKE lower(CONCAT('%', ?4, '%'))";
+    String ADDRESS_LIKE = "SELECT x.id, x.user_client_id, x.user_customer_id, x.user_broker_id, x.address_type, x.reference_id, x.company, x.address_line_1, \n" +
+            "                   x.suburb_id, x.address_line_2, x.contact_name, x.phone_number, x.email, x.special_instructions, \n" +
+            "                   x.is_default, x.is_deleted, x.deleted_at, x.created_at, x.updated_at, x.deleted_by, x.created_by, x.updated_by\n" +
+            "FROM (\n" +
+            "         SELECT a.*,\n" +
+            "                CONCAT_WS('', COALESCE(a.reference_id, ''), a.contact_name, a.company, a.address_line_1,\n" +
+            "                          a.address_line_2, s.name,\n" +
+            "                          s.postcode, s.state) concat_address_details\n" +
+            "         FROM address a\n" +
+            "                  INNER JOIN suburb s on a.suburb_id = s.id\n" +
+            "                  LEFT JOIN user_client cli ON a.user_client_id = cli.id\n" +
+            "                  LEFT JOIN user_customer cus ON a.user_customer_id = cus.id\n" +
+            "                  LEFT JOIN user_broker bro ON cus.user_broker_id = bro.id\n" +
+            "                  LEFT JOIN user_client curr ON curr.user_id = ?3\n" +
+            "         WHERE a.is_deleted = FALSE\n" +
+            "           AND CASE\n" +
+            "                   WHEN ?1 = 'ANY' THEN a.address_type IN ('DELIVERY', 'SENDER')\n" +
+            "                   ELSE a.address_type = ?1\n" +
+            "             END\n" +
+            "           AND CASE\n" +
+            "                   WHEN ?2 = 'BROKER' THEN ?3 = bro.user_id\n" + // check if I'm the broker for it
+            "                   WHEN ?2 = 'CUSTOMER' THEN ?3 = cus.user_id\n" + // cases when the row is the customer's, or when the customer is the parent of the owner
+            "                   WHEN ?2 = 'CLIENT' THEN a.user_customer_id = curr.user_customer_id\n" + // if I'm a client, and theres a row without a client id, check if my customer owns it
+            "                   ELSE ?3 = cli.user_id\n" + // otherwise check if its mine
+            "             END\n" +
+            "     ) AS x\n" +
+            "WHERE LOWER(x.concat_address_details) LIKE LOWER(CONCAT('%', ?4, '%'))";
 
-    String ADDRESS_BY_USERID = "SELECT a.id, a.client_id, a.customer_id, a.address_type, a.reference_id, a.company_name, a.address_line_1, " +
-            "             a.address_line_2, a.town, a.postcode, a.country, a.state, a.contact_name, a.contact_no, " +
-            "             a.contact_email, a.notes, a.is_default, a.count_used, a.is_deleted, a.deleted_at, a.created_at, " +
-            "             a.updated_at, a.deleted_by, a.created_by, a.updated_by " +
-            "FROM address a " +
-            "         LEFT JOIN user cli ON a.client_id = cli.id " +
-            "         LEFT JOIN user cus ON a.customer_id = cus.id " +
-            "WHERE a.is_deleted = FALSE " +
-            "  AND CASE " +
-            "          WHEN ?1 = 'ANY' THEN a.address_type IN ('DELIVERY', 'SENDER') " +
-            "          ELSE a.address_type = ?1 " +
-            "    END " +
-            "  AND CASE " +
-            "          WHEN ?2 = 'CUSTOMER' THEN ?3 in (cus.id, cli.id)  " +
-            "          WHEN ?2 = 'BROKER'   THEN ?3 in (cli.broker_id, cus.id, cli.id) " +
-            "          ELSE cli.id = ?3 " +
-            "      END";
-
-    String DELETE_BY_IDS = "UPDATE address SET " +
-            "is_deleted = TRUE," +
-            "deleted_at = NOW(), " +
-            "deleted_by = ?2 " +
-            "WHERE id IN ?1 " +
-            "AND is_deleted = FALSE";
-
-    String USER_ADDRESSES = "SELECT a.id, a.client_id, a.customer_id, a.address_type, a.reference_id, a.company_name, a.address_line_1,  \n" +
-            "         a.address_line_2, a.town, a.postcode, a.country, a.state, a.contact_name, a.contact_no,\n" +
-            "         a.contact_email, a.notes, a.is_default, a.count_used, a.is_deleted, a.deleted_at, a.created_at,\n" +
-            "         a.updated_at, a.deleted_by, a.created_by, a.updated_by\n" +
+    String ADDRESS_BY_USERID = "SELECT a.id, a.user_client_id, a.user_customer_id, a.user_broker_id, a.address_type, a.reference_id, a.company, a.address_line_1,  \n" +
+            "       a.suburb_id, a.address_line_2, a.contact_name, a.phone_number, a.email, a.special_instructions, \n" +
+            "       a.is_default, a.is_deleted, a.deleted_at, a.created_at, a.updated_at, a.deleted_by, a.created_by, a.updated_by\n" +
             "FROM address a\n" +
-            "INNER JOIN user cli ON a.client_id = cli.id\n" +
-            "INNER JOIN user cus ON a.customer_id = cus.id\n" +
+            "         LEFT JOIN user_client cli ON a.user_client_id = cli.id\n" +
+            "         LEFT JOIN user_customer cus ON a.user_customer_id = cus.id\n" +
+            "         LEFT JOIN user_broker bro ON cus.user_broker_id = bro.id\n" +
+            "         LEFT JOIN user_client curr ON curr.user_id = ?3\n" +
             "WHERE a.is_deleted = FALSE\n" +
-            "AND CASE WHEN ?1 = 'CLIENT' THEN ?2 IN (cus.id, cli.id)\n" +
-            "         WHEN ?1 = 'CUSTOMER' THEN ?2 IN (cli.broker_id, cus.id, cli.id)\n" +
-            "         ELSE cli.id = ?2 END\n" +
-            "AND a.id IN ?3";
+            "  AND CASE\n" +
+            "          WHEN ?1 = 'ANY' THEN a.address_type IN ('DELIVERY', 'SENDER')\n" +
+            "          ELSE a.address_type = ?1\n" +
+            "    END\n" +
+            "  AND CASE\n" +
+            "          WHEN ?2 = 'BROKER' THEN ?3 = bro.user_id\n" + // check if I'm the broker for it
+            "          WHEN ?2 = 'CUSTOMER' THEN ?3 = cus.user_id\n" + // cases when the row is the customer's, or when the customer is the parent of the owner
+            "          WHEN ?2 = 'CLIENT' THEN a.user_customer_id = curr.user_customer_id\n" + // if I'm a client, and theres a row without a client id, check if my customer owns it
+            "          ELSE ?3 = cli.user_id\n" + // otherwise check if its mine
+            "    END";
+
+    String DELETE_BY_IDS = "UPDATE address a\n" +
+            "LEFT JOIN user_client cli ON a.user_client_id = cli.id\n" +
+            "LEFT JOIN user_customer cus ON a.user_customer_id = cus.id\n" +
+            "LEFT JOIN user_broker bro ON cus.user_broker_id = bro.id\n" +
+            "LEFT JOIN user_client curr ON curr.user_id = ?3\n" +
+            "SET\n" +
+            "a.is_deleted = TRUE,\n" +
+            "a.deleted_at = NOW(),\n" +
+            "a.deleted_by = ?3\n" +
+            "WHERE a.id IN ?1\n" +
+            "AND a.is_deleted = FALSE\n" +
+            "AND CASE\n" +
+            "          WHEN ?2 = 'BROKER' THEN ?3 = bro.user_id\n" + // check if I'm the broker for it
+            "          WHEN ?2 = 'CUSTOMER' THEN ?3 = cus.user_id\n" + // cases when the row is the customer's, or when the customer is the parent of the owner
+            "          WHEN ?2 = 'CLIENT' THEN a.user_customer_id = curr.user_customer_id\n" + // if I'm a client, and theres a row without a client id, check if my customer owns it
+            "          ELSE ?3 = cli.user_id\n" + // otherwise check if its mine
+            "    END";
+
+    String USER_ADDRESSES = "SELECT a.id, a.user_client_id, a.user_customer_id, a.user_broker_id, a.address_type, a.reference_id, a.company, a.address_line_1,  \n" +
+            "       a.suburb_id, a.address_line_2, a.contact_name, a.phone_number, a.email, a.special_instructions, \n" +
+            "       a.is_default, a.is_deleted, a.deleted_at, a.created_at, a.updated_at, a.deleted_by, a.created_by, a.updated_by\n" +
+            "FROM address a\n" +
+            "         LEFT JOIN user_client cli ON a.user_client_id = cli.id\n" +
+            "         LEFT JOIN user_customer cus ON a.user_customer_id = cus.id\n" +
+            "         LEFT JOIN user_broker bro ON cus.user_broker_id = bro.id\n" +
+            "         LEFT JOIN user_client curr ON curr.user_id = ?3\n" +
+            "WHERE a.is_deleted = FALSE\n" +
+            "AND CASE\n" +
+            "          WHEN ?2 = 'BROKER' THEN ?3 = bro.user_id\n" + // check if I'm the broker for it
+            "          WHEN ?2 = 'CUSTOMER' THEN ?3 = cus.user_id\n" + // cases when the row is the customer's, or when the customer is the parent of the owner
+            "          WHEN ?2 = 'CLIENT' THEN a.user_customer_id = curr.user_customer_id\n" + // if I'm a client, and theres a row without a client id, check if my customer owns it
+            "          ELSE ?3 = cli.user_id\n" + // otherwise check if its mine
+            "    END\n" +
+            "AND a.id IN ?1";
 
     @Query(value = ADDRESS_BY_IDS, nativeQuery = true)
     List<Address> findAddresses(List<Long> ids);
@@ -98,11 +117,11 @@ public interface AddressRepository extends PagingAndSortingRepository<Address, L
 
     @Modifying
     @Query(value = DELETE_BY_IDS, nativeQuery = true)
-    Integer deleteAddressesByIds(List<Long> addressIds, long userId);
+    Integer deleteAddressesByIds(List<Long> addressIds, String userRole, long userId);
 
     @Query(value = ADDRESS_LIKE, nativeQuery = true)
     List<Address> findAddresses(String addressType, String userRole, long userId, String criteria);
 
     @Query(value = USER_ADDRESSES, nativeQuery = true)
-    List<Address> findAddresses(String userRole, long userId, List<Long> addressIds);
+    List<Address> findAddresses(List<Long> addressIds, String userRole, long userId);
 }

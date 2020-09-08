@@ -56,16 +56,16 @@ export default class AddressTable extends Vue {
   fieldsToShow = [
     { key: 'delete', label: '' },
     { key: 'referenceId', label: 'Address Reference' },
-    { key: 'companyName', label: 'Company Name' },
+    { key: 'company', label: 'Company Name' },
     { key: 'contactName', label: 'Contact Name' },
-    { key: 'contactNo', label: 'Contact Number' },
-    { key: 'contactEmail', label: 'Contact Email' },
+    { key: 'phoneNumber', label: 'Contact Number' },
+    { key: 'email', label: 'Contact Email' },
     { key: 'addressLine1', label: 'Address Line 1' },
     { key: 'addressLine2', label: 'Address Line 2' },
-    { key: 'town', label: 'Town' },
-    { key: 'postcode', label: 'Postcode' },
-    { key: 'state', label: 'State' },
-    { key: 'notes', label: 'Special Instructions' },
+    { key: 'suburb.name', label: 'Town' },
+    { key: 'suburb.postcode', label: 'Postcode' },
+    { key: 'suburb.state', label: 'State' },
+    { key: 'specialInstructions', label: 'Special Instructions' },
     { key: 'edit', label: 'Edit' }
   ]
 
@@ -92,7 +92,7 @@ export default class AddressTable extends Vue {
 
   getModal (item: Address, button: object) {
     this.modalContent = prepareAddressData(item)
-    this.populateClient(item.clientId)
+    this.populateClient(item.userClientId)
     this.$root.$emit('bv::show::modal', 'update-modal', button)
   }
 

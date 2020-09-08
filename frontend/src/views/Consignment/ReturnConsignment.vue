@@ -5,12 +5,12 @@
         </template>
         <template v-slot:receiver>
             <template v-if="receiverAddress">
-                <strong>{{ receiverAddress.companyName }}</strong>
+                <strong>{{ receiverAddress.company }}</strong>
                 <p class="consignment-default-address"> {{ receiverAddress.addressLine1 }}
                     <template v-if="receiverAddress.addressLine2">
                         , {{ receiverAddress.addressLine2 }}
                     </template>
-                    , {{ receiverAddress.town }}, {{ receiverAddress.state }}, {{ receiverAddress.postcode }}
+                    , {{ receiverAddress.suburb.name }}, {{ receiverAddress.suburb.state }}, {{ receiverAddress.suburb.postcode }}
                 </p>
             </template>
         </template>
@@ -35,7 +35,7 @@ export default class ReturnConsignment extends Vue {
 
   getSelectedClient (selectedClient: ClientReference) {
     this.selectedClient = selectedClient
-    this.getReceiverAddress(this.selectedClient.id)
+    this.getReceiverAddress(this.selectedClient ? this.selectedClient.id : null)
   }
 
   getSelectedAddress (address: Address) {

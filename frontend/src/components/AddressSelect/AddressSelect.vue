@@ -70,8 +70,8 @@ export default class AddressSelect extends Vue {
     if (item.referenceId) {
       str += item.referenceId + ', '
     }
-    if (item.companyName) {
-      str += item.companyName + ', '
+    if (item.company) {
+      str += item.company + ', '
     }
     if (item.addressLine1) {
       str += item.addressLine1 + ', '
@@ -79,14 +79,14 @@ export default class AddressSelect extends Vue {
     if (item.addressLine2) {
       str += item.addressLine2 + ', '
     }
-    if (item.town) {
-      str += item.town + ', '
+    if (item.suburb && item.suburb.name) {
+      str += item.suburb.name + ', '
     }
-    if (item.state) {
-      str += item.state + ', '
+    if (item.suburb && item.suburb.state) {
+      str += item.suburb.state + ', '
     }
-    if (item.postcode) {
-      str += item.postcode
+    if (item.suburb && item.suburb.postcode) {
+      str += item.suburb.postcode
     }
 
     return str

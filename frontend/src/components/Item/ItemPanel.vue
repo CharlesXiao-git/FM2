@@ -13,6 +13,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import ItemForm from '@/components/Item/ItemForm.vue'
 import { Item } from '@/model/Item'
 import { getAuthenticatedToken } from '@/helpers/auth/RequestHelpers'
+import { ItemType } from '@/model/ItemType'
 
 @Component({
   components: { ItemForm }
@@ -21,7 +22,7 @@ export default class ItemPanel extends Vue {
   id = 0
   items: Item[] = [new Item(this.id)]
   disableAdd = false
-  itemTypes: [] = null
+  itemTypes: ItemType[] = null
 
   addItem () {
     if (this.items.length !== 0) {
@@ -56,10 +57,7 @@ export default class ItemPanel extends Vue {
 
   created () {
     const config = {
-      headers: getAuthenticatedToken(),
-      params: {
-        isCustom: false
-      }
+      headers: getAuthenticatedToken()
     }
 
     this.$axios.get('/api/v1/consignment/itemTypes', config)

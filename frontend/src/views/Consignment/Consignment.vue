@@ -53,7 +53,7 @@
                                 @selected-special-instructions="getSpecialInstructions"
                                 @selected-auth-to-leave="getAuthToLeave"
                                 @selected-tailgate-required="getTailgateRequired"
-                                :notes="notes"
+                                :notes="specialInstructions"
                         />
                     </div>
                 </div>
@@ -93,7 +93,7 @@ export default class Consignment extends Vue {
   @Prop({ required: true }) senderAddress: Address
   @Prop({ required: true }) receiverAddress: Address
 
-  notes = this.receiverAddress ? this.receiverAddress.notes : ''
+  specialInstructions = this.receiverAddress ? this.receiverAddress.specialInstructions : ''
   isClient = isUserClient()
   selectedClient: ClientReference = null
 
@@ -103,7 +103,6 @@ export default class Consignment extends Vue {
   receiverTimeSlot: TimeSlot = null
 
   addressClass: AddressClass = 'BUSINESS'
-  specialInstructions: string = null
   isAuthToLeave = false
   isTailgateRequired = false
 
@@ -144,7 +143,7 @@ export default class Consignment extends Vue {
 
   @Watch('receiverAddress', { immediate: true, deep: true })
   onChangeReceiverAddress () {
-    this.notes = this.receiverAddress ? this.receiverAddress.notes : ''
+    this.specialInstructions = this.receiverAddress ? this.receiverAddress.specialInstructions : ''
     this.$forceUpdate()
   }
 }

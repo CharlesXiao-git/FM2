@@ -25,6 +25,8 @@ public class UserLoginAttempt {
     @Column(nullable = false)
     private String originIp;
 
+    private boolean success;
+
     @Column(nullable = false)
     private final LocalDateTime loginAttemptAt = LocalDateTime.now();
 }

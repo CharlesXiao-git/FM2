@@ -1,11 +1,12 @@
 package com.freightmate.harbour.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @SuperBuilder
 @AllArgsConstructor
@@ -23,9 +24,17 @@ public class Item extends BaseEntity<Long> {
     @Column(name = "consignment_id", insertable = false, updatable = false)
     private long consignmentId;
 
-    @Column(nullable = false)
-    private Long quantity;
+    // todo Quote model
+    // @Column(name = "quote_id", insertable = false, updatable = false)
+    private Long quoteId;
 
+    @Column(nullable = false)
+    private Integer quantity;
+
+    @ManyToOne(targetEntity = ItemType.class, fetch = FetchType.EAGER)
+    private ItemType itemType;
+
+    @Column(name = "item_type_id", insertable = false, updatable = false)
     private long itemTypeId;
 
     @Column(nullable = false)
@@ -48,11 +57,6 @@ public class Item extends BaseEntity<Long> {
 
     @Column(nullable = false)
     private Boolean isHazardous;
-
-    @Column(nullable = false)
-    Boolean isDeleted;
-    LocalDateTime deletedAt;
-    String deletedBy;
 
     public Item() {
         this.isHazardous = false;

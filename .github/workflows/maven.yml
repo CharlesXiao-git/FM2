@@ -36,8 +36,7 @@ on:
 
   pull_request:
     branches:
-      - master
-      - development
+      - "*"
 
 jobs:
   build_harbour:
