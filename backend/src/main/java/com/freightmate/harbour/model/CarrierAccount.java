@@ -57,7 +57,7 @@ public class CarrierAccount extends BaseEntity<Long> {
     private String ruleManualHandlingMaxKg;
     private String ruleManualHandlingChargePer;
     private String ruleManualHandlingCharge;
-    private Float fuelCharge;
+    @Column(name ="fuel") private Float fuelCharge;
     private Float perKgCubic;
     private Float cartonCubic;
     @Column(name = "carton_max_h") private Float cartonMaxH;

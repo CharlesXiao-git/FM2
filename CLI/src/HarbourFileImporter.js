@@ -54,6 +54,8 @@ class HarbourFileImporter {
         const bytes = this.readFileLocal(filePath)
         const url = HarbourFileImporter.ENV_URLS[environment] + HarbourFileImporter.ENDPOINTS[endpoint]['url']
 
+        console.log("Attempting to send " + endpoint + " file to: " + url)
+
         return axios.post(
             url,
             {
