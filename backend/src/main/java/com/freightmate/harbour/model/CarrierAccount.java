@@ -16,7 +16,7 @@ import javax.persistence.ManyToOne;
 public class CarrierAccount extends BaseEntity<Long> {
     private String accountNumber;
 
-    @ManyToOne(targetEntity = Carrier.class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = Carrier.class, fetch = FetchType.EAGER)
     private Carrier carrier;
 
     @Column(name = "carrier_id", insertable = false, updatable = false)

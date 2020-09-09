@@ -20,6 +20,9 @@ public class Offer extends BaseEntity<Long> {
     )
     private CarrierAccount carrierAccount;
 
+    @Column(name = "carrier_account_id", insertable = false, updatable = false)
+    private long carrierAccountId;
+
     @JsonBackReference
     @ManyToOne(targetEntity = Consignment.class,
             fetch = FetchType.LAZY)

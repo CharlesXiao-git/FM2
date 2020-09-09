@@ -1,0 +1,36 @@
+::v-deep .table {
+  font-family: "Montserrat", sans-serif !important;
+  position: relative;
+  border-collapse: collapse;
+  white-space: nowrap;
+  text-align: left;
+  font-weight: 700;
+  color: #696c5d;
+}
+
+::v-deep .table-responsive-true {
+  overflow-y: scroll;
+}
+
+::v-deep .row {
+  margin: 0 16px 0 0;
+}
+
+.data-table {
+  width: 100%;
+  background-color: $primary;
+}
+
+.selected-data-table {
+  width: 100%;
+  background-color: $secondary;
+}
+
+::v-deep thead {
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+::v-deep tbody {
+  background-color: #ffffff;
+}

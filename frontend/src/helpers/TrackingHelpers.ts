@@ -1,5 +1,4 @@
 import { Consignment } from '@/model/Consignment'
-import { Offer } from '@/model/Offer'
 
 /**
  * Extract external tracking url from a consignment data structure

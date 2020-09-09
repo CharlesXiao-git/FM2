@@ -65,8 +65,15 @@
             </div>
 
             <ReferenceContainer @updated-references="getReferences" />
-            <ItemPanel />
+            <ItemPanel @calculate="calculate"/>
         </div>
+        <div v-if="showOffers" class="consignment-content">
+            <div class="consignment-sub-heading mt-5 pt-2 pb-1 pl-4">
+                <h3>CARRIER</h3>
+            </div>
+            <CarrierPanel :dispatch-date="dispatchDate" :offers="offers" @selected-offer="getSelectedOffer"></CarrierPanel>
+        </div>
+        <br />
     </div>
 </template>
 
@@ -84,9 +91,12 @@ import ReceiverTimeSlots from '@/components/ReceiverDetails/ReceiverTimeSlots.vu
 import { TimeSlot } from '@/model/TimeSlot'
 import { Address } from '@/model/Address'
 import ReferenceContainer from '@/components/Item/ReferenceContainer.vue'
+import CarrierPanel from '@/components/Carrier/CarrierPanel.vue'
+import { getDefaultConfig } from '@/helpers/auth/RequestHelpers'
+import { Offer } from '@/model/Offer'
 
 @Component({
-  components: { ItemPanel, ClientSelect, DatePicker, DeliveryDetails, ReceiverTimeSlots, ReferenceContainer }
+  components: { CarrierPanel, ItemPanel, ClientSelect, DatePicker, DeliveryDetails, ReceiverTimeSlots, ReferenceContainer }
 })
 export default class Consignment extends Vue {
   @Prop({ default: 'NEW CONSIGNMENT' }) title: string
@@ -107,6 +117,10 @@ export default class Consignment extends Vue {
   isTailgateRequired = false
 
   references: string[] = []
+
+  showOffers = false
+  offers: Offer[] = []
+  selectedOffer: Offer = null
 
   handleDispatchDate (date: Date) {
     this.dispatchDate = date
@@ -139,6 +153,30 @@ export default class Consignment extends Vue {
 
   getReferences (references: string[]) {
     this.references = references
+  }
+
+  calculate (calculate: boolean) {
+    if (calculate) {
+      // todo : validate the consignment and items
+      // todo : once validated, create a consignment
+      // todo : send the consignment to grab the offers
+
+      this.showOffers = true
+
+      this.$axios.get('/api/v1/consignment/offers', getDefaultConfig())
+        .then(response => {
+          this.offers = response.data
+          this.offers.sort(function (a, b) {
+            return a.totalCost - b.totalCost
+          })
+        }, error => {
+          this.$log.error(error.response)
+        })
+    }
+  }
+
+  getSelectedOffer (selectedOffer: Offer) {
+    this.selectedOffer = selectedOffer
   }
 
   @Watch('receiverAddress', { immediate: true, deep: true })
