@@ -1,3 +1,4 @@
+import { Offer } from '@/model/Offer'
 import { Address } from '@/model/Address'
 import { Item } from '@/model/Item'
 
@@ -14,10 +15,13 @@ export class Consignment {
   senderAddress: Address
   deliveryAddress: Address
   items: Item[]
+  status: string
+  selectedOffer: Offer
 
   constructor (id: string = null, connoteNumber: string = null, dispatchedAt: Date = null, deliveryWindowBegin: Date | null,
-               deliveryWindowEnd: Date | null, deliveryAddressClass: string, authorityToLeave: boolean, isTailgateRequired: boolean,
-               ownerId: number, senderAddress: Address, deliveryAddress: Address, items: Item[]) {
+    deliveryWindowEnd: Date | null, deliveryAddressClass: string, authorityToLeave: boolean, isTailgateRequired: boolean,
+    ownerId: number, senderAddress: Address, deliveryAddress: Address, items: Item[], status: string,
+    selectedOffer: Offer) {
     this.id = id
     this.connoteNumber = connoteNumber
     this.dispatchedAt = dispatchedAt
@@ -30,5 +34,7 @@ export class Consignment {
     this.senderAddress = senderAddress
     this.deliveryAddress = deliveryAddress
     this.items = items
+    this.status = status
+    this.selectedOffer = selectedOffer
   }
 }

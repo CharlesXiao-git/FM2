@@ -1,4 +1,4 @@
-import {ItemTemplate} from '@/model/ItemTemplate'
+import { ItemTemplate } from '@/model/ItemTemplate'
 
 export class ItemType {
   id: number
