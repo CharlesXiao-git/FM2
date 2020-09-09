@@ -57,12 +57,13 @@ const loginAndUpdateFile = (username, password, environment, inputFile, endpoint
             })
         .then(
             (res) => {
-                console.log(res)
+                console.log("Response status code: " + res.status)
+                console.log("Rows upserted: " + res.data)
                 process.exit(SUCCESS)
             },
             (err) => {
                 console.error(err.response.data)
-                console.debug(err)
+                console.log("Unable to complete upsert: Response code: " + err.response.status)
                 process.exit(UPDATE_FAILED)
             });
 }
@@ -70,8 +71,8 @@ const loginAndUpdateFile = (username, password, environment, inputFile, endpoint
 const options = yargs
     .usage("Usage: -f <file> -t <type> -e <environment>")
     .option("f", { alias: "file", describe: "Your input file", type: "string", demandOption: true })
-    .option("t", { alias: "type", describe: "The type of file you are uploading.", choices:["zones","ratecards"], type: "string", demandOption: true , default: "development"})
-    .option("e", { alias: "environment", describe: "The environment to execute against",choices:["development","staging","production"], type: "string", demandOption: true })
+    .option("t", { alias: "type", describe: "The type of file you are uploading.", choices:["zones","ratecards","suburbs"], type: "string", demandOption: true })
+    .option("e", { alias: "environment", describe: "The environment to execute against",choices:["development","staging","production"], type: "string", demandOption: true, default: "development" })
     .option("d", { alias: "debug", describe: "Display debug logs", type: "boolean", demandOption: false, default: false })
     .argv;
 

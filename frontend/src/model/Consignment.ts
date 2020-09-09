@@ -1,35 +1,34 @@
-export class Consignment {
-  id: string
-  fromCompanyName: string
-  toCompanyName: string
-  connoteId: string | null
-  dispatchDateAt: Date
-  deliveryWindowStartAt: Date | null
-  deliveryWindowEndAt: Date | null
-  addressClass: string
-  isAllowedToLeave: boolean
-  isTailgateRequired: boolean
-  carrier: string
-  serviceType: string
-  receiverSuburb: string
-  senderSuburb: string
+import { Address } from '@/model/Address'
+import { Item } from '@/model/Item'
 
-  constructor (id: string, fromCompanyName: string, toCompanyName: string, carrier: string, serviceType: string, receiverSuburb: string,
-               senderSuburb: string, connoteId: string | null, dispatchDateAt: Date, deliveryWindowStartAt: Date | null,
-               deliveryWindowEndAt: Date | null, addressClass: string, isAllowedToLeave: boolean, isTailgateRequired: boolean) {
+export class Consignment {
+  id: string = null
+  connoteNumber: string = null
+  dispatchedAt: Date = null
+  deliveryWindowBegin: Date = null
+  deliveryWindowEnd: Date = null
+  deliveryAddressClass: string = null
+  authorityToLeave: boolean = null
+  isTailgateRequired: boolean = null
+  ownerId: number = null
+  senderAddress: Address
+  deliveryAddress: Address
+  items: Item[]
+
+  constructor (id: string = null, connoteNumber: string = null, dispatchedAt: Date = null, deliveryWindowBegin: Date | null,
+               deliveryWindowEnd: Date | null, deliveryAddressClass: string, authorityToLeave: boolean, isTailgateRequired: boolean,
+               ownerId: number, senderAddress: Address, deliveryAddress: Address, items: Item[]) {
     this.id = id
-    this.fromCompanyName = fromCompanyName
-    this.toCompanyName = toCompanyName
-    this.connoteId = connoteId
-    this.dispatchDateAt = dispatchDateAt
-    this.deliveryWindowStartAt = deliveryWindowStartAt
-    this.deliveryWindowEndAt = deliveryWindowEndAt
-    this.addressClass = addressClass
-    this.isAllowedToLeave = isAllowedToLeave
+    this.connoteNumber = connoteNumber
+    this.dispatchedAt = dispatchedAt
+    this.deliveryWindowBegin = deliveryWindowBegin
+    this.deliveryWindowEnd = deliveryWindowEnd
+    this.deliveryAddressClass = deliveryAddressClass
+    this.authorityToLeave = authorityToLeave
     this.isTailgateRequired = isTailgateRequired
-    this.carrier = carrier
-    this.serviceType = serviceType
-    this.receiverSuburb = receiverSuburb
-    this.senderSuburb = senderSuburb
+    this.ownerId = ownerId
+    this.senderAddress = senderAddress
+    this.deliveryAddress = deliveryAddress
+    this.items = items
   }
 }

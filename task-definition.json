@@ -33,7 +33,7 @@
       "environment": [
         {
           "name": "DB_URL",
-          "value": "jdbc:mysql://harbour-uat-database.cluster-c4jb7cqwitis.ap-southeast-2.rds.amazonaws.com:3306/freightmate"
+          "value": "jdbc:mysql://harbour-uat-database-57.cluster-c4jb7cqwitis.ap-southeast-2.rds.amazonaws.com:3306/freightmate"
         },
         {
           "name": "DB_USER",

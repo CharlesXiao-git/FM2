@@ -1,33 +1,31 @@
+import { Suburb } from '@/model/Suburb'
+
 export class Address {
   addressType: string
   id: string
   referenceId: string
-  companyName: string
+  company: string
   addressLine1: string
   addressLine2: string
-  town: string
-  postcode: number
-  state: string
+  suburb: Suburb
   contactName: string
-  contactNo: string
-  contactEmail: string
-  notes: string // Special Instructions
-  clientId: number = null
+  phoneNumber: string
+  email: string
+  specialInstructions: string
+  userClientId: number = null
 
-  constructor (id: string, referenceId: string, companyName: string, addressLine1: string, addressLine2: string, town: string, postcode: number, state: string, contactName: string, contactNo: string, contactEmail: string, notes: string, clientId: number = null, addressType: string) {
+  constructor (id: string, referenceId: string, company: string, addressLine1: string, addressLine2: string, suburb: Suburb, contactName: string, phoneNumber: string, email: string, specialInstructions: string, userClientId: number = null, addressType: string) {
     this.id = id
     this.referenceId = referenceId
-    this.companyName = companyName
+    this.company = company
     this.addressLine1 = addressLine1
     this.addressLine2 = addressLine2
-    this.town = town
-    this.postcode = postcode
-    this.state = state
+    this.suburb = suburb
     this.contactName = contactName
-    this.contactNo = contactNo
-    this.contactEmail = contactEmail
-    this.notes = notes
-    this.clientId = clientId
+    this.phoneNumber = phoneNumber
+    this.email = email
+    this.specialInstructions = specialInstructions
+    this.userClientId = userClientId
     this.addressType = addressType
   }
 }

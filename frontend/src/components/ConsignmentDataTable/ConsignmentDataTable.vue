@@ -26,8 +26,10 @@
       <template v-slot:cell(delete)="data">
         <b-form-checkbox name="selected-items" v-model="selectedItems" :value="data.item"></b-form-checkbox>
       </template>
-      <template v-slot:cell(dispatchDateAt)="data">
-        {{ data.item.dispatchDateAt[3] }}/{{ data.item.dispatchDateAt[1] }}/{{ data.item.dispatchDateAt[0] }}
+      <template v-slot:cell(dispatchedAt)="data">
+        <template v-if="data.item.dispatchedAt">
+          {{ data.item.dispatchedAt[3] }}/{{ data.item.dispatchedAt[1] }}/{{ data.item.dispatchedAt[0] }}
+        </template>
       </template>
     </b-table>
     <div class="justify-content-center row my-1">
@@ -70,13 +72,13 @@ export default class ConsignmentDataTable extends Vue {
     const fieldsToShow = []
 
     fieldsToShow.push(
-      { key: 'connoteId', label: 'Connote Number' },
-      { key: 'dispatchDateAt', label: 'Dispatch Date' },
+      { key: 'connoteNumber', label: 'Connote Number' },
+      { key: 'dispatchedAt', label: 'Dispatch Date' },
       { key: 'carrier', label: 'Carrier' },
       { key: 'serviceType', label: 'Service Type' },
-      { key: 'senderAddress.companyName', label: 'Sender Company Name' },
-      { key: 'deliveryAddress.companyName', label: 'Receiver Company Name' },
-      { key: 'deliveryAddress.town', label: 'Receiver Suburb' }
+      { key: 'senderAddress.company', label: 'Sender Company Name' },
+      { key: 'deliveryAddress.company', label: 'Receiver Company Name' },
+      { key: 'deliveryAddress.suburb.name', label: 'Receiver Suburb' }
     )
 
     if (this.isMutable) {

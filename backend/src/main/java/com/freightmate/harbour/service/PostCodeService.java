@@ -2,16 +2,17 @@ package com.freightmate.harbour.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.freightmate.harbour.model.Address;
 import com.freightmate.harbour.model.AuspostLocality;
-import com.freightmate.harbour.model.AuspostLocalityResponse;
 import com.freightmate.harbour.model.AuspostLocalityWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -75,21 +76,12 @@ public class PostCodeService {
         }
     }
 
-    public boolean isInvalidPostcode(String postcode){
-        try{
-            int code = Integer.parseInt(postcode);
-            return code > 9999 || code < 100;
-        } catch (NullPointerException|NumberFormatException e){
-            return true;
-        }
-    }
-
     public List<AuspostLocality> getMatchingLocalitiesBySuburb(Address addressRequest) {
         return this
-                .getLocality(String.valueOf(addressRequest.getPostcode()))
+                .getLocality(String.valueOf(addressRequest.getSuburb().getPostcode()))
                 .getLocalities()
                 .stream()
-                .filter(element -> element.getLocation().equalsIgnoreCase(addressRequest.getTown()))
+                .filter(element -> element.getLocation().equalsIgnoreCase(addressRequest.getSuburb().getName()))
                 .collect(Collectors.toList());
     }
 }

@@ -77,7 +77,7 @@
                                 </div>
                             </template>
                         </cool-select>
-                        <p class="helper-text" v-if="showHelperText">Previous selection : {{ address.town }} , {{ address.state }}, {{ address.postcode }} </p>
+                        <p class="helper-text" v-if="showHelperText">Previous selection : {{ address.suburb.name }} , {{ address.suburb.state }}, {{ address.suburb.postcode }} </p>
                         <span class="error" v-if="validateLocationFlag">Please make a valid selection</span>
                     </div>
                 </div>
@@ -106,6 +106,7 @@ import { Address } from '@/model/Address'
 import { validateEmailField, validateStringField } from '@/helpers/ValidationHelpers'
 import ClientSelect from '@/components/ClientSelect/ClientSelect.vue'
 import { ClientReference } from '@/helpers/types'
+import { Suburb } from '@/model/Suburb'
 
 @Component({
   components: {
@@ -152,15 +153,15 @@ export default class AddressFormModal extends Vue {
     populateAddress () {
       if (this.address) {
         this.referenceId = this.address.referenceId
-        this.companyName = this.address.companyName
+        this.companyName = this.address.company
         this.addressLine1 = this.address.addressLine1
         this.addressLine2 = this.address.addressLine2
         this.contactName = this.address.contactName
-        this.contactNumber = this.address.contactNo
-        this.contactEmail = this.address.contactEmail
-        this.specialInstructions = this.address.notes
+        this.contactNumber = this.address.phoneNumber
+        this.contactEmail = this.address.email
+        this.specialInstructions = this.address.specialInstructions
         this.addressType = this.address.addressType
-        this.onSearch(this.address.postcode.toString())
+        this.onSearch(this.address.suburb.postcode.toString())
         this.showHelperText = true
       }
     }
@@ -237,15 +238,20 @@ export default class AddressFormModal extends Vue {
         if (!this.selectedClientId && this.client && this.client.id) {
           this.selectedClientId = this.client.id
         }
+
+        const emitSuburb = new Suburb(
+          this.getSuburbId(),
+          this.selectedLocation.location,
+          this.selectedLocation.postcode,
+          this.selectedLocation.state
+        )
         const emitAddress = new Address(
           this.getId(),
           this.referenceId,
           this.companyName,
           this.addressLine1,
           this.addressLine2,
-          this.selectedLocation.location,
-          this.selectedLocation.postcode,
-          this.selectedLocation.state,
+          emitSuburb,
           this.contactName,
           this.contactNumber,
           this.contactEmail,
@@ -263,6 +269,13 @@ export default class AddressFormModal extends Vue {
     getId () {
       if (this.address) {
         return this.address.id
+      }
+      return null
+    }
+
+    getSuburbId () {
+      if (this.address && this.address.suburb) {
+        return this.address.suburb.id
       }
       return null
     }

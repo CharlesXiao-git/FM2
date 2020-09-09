@@ -13,13 +13,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceContext;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -27,19 +27,25 @@ import java.util.Optional;
 public class AddressService {
 
     private final AddressRepository addressRepository;
+    private final SuburbService suburbService;
     private final UserDetailsService userDetailsService;
     private final UserService userService;
     private static final Logger LOG = LoggerFactory.getLogger(AddressService.class);
     private final ModelMapper modelMapper;
+    @PersistenceContext private final EntityManager entityManager;
 
     AddressService(@Autowired AddressRepository addressRepository,
+                   @Autowired SuburbService suburbService,
                    @Autowired UserDetailsService userDetailsService,
                    @Autowired UserService userService,
-                   @Autowired ModelMapper modelMapper) {
+                   @Autowired ModelMapper modelMapper,
+                   @Autowired EntityManagerFactory emf) {
         this.addressRepository = addressRepository;
+        this.suburbService = suburbService;
         this.userDetailsService = userDetailsService;
         this.userService = userService;
         this.modelMapper = modelMapper;
+        this.entityManager = emf.createEntityManager();
     }
 
     // Create
@@ -57,8 +63,12 @@ public class AddressService {
             throw new ForbiddenException("Addresses cannot be created for a BROKER, please provide a customer or client ID");
         }
 
+        // Perform an update to suburb
+        suburbService.updateSuburb(newAddress.getSuburb());
+
         // Save address after the user id has been assigned
-        return addressRepository.save(setUserIdToAddress(user.get(), newAddress));
+        setUserIdToAddress(user.get(), newAddress);
+        return addressRepository.save(newAddress);
     }
 
     // Read
@@ -84,7 +94,7 @@ public class AddressService {
                         null
                 )
                 .stream()
-                .filter(address ->  address.getIsDefault() && address.getClientId() == userId)
+                .filter(address ->  address.getIsDefault() && address.getUserClient().getUserId() == userId)
                 .findFirst();
 
         if(defaultAddress.isEmpty()) {
@@ -98,13 +108,19 @@ public class AddressService {
     public Address updateAddress(AddressDTO dto, Address currentAddress, long userId) {
         // If the new Address object has different Client ID than the current address Client ID
         // Check that the Client ID is the child of the logged in user
-        if(Objects.nonNull(dto.getClientId()) && !dto.getClientId().equals(currentAddress.getClientId())) {
-            if(!userService.isChildOf(userId, dto.getClientId())) {
+        if(Objects.nonNull(dto.getUserClientId()) && !dto.getUserClientId().equals(currentAddress.getUserClient().getUserId())) {
+            if(!userService.isChildOf(userId, dto.getUserClientId())) {
                 throw new ForbiddenException("User does not have permission to update this address");
             } else {
                 throw new ForbiddenException("Client ID for an address shouldn't be updated");
             }
         }
+
+        // Clear existing address entity from persistence context
+        // This tells Spring to forget about any existing suburb details so that we can ensure that spring
+        // set the right suburb instead of thinking that we are trying to change the suburb ID
+        this.entityManager.detach(currentAddress);
+        this.entityManager.detach(currentAddress.getSuburb());
 
         // Map the updated values into the existing address object
         // Null will be ignored and treated as no update
@@ -117,13 +133,13 @@ public class AddressService {
     // Delete
     public Integer deleteAddresses(List<Long> addressIds, long userId, UserRole userRole) {
         // validate all the address Ids exist for the user and their children
-        List<Address> addressesByIds = addressRepository.findAddresses(userRole.name(), userId, addressIds);
+        List<Address> addressesByIds = addressRepository.findAddresses(addressIds, userRole.name(), userId);
         if(addressIds.size() != addressesByIds.size()) {
             throw new ForbiddenException("One or more addresses are not allowed to be deleted by the current user");
         }
 
         // Perform delete to the address
-        return addressRepository.deleteAddressesByIds(addressIds, userId);
+        return addressRepository.deleteAddressesByIds(addressIds, userRole.name(), userId);
     }
 
     // Search address by criteria and current logged in user
@@ -138,18 +154,22 @@ public class AddressService {
 
     // User ID will need to be assigned to the address
     // This function set the user ID to its field depending on the user role
-    // A CLIENT will need to populate both client_id and customer_id
-    // A CUSTOMER will need to populate the CUSTOMER_ID
-    private Address setUserIdToAddress(User user, Address newAddress) {
+    // A CLIENT will need to populate both user_client_id user_customer_id and user_broker_id
+    // A CUSTOMER will need to populate the user_customer_id and user_broker_id
+    private void setUserIdToAddress(User user, Address newAddress) {
         if(user.getUserRole().equals(UserRole.CLIENT)) {
             // The following codes are used for the purpose of returning the IDs that have been set to the new address
-            newAddress.setClientId(user.getId());
-            newAddress.setCustomerId(user.getCustomer().getId());
+            newAddress.setUserClientId(user.getUserClient().getId());
+            newAddress.setUserClient(user.getUserClient());
+            newAddress.setUserCustomer(user.getUserClient().getUserCustomer());
+            newAddress.setUserBroker(user.getUserClient().getUserCustomer().getUserBroker());
         } else if (user.getUserRole().equals(UserRole.CUSTOMER)) {
             // Similarly with the client, the first code is to return the ID as a response
             // where the following code is to store the ID in the address table
-            newAddress.setCustomerId(user.getId());
+            newAddress.setUserCustomerId(user.getUserCustomer().getId());
+            newAddress.setUserCustomer(user.getUserCustomer());
+            newAddress.setUserCustomerId(user.getUserCustomer().getUserBroker().getId());
+            newAddress.setUserBroker(user.getUserCustomer().getUserBroker());
         }
-        return newAddress;
     }
 }

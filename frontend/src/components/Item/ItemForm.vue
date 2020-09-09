@@ -147,7 +147,7 @@ export default class ItemForm extends Vue {
     this.clearError(this.errorMessages.length)
 
     // Validate that the non mutable dimension for the selected Item Type are not tampered and the mutable ones are within the hard limit
-    if (this.selectedItemType && !this.selectedItemType.isMutable && convertFromPreferredUnits(this.length) === this.selectedItemType.length) {
+    if (this.selectedItemType && !this.selectedItemType.isMutable && convertFromPreferredUnits(this.length) === this.selectedItemType.itemTemplate.length) {
       return true
     } else if (this.length > 0 && convertFromPreferredUnits(this.length) <= this.hardLimit.length) {
       return true
@@ -162,7 +162,7 @@ export default class ItemForm extends Vue {
     }
 
     this.clearError(this.errorMessages.width)
-    if (this.selectedItemType && !this.selectedItemType.isMutable && convertFromPreferredUnits(this.width) === this.selectedItemType.width) {
+    if (this.selectedItemType && !this.selectedItemType.isMutable && convertFromPreferredUnits(this.width) === this.selectedItemType.itemTemplate.width) {
       return true
     } else if (this.width > 0 && convertFromPreferredUnits(this.width) <= this.hardLimit.width) {
       return true
@@ -176,7 +176,7 @@ export default class ItemForm extends Vue {
       return false
     }
     this.clearError(this.errorMessages.quantity)
-    if (this.selectedItemType && !this.selectedItemType.isMutable && convertFromPreferredUnits(this.quantity) === this.selectedItemType.quantity) {
+    if (this.selectedItemType && !this.selectedItemType.isMutable && convertFromPreferredUnits(this.quantity) === this.selectedItemType.itemTemplate.quantity) {
       return true
     } else if (this.quantity > 0) {
       return true
@@ -190,7 +190,7 @@ export default class ItemForm extends Vue {
       return false
     }
     this.clearError(this.errorMessages.height)
-    if (this.selectedItemType && !this.selectedItemType.isMutable && convertFromPreferredUnits(this.height) === this.selectedItemType.height) {
+    if (this.selectedItemType && !this.selectedItemType.isMutable && convertFromPreferredUnits(this.height) === this.selectedItemType.itemTemplate.height) {
       return true
     } else if (this.height > 0 && convertFromPreferredUnits(this.height) <= this.hardLimit.height) {
       return true
@@ -206,9 +206,9 @@ export default class ItemForm extends Vue {
 
     this.clearError(this.errorMessages.weightMutable)
     if (this.selectedItemType && !this.selectedItemType.isMutable) {
-      this.errorMessages.weightImmutable = 'Invalid Dimensions: The weight must be between 0 and ' + this.selectedItemType.weight + 'kg for a ' + this.selectedItemType.name
+      this.errorMessages.weightImmutable = 'Invalid Dimensions: The weight must be between 0 and ' + this.selectedItemType.itemTemplate.weight + 'kg for a ' + this.selectedItemType.type
       this.clearError(this.errorMessages.weightImmutable)
-      if (this.weight > 0 && this.weight <= this.selectedItemType.weight) {
+      if (this.weight > 0 && this.weight <= this.selectedItemType.itemTemplate.weight) {
         return true
       } else {
         this.errorDisplayMessages.push(this.errorMessages.weightImmutable)
@@ -229,20 +229,20 @@ export default class ItemForm extends Vue {
     const option: itemTypeOption[] = [{ value: null, text: 'Please select an item type' }]
     if (this.itemTypes) {
       this.itemTypes.forEach(function (itemType: ItemType) {
-        option.push({ value: itemType, text: itemType.name })
+        option.push({ value: itemType, text: itemType.type })
       })
     }
     return option
   }
 
   getDimensions () {
-    if (this.selectedItemType && !this.selectedItemType.isMutable) {
+    if (this.selectedItemType && this.selectedItemType.itemTemplate && !this.selectedItemType.isMutable) {
       this.errorDisplayMessages = []
-      this.length = convertToPreferredUnits(this.selectedItemType.length)
-      this.width = convertToPreferredUnits(this.selectedItemType.width)
-      this.height = convertToPreferredUnits(this.selectedItemType.height)
-      this.quantity = this.selectedItemType.quantity
-      this.weight = this.selectedItemType.weight
+      this.length = convertToPreferredUnits(this.selectedItemType.itemTemplate.length)
+      this.width = convertToPreferredUnits(this.selectedItemType.itemTemplate.width)
+      this.height = convertToPreferredUnits(this.selectedItemType.itemTemplate.height)
+      this.quantity = this.selectedItemType.itemTemplate.quantity
+      this.weight = this.selectedItemType.itemTemplate.weight
       this.disabledDimensions = true
       this.calculateAndValidate()
     } else {

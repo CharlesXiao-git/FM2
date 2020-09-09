@@ -1,9 +1,15 @@
 package com.freightmate.harbour.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.OneToOne;
 
 @SuperBuilder
 @AllArgsConstructor
@@ -13,14 +19,11 @@ import javax.persistence.*;
 @Entity
 public class ItemType extends BaseEntity<Long> {
 
-    @Column(nullable = false)
-    private String name;
+    @OneToOne(targetEntity = ItemTemplate.class, mappedBy = "itemType", fetch = FetchType.EAGER)
+    private ItemTemplate itemTemplate;
 
-    private Long quantity;
-    private Float length;
-    private Float width;
-    private Float height;
-    private Float weight;
+    @Column(nullable = false)
+    private String type;
+
     private Boolean isMutable = true;
-    private Boolean isCustom = false;
 }

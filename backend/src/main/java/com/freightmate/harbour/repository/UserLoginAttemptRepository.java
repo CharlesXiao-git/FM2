@@ -9,6 +9,7 @@ public interface UserLoginAttemptRepository extends CrudRepository<UserLoginAtte
     // The following query has hard coded timer of 1 minute
     String IP_FAILED_LOGIN_ATTEMPTS = "SELECT count(*) FROM user_login_attempt a " +
         "WHERE a.origin_ip = ?1 " +
+        "AND a.success is FALSE " +
         "AND a.login_attempt_at BETWEEN " +
         "DATE_SUB(NOW(), INTERVAL 1 MINUTE) AND NOW()";
 
@@ -20,7 +21,7 @@ public interface UserLoginAttemptRepository extends CrudRepository<UserLoginAtte
 
     @Query(value = IP_FAILED_LOGIN_ATTEMPTS,
             nativeQuery = true)
-    int getCountOfLoginAttemptByOriginIp(String originIp);
+    int getCountOfFailedLoginAttemptByOriginIp(String originIp);
 
     @Query(value = USER_FAILED_LOGIN_ATTEMPTS,
             nativeQuery = true)

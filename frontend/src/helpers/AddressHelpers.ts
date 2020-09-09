@@ -1,21 +1,30 @@
 import { Address } from '@/model/Address'
+import { Suburb } from '@/model/Suburb'
 
 export function prepareAddressData (address: Address): Address {
+  const suburb: Suburb = {
+    id: null,
+    name: address.suburb.name,
+    postcode: address.suburb.postcode,
+    state: address.suburb.state
+  }
+  if (address.suburb.id) {
+    suburb.id = address.suburb.id
+  }
+
   const sendAddressData: Address = {
     id: null,
-    clientId: address.clientId,
+    userClientId: address.userClientId,
     addressType: 'DELIVERY',
     referenceId: address.referenceId,
-    companyName: address.companyName,
+    company: address.company,
     addressLine1: address.addressLine1,
     addressLine2: address.addressLine2,
-    town: address.town,
-    postcode: address.postcode,
-    state: address.state,
+    suburb: suburb,
     contactName: address.contactName,
-    contactNo: address.contactNo,
-    contactEmail: address.contactEmail,
-    notes: address.notes
+    phoneNumber: address.phoneNumber,
+    email: address.email,
+    specialInstructions: address.specialInstructions
   }
   if (address.id) {
     sendAddressData.id = address.id

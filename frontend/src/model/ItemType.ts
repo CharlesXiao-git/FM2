@@ -1,11 +1,8 @@
+import {ItemTemplate} from '@/model/ItemTemplate'
+
 export class ItemType {
   id: number
-  name: string
-  quantity: number
-  length: number
-  width: number
-  height: number
-  weight: number
+  type: string
+  itemTemplate: ItemTemplate
   isMutable: boolean
-  isCustom: boolean
 }

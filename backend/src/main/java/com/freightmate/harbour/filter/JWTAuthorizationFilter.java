@@ -1,7 +1,6 @@
 package com.freightmate.harbour.filter;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import com.freightmate.harbour.helper.RequestHelper;
 import com.freightmate.harbour.model.AuthToken;
 import com.freightmate.harbour.service.AuthService;

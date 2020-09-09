@@ -1,10 +1,15 @@
 package com.freightmate.harbour.model;
 
-import lombok.*;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import com.vladmihalcea.hibernate.type.json.JsonStringType;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.boot.context.properties.bind.validation.ValidationErrors;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -18,6 +23,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
+
+@TypeDef(name = "json", typeClass = JsonStringType.class)
+@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 public class BaseEntity<U> {
 
     @Id
@@ -35,4 +43,10 @@ public class BaseEntity<U> {
 
     @LastModifiedBy
     U updatedBy;
+
+    @Column(nullable = false)
+    @ColumnDefault(value = "false")
+    Boolean isDeleted;
+    LocalDateTime deletedAt;
+    Long deletedBy;
 }

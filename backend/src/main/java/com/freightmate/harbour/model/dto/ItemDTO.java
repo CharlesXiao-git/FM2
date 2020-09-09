@@ -1,7 +1,10 @@
 package com.freightmate.harbour.model.dto;
 
 import com.freightmate.harbour.model.Item;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
@@ -10,7 +13,7 @@ import lombok.*;
 public class ItemDTO {
     private long id;
     private long consignmentId;
-    private Long quantity;
+    private Integer quantity;
     private long itemTypeId;
     private Float length;
     private Float width;

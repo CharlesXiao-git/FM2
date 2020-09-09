@@ -29,9 +29,9 @@ public class AuthService {
     private final BCryptPasswordEncoder bCryptEncoder = new BCryptPasswordEncoder(10);
     private static final int ATTEMPT_LIMIT = 5;
 
-    AuthService(@Value("${jwt.secret}") String secret,
-                @Value("${jwt.expiry}") int tokenExpiry,
-                @Autowired UserDetailsService userDetailsService) {
+    public AuthService(@Value("${jwt.secret}") String secret,
+                       @Value("${jwt.expiry}") int tokenExpiry,
+                       @Autowired UserDetailsService userDetailsService) {
         this.tokenExpiry = tokenExpiry;
         this.algorithm = Algorithm.HMAC512(secret);
         this.userDetailsService = userDetailsService;
@@ -49,7 +49,7 @@ public class AuthService {
 
         //// 2. check if user is locked or not
         if (this.isRequestLocked(user, request)){
-            this.createFailedLoginAttempt(request);
+            this.createLoginAttempt(request, false);
             return LoginResult
                     .builder()
                     .loginResponse(LoginResponse.LOCKED)
@@ -58,17 +58,20 @@ public class AuthService {
 
         //// 3. verify user's password
         if (!this.verifyPassword(request, user)) {
-            this.createFailedLoginAttempt(request);
+            this.createLoginAttempt(request, false);
             return LoginResult
                     .builder()
                     .loginResponse(LoginResponse.WRONG_USER_PASSWORD)
                     .build();
         }
 
+
+
         //// 4. When everything is ok then generate token
         // call generate token
         String token = this.generateJWT(user);
 
+        this.createLoginAttempt(request, true);
         return LoginResult.builder()
                 .loginResponse(LoginResponse.OK)
                 .token(token)
@@ -79,7 +82,7 @@ public class AuthService {
         // check if user is null
         if (Objects.isNull(user)) {
             // do a lookup by ip address
-            Integer attemptCount = this.userDetailsService.getLoginAttemptCountByIp(request.getRequestIpAddress());
+            Integer attemptCount = this.userDetailsService.getFailedLoginAttemptCountByIp(request.getRequestIpAddress());
 
             return attemptCount >= ATTEMPT_LIMIT;
         }
@@ -88,17 +91,18 @@ public class AuthService {
 
     private boolean isRequestorLocked(LoginRequest request) {
         Integer userAttemptCount = this.userDetailsService.getLoginAttemptCountByUsername(request.getUsername());
-        Integer ipAttemptCount = this.userDetailsService.getLoginAttemptCountByIp(request.getRequestIpAddress());
+        Integer ipAttemptCount = this.userDetailsService.getFailedLoginAttemptCountByIp(request.getRequestIpAddress());
 
         return userAttemptCount >= ATTEMPT_LIMIT || ipAttemptCount >= ATTEMPT_LIMIT;
     }
 
-    private UserLoginAttempt createFailedLoginAttempt(LoginRequest request) {
+    private UserLoginAttempt createLoginAttempt(LoginRequest request, boolean success) {
         // Save login attempt
         return this.userDetailsService.createLoginAttempt(
                 UserLoginAttempt.builder()
                         .username(request.getUsername())
                         .originIp(request.getRequestIpAddress())
+                        .success(success)
                         .build()
         );
     }

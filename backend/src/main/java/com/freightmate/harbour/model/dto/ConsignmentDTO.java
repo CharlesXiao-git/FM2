@@ -2,12 +2,13 @@ package com.freightmate.harbour.model.dto;
 
 import com.freightmate.harbour.model.AddressClass;
 import com.freightmate.harbour.model.Consignment;
+import com.freightmate.harbour.model.ConsignmentType;
 import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor
@@ -20,30 +21,32 @@ public class ConsignmentDTO {
     private long ownerId;
     private long senderAddressId;
     private long deliveryAddressId;
+    private String connoteNumber;
     private AddressDTO senderAddress;
     private AddressDTO deliveryAddress;
-    private String connoteId;
-    private LocalDateTime dispatchDateAt;
-    private LocalDateTime deliveryWindowStartAt;
-    private LocalDateTime deliveryWindowEndAt;
-    private AddressClass addressClass;
-    private Boolean isAllowedToLeave;
+    private LocalDateTime dispatchedAt;
+    private LocalDateTime deliveryWindowBegin;
+    private LocalDateTime deliveryWindowEnd;
+    private AddressClass deliveryAddressClass;
+    private Boolean authorityToLeave;
     private Boolean isTailgateRequired;
+    private ConsignmentType consignmentType;
     private List<ItemDTO> items;
 
     public static Consignment toConsignment(ConsignmentDTO dto) {
         return Consignment.builder()
                 .id(dto.id)
-                .ownerId(dto.ownerId)
+                .userClientId(dto.ownerId)
                 .senderAddressId(dto.senderAddressId)
                 .deliveryAddressId(dto.deliveryAddressId)
-                .connoteId(dto.connoteId)
-                .dispatchDateAt(dto.dispatchDateAt)
-                .deliveryWindowStartAt(dto.deliveryWindowStartAt)
-                .deliveryWindowEndAt(dto.deliveryWindowEndAt)
-                .addressClass(dto.addressClass)
-                .isAllowedToLeave(dto.isAllowedToLeave)
+                .connoteNumber(dto.connoteNumber)
+                .dispatchedAt(dto.dispatchedAt)
+                .deliveryWindowBegin(dto.deliveryWindowBegin)
+                .deliveryWindowEnd(dto.deliveryWindowEnd)
+                .deliveryAddressClass(dto.deliveryAddressClass)
+                .authorityToLeave(dto.authorityToLeave)
                 .isTailgateRequired(dto.isTailgateRequired)
+                .consignmentType(dto.consignmentType)
                 .items(dto.items.stream()
                         .map(ItemDTO::toItem)
                         .collect(Collectors.toList())
@@ -59,25 +62,24 @@ public class ConsignmentDTO {
 
         return ConsignmentDTO.builder()
                 .id(con.getId())
-                .ownerId(con.getOwnerId())
+                .ownerId(con.getUserClient().getUserId())
                 .senderAddressId(con.getSenderAddressId())
                 .deliveryAddressId(con.getDeliveryAddressId())
+                .connoteNumber(con.getConnoteNumber())
                 .senderAddress(AddressDTO.fromAddress(con.getSenderAddress()))
                 .deliveryAddress(AddressDTO.fromAddress(con.getDeliveryAddress()))
-                .connoteId(con.getConnoteId())
-                .dispatchDateAt(con.getDispatchDateAt())
-                .deliveryWindowStartAt(con.getDeliveryWindowStartAt())
-                .deliveryWindowEndAt(con.getDeliveryWindowEndAt())
-                .addressClass(con.getAddressClass())
-                .isAllowedToLeave(con.getIsAllowedToLeave())
+                .dispatchedAt(con.getDispatchedAt())
+                .deliveryWindowBegin(con.getDeliveryWindowBegin())
+                .deliveryWindowEnd(con.getDeliveryWindowEnd())
+                .deliveryAddressClass(con.getDeliveryAddressClass())
+                .authorityToLeave(con.getAuthorityToLeave())
                 .isTailgateRequired(con.getIsTailgateRequired())
+                .consignmentType(con.getConsignmentType())
                 .items(con.getItems().stream()
                         .map(ItemDTO::fromItem)
                         .collect(Collectors.toList())
                 )
                 .build();
     }
-
 }
-
 

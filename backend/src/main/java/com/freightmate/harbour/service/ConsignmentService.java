@@ -4,10 +4,10 @@ import com.freightmate.harbour.exception.AddressNotFoundException;
 import com.freightmate.harbour.exception.BadRequestException;
 import com.freightmate.harbour.exception.ForbiddenException;
 import com.freightmate.harbour.model.*;
+import com.freightmate.harbour.model.dto.AddressDTO;
 import com.freightmate.harbour.model.dto.ConsignmentDTO;
 import com.freightmate.harbour.model.dto.ItemDTO;
 import com.freightmate.harbour.repository.ConsignmentRepository;
-import com.freightmate.harbour.repository.ItemTypeRepository;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,22 +29,25 @@ public class ConsignmentService {
     private final AddressService addressService;
     private final UserDetailsService userDetailsService;
     private final UserService userService;
-    private final ItemTypeRepository itemTypeRepository;
+    private final ItemTypeService itemTypeService;
     private final ModelMapper modelMapper;
+    @PersistenceContext private final EntityManager entityManager;
     private static final Logger LOG = LoggerFactory.getLogger(ConsignmentService.class);
 
     ConsignmentService(@Autowired ConsignmentRepository consignmentRepository,
                    @Autowired AddressService addressService,
                    @Autowired UserDetailsService userDetailsService,
                    @Autowired UserService userService,
-                   @Autowired ItemTypeRepository itemTypeRepository,
-                   @Autowired ModelMapper modelMapper) {
+                   @Autowired ItemTypeService itemTypeService,
+                   @Autowired ModelMapper modelMapper,
+                   @Autowired EntityManagerFactory emf) {
         this.consignmentRepository = consignmentRepository;
         this.addressService = addressService;
         this.userDetailsService = userDetailsService;
         this.userService = userService;
-        this.itemTypeRepository = itemTypeRepository;
+        this.itemTypeService = itemTypeService;
         this.modelMapper = modelMapper;
+        this.entityManager = emf.createEntityManager();
     }
 
     // Create
@@ -87,18 +93,21 @@ public class ConsignmentService {
         // Save consignment after the user id has been assigned
         setConsignmentUser(user.get(), newConsignment);
 
-        /*
-         * todo:
-         *  validate the items (i.e. total weight, volume, max length, etc.).
-         *  if it isn't mutable we dont need to validate the dimension fields against the value in the database table.
-         *    But do a validation on the dimension calculation
-         *  if it's mutable then need to check the calculation is correct (do a simple calculation)
-         */
+        // For each item we need to get the actual item type object by querying the DB using all item's itemTypeId
+        // First we get all the itemTypeId from the request
+        List<Long> itemTypeIds = newConsignment
+                .getItems()
+                .stream()
+                .map(Item::getItemTypeId)
+                .collect(Collectors.toList());
+        // Then create a map of ItemType having its ID as the key
+        Map<Long, ItemType> itemTypes = this.getConsignmentItemTypes(itemTypeIds);
 
-        //set consignment for all the items
+        // set consignment for all the items and set the ItemType
         List<Item> requestItems = newConsignment.getItems();
         for(Item item : requestItems) {
             item.setConsignment(newConsignment);
+            item.setItemType(itemTypes.get(item.getItemTypeId()));
         }
 
         return consignmentRepository.save(newConsignment);
@@ -123,14 +132,14 @@ public class ConsignmentService {
 
         Consignment con = currentConsignment.get();
 
-        // Validate that the updated consignment has the same Owner ID as the current consignemt Owner ID
-        if (consignmentRequest.getOwnerId() != con.getOwnerId()) {
+        // Validate that the updated consignment has the same Owner ID as the current consignment Owner ID
+        if (consignmentRequest.getOwnerId() != con.getUserClient().getUserId()) {
             throw new ForbiddenException("Owner ID of existing consignment cannot be changed");
         }
 
         // Validate if user has permission to update
         // Return 403 if the requestor is a client and the consignment does not belong to the user
-        if(userRole.equals(UserRole.CLIENT) && userId != currentConsignment.get().getOwnerId()) {
+        if(userRole.equals(UserRole.CLIENT) && userId != currentConsignment.get().getUserClient().getUserId()) {
             throw new ForbiddenException("User does not have permission to update this consignment");
         }
 
@@ -138,7 +147,7 @@ public class ConsignmentService {
         boolean userOwnsOrIsParent = userService
                 .getChildren(userId,true)
                 .stream()
-                .anyMatch(child -> child.getId() == con.getOwnerId());
+                .anyMatch(child -> child.getId() == con.getUserClient().getUserId());
 
         if(!userOwnsOrIsParent) {
             throw new ForbiddenException("User does not have permission to update this consignment");
@@ -162,6 +171,11 @@ public class ConsignmentService {
             throw new AddressNotFoundException("Delivery, sender or both addresses are not valid");
         }
 
+        // Set the delivery & sender address details to consignment
+        setConsignmentAddresses(delivery.get(),
+                sender.get(),
+                consignmentRequest);
+
         // Filter the existing consignment items to get the items as per the request
         // This is for deleted items and to ensure that we filter out the deleted items from the existing consignment
         List<Long> requestItemIds = consignmentRequest
@@ -175,16 +189,40 @@ public class ConsignmentService {
                 .filter(item -> requestItemIds.contains(item.getId()))
                 .collect(Collectors.toList());
 
+        // For each item we need to get the actual item type object by querying the DB using all item's itemTypeId
+        // First we get all the itemTypeId from the request
+        List<Long> itemTypeIds = consignmentRequest
+                .getItems()
+                .stream()
+                .map(ItemDTO::getItemTypeId)
+                .collect(Collectors.toList());
+        // Then create a map of ItemType having its ID as the key
+        // Not querying multiple times but instead collating all the item type IDs and querying the item_type table once with all the IDs
+        Map<Long, ItemType> itemTypes = this.getConsignmentItemTypes(itemTypeIds);
+
         // Set the filtered items as the existing consignment items
         con.setItems(requestItems);
+
+        // Clear existing consignment entity from persistence context
+        // This tells Spring to forget about any existing address details so that we can ensure that spring
+        // set the right addresses instead of thinking that we are trying to change the address ID
+        this.entityManager.detach(con);
+        this.entityManager.detach(con.getSenderAddress());
+        this.entityManager.detach(con.getDeliveryAddress());
+        this.entityManager.detach(con.getSenderAddress().getSuburb());
+        this.entityManager.detach(con.getDeliveryAddress().getSuburb());
+        // Uncomment below to clear all persistence object which is not recommended
+        // clear() will force spring to query all related objects and set it into persistence context which will add more processing time
+//        this.entityManager.clear();
 
         // Map the updated values into the existing consignment object
         // Null will be ignored and treated as no update
         modelMapper.map(consignmentRequest, con);
 
-        // Make sure that every item in the consignment knows their parent consignment
+        // Make sure that every item in the consignment knows their parent consignment and set the ItemType
         for(Item item : con.getItems()) {
             item.setConsignment(con);
+            item.setItemType(itemTypes.get(item.getItemTypeId()));
         }
 
         // Save updated consignment
@@ -208,7 +246,7 @@ public class ConsignmentService {
                 .collect(Collectors.toList());
 
         List<Consignment> consignmentsCanDelete = consignments.stream()
-                .filter(consignment -> children.contains(consignment.getOwnerId()))
+                .filter(consignment -> children.contains(consignment.getUserClient().getUserId()))
                 .collect(Collectors.toList());
 
         if (consignmentsCanDelete.size() != consignments.size()) {
@@ -224,12 +262,35 @@ public class ConsignmentService {
     }
 
     private void setConsignmentUser(User user, Consignment consignment) {
-        consignment.setOwner(user);
-        consignment.setOwnerId(user.getId());
+        consignment.setUserClient(user.getUserClient());
+        consignment.setUserClientId(user.getId());
     }
 
     private void setConsignmentAddresses(Address delivery, Address sender, Consignment consignment) {
+        consignment.setDeliveryAddress(delivery);
         consignment.setDeliveryAddressId(delivery.getId());
         consignment.setSenderAddressId(sender.getId());
+        consignment.setSenderAddress(sender);
+    }
+
+    private void setConsignmentAddresses(Address delivery, Address sender, ConsignmentDTO consignment) {
+        consignment.setDeliveryAddress(AddressDTO.fromAddress(delivery));
+        consignment.setDeliveryAddressId(delivery.getId());
+        consignment.setSenderAddressId(sender.getId());
+        consignment.setSenderAddress(AddressDTO.fromAddress(sender));
+    }
+
+    private Map<Long, ItemType> getConsignmentItemTypes(List<Long> itemTypeIds) {
+        // Get all the ItemType objects using the IDs from previous step
+        List<ItemType> itemTypes = itemTypeService.getItemTypes(itemTypeIds);
+        // Create a Map of ItemType having the id as the key
+        return itemTypes
+                .stream()
+                .collect(
+                        Collectors.toMap(
+                                ItemType::getId,
+                                itemType -> itemType
+                        )
+                );
     }
 }
