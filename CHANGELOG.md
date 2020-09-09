@@ -13,6 +13,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ### Fixed
 ### Security
 
+## [0.4.0] 2020-09-03 (Unreleased to production)
+### Added
+- FRONTEND | Various options when creating consignment : Data picker, Time slot, Delivery options, item reference
+- FRONTEND | Different type of consignment
+- FRONTEND | Consignments list page
+- INFRA | Implement static analysis using sonarcloud into the CI-CD pipeline
+
+### Changed
+- BACKEND | Upgrading MySQL version from 5.6 to 5.7
+
+### Fixed
+- FRONTEND | CSS in UAT
+- FRONTEND | Axios base URL in UAT
+- FRONTEND | Fix issue where new address was not searchable using the Recipient address search field
+- FRONTEND | Fix failing tests
+
 ## [0.3.0] 2020-08-23  (Unreleased to production)
 ### Added
 - INFRA | Base AWS VPC Environment
@@ -67,7 +83,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 `Beginning of changelog`
 
-[Unreleased]: https://github.com/Freightmate/harbour/compare/0.3.0...HEAD
+[Unreleased]: https://github.com/Freightmate/harbour/compare/0.4.0...HEAD
 [0.2.0]: https://github.com/Freightmate/harbour/compare/0.0.0...0.2.0
 [0.2.1]: https://github.com/Freightmate/harbour/compare/0.2.0...0.2.1
 [0.3.0]: https://github.com/Freightmate/harbour/compare/0.2.1...0.3.0
+[0.4.0]: https://github.com/Freightmate/harbour/compare/0.3.0...0.4.0
