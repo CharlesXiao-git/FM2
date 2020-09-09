@@ -63,6 +63,9 @@
                 </div>
             </template>
         </div>
+        <template v-if="isHazardous">
+            <DangerousGoodPanel @emitted-dangerous-goods="emittedDangerousGoods"></DangerousGoodPanel>
+        </template>
     </div>
 </template>
 
@@ -72,16 +75,21 @@ import { userPreferredUnit } from '@/helpers/auth/UserHelpers'
 import { convertFromPreferredUnits, convertToPreferredUnits } from '@/helpers/PreferredUnitHelpers'
 import { ItemType } from '@/model/ItemType'
 import { Item } from '@/model/Item'
+import { DangerousGood } from '@/model/DangerousGood'
+import DangerousGoodPanel from '@/components/DangerousGood/DangerousGoodPanel.vue'
 
 type itemTypeOption = {
   value: ItemType;
   text: string;
 }
 
-@Component
+@Component({
+  components: { DangerousGoodPanel }
+})
 export default class ItemForm extends Vue {
   @Prop() item: Item
   @Prop() itemTypes: ItemType[]
+  dangerousGoods: DangerousGood[] = []
   quantity = 1
   selectedItemType: ItemType = null
   length: number = null
@@ -260,6 +268,11 @@ export default class ItemForm extends Vue {
     }
   }
 
+  emittedDangerousGoods (dangerousGoods: DangerousGood []) {
+    this.dangerousGoods = dangerousGoods
+    this.emitItem()
+  }
+
   getItem () {
     return new Item(
       this.item.id,
@@ -272,7 +285,8 @@ export default class ItemForm extends Vue {
       this.totalWeight,
       convertFromPreferredUnits(this.volume),
       this.isHazardous,
-      this.selectedItemType
+      this.selectedItemType,
+      this.dangerousGoods
     )
   }
 
