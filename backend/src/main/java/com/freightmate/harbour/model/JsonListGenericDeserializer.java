@@ -16,8 +16,17 @@ public class JsonListGenericDeserializer<T> extends JsonDeserializer<List<T>> {
     private final Class<T> cls;
 
     public JsonListGenericDeserializer() {
+        /*
+         * TODO: Error initialising cls when creating an object that has Carrier object in it as a class variable
+         *  The error appears when performing a create endpoint and caused the app to throw HttpStatus.UNSUPPORTED_MEDIA_TYPE
+         *  Workaround is to set the cls if the type.getActualTypeArguments is not a type of [java.util.List<T>]
+         */
+        Class<T> cls1 = null;
         final ParameterizedType type = (ParameterizedType) this.getClass().getGenericSuperclass();
-        this.cls = (Class<T>) type.getActualTypeArguments()[0];
+        if (!type.getActualTypeArguments()[0].getTypeName().equals("java.util.List<T>")) {
+            cls1 = (Class<T>) type.getActualTypeArguments()[0];
+        }
+        this.cls = cls1;
     }
 
     @Override

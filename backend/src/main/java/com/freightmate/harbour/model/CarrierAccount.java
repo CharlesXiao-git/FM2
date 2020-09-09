@@ -16,7 +16,7 @@ import javax.persistence.ManyToOne;
 public class CarrierAccount extends BaseEntity<Long> {
     private String accountNumber;
 
-    @ManyToOne(targetEntity = Carrier.class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = Carrier.class, fetch = FetchType.EAGER)
     private Carrier carrier;
 
     @Column(name = "carrier_id", insertable = false, updatable = false)
@@ -74,7 +74,7 @@ public class CarrierAccount extends BaseEntity<Long> {
     @Column(name = "half_pallet_max_h") private Float halfPalletMaxH;
     @Column(name = "half_pallet_max_l") private Float halfPalletMaxL;
     @Column(name = "half_pallet_max_w") private Float halfPalletMaxW;
-    private Float halfPalletMaxKg;
+    @Column(name = "half_pallet_max_kg") private Float halfPalletMaxKg;
     @Column(name = "rule_cat_format_1") private String ruleCatFormat1;
     @Column(name = "rule_cat_format_2") private String ruleCatFormat2;
     @Column(name = "rule_cat_format_3") private String ruleCatFormat3;

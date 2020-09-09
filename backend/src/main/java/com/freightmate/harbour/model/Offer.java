@@ -1,32 +1,44 @@
 package com.freightmate.harbour.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @SuperBuilder
+@Entity
 public class Offer extends BaseEntity<Long> {
 
-    @ManyToOne
-    CarrierAccount carrierAccount;
-    Integer ETA;
-    Float freightCost;
-    Float category1Fees;
-    Float category2Fees;
-    Float fuelSurcharge;
-    Float gst;
-    Float totalCost;
-    @ManyToOne
-    Consignment consignment;
-    boolean selected;
+    @ManyToOne(targetEntity = CarrierAccount.class,
+            fetch = FetchType.EAGER
+    )
+    private CarrierAccount carrierAccount;
 
-    Offer(){
+    @Column(name = "carrier_account_id", insertable = false, updatable = false)
+    private long carrierAccountId;
+
+    @JsonBackReference
+    @ManyToOne(targetEntity = Consignment.class,
+            fetch = FetchType.LAZY)
+    @JoinColumn(name = "consignment_id")
+    private Consignment consignment;
+
+    private Integer ETA;
+    private Float freightCost;
+    @Column(name = "category_1_fees") private Float category1Fees;
+    @Column(name = "category_2_fees") private Float category2Fees;
+    private Float fuelSurcharge;
+    private Float gst;
+    private Float totalCost;
+    private boolean selected;
+
+    public Offer(){
         selected = false;
     }
 

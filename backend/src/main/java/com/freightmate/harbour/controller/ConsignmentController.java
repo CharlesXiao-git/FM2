@@ -3,6 +3,7 @@ package com.freightmate.harbour.controller;
 import com.freightmate.harbour.exception.ForbiddenException;
 import com.freightmate.harbour.model.*;
 import com.freightmate.harbour.model.dto.ConsignmentDTO;
+import com.freightmate.harbour.repository.OfferRepository;
 import com.freightmate.harbour.service.ConsignmentService;
 import com.freightmate.harbour.service.ItemTypeService;
 import com.freightmate.harbour.service.UserService;
@@ -29,6 +30,9 @@ public class ConsignmentController {
 
     @Autowired
     private ItemTypeService itemTypeService;
+
+    @Autowired
+    private OfferRepository offerRepository;
 
     @Autowired
     private UserService userService;
@@ -154,6 +158,27 @@ public class ConsignmentController {
             );
         } catch (DataAccessException e) {
             LOG.error("Unable to retrieve item type list: ", e);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .build();
+        }
+    }
+
+    // todo public ResponseEntity<List<Offer>> calculateOffers(@RequestBody Consignment consignmentRequest, Authentication authentication)
+    @GetMapping(path = "/offers")
+    public ResponseEntity<List<Offer>> calculateOffers() {
+
+        // Add a dummy consignment
+        // send the consignment to get the price from the carrier FTP and API endpoint and store the offers in the database
+        // send the consignment id to the offer query
+
+        // This is just returning mock offers for now
+        try {
+            return ResponseEntity.ok(
+                    offerRepository.getOffers()
+            );
+        } catch (DataAccessException e) {
+            LOG.error("Unable to retrieve offers: ", e);
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .build();

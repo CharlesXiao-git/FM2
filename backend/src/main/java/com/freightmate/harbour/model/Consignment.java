@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -111,6 +112,27 @@ public class Consignment extends BaseEntity<Long> {
             mappedBy = "consignment",
             orphanRemoval = true)
     private List<Item> items;
+
+    @OneToMany(targetEntity = Offer.class,
+            mappedBy = "consignment",
+            fetch = FetchType.LAZY
+    )
+    private List<Offer> offers;
+
+    @OneToMany(
+            targetEntity = Offer.class,
+            mappedBy = "consignment",
+            fetch = FetchType.EAGER
+    )
+    @Where(clause = "selected = true")
+    private List<Offer> selectedOffer;
+
+    public Offer getSelectedOffer () {
+        if (this.selectedOffer.isEmpty()) {
+            return null;
+        } 
+        return this.selectedOffer.get(0);
+    }
 
     public Consignment() {
         this.isDeleted = false;
