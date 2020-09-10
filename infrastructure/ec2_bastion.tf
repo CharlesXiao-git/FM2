@@ -61,8 +61,10 @@ data "aws_ami" "ubuntu" {
 data template_file "BastionHostUserData" {
   template = file("assets/scripts/BastionUserData.sh")
   vars = {
-    Region       = var.aws-region
-    SshKeysParam = aws_ssm_parameter.BastionHostPubKeys.name
-    EnvDbHost    = aws_ssm_parameter.DatabaseEndpoint.name
+    Region          = var.aws-region
+    SshKeysParam    = aws_ssm_parameter.BastionHostPubKeys.name
+    EnvDbHost       = aws_ssm_parameter.DatabaseEndpoint.name
+    BastionHostname = lower("bastion.${terraform.workspace}.staging.${data.aws_route53_zone.Public.name}")
+    Prompt          = terraform.workspace
   }
 }

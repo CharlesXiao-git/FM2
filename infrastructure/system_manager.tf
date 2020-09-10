@@ -76,6 +76,7 @@ resource "aws_ssm_parameter" "BastionHostPubKeys" {
   name  = join("-", [var.application-name, terraform.workspace, "Bastion-Host-Keys"])
   type  = "StringList"
   value = "foo,bar"
+  tier = "Advanced"
 
   lifecycle {
     ignore_changes = [value]
