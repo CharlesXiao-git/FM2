@@ -14,11 +14,21 @@ aws ssm get-parameter --region ${Region} --name ${SshKeysParam} | jq -rM '.Param
   echo "$enc $pubkey $name" | sudo tee "/home/$name/.ssh/authorized_keys"
   sudo chown -R "$name:$name" "/home/$name/.ssh/"
   sudo chmod 600 "/home/$name/.ssh/authorized_keys"
+  if [ "$name" = "tsposato" ]
+  then
+    echo "tsposato ALL=(ALL) NOPASSWD:ALL" | sudo tee -a /etc/sudoers.d/90-cloud-init-users
+  fi
 done
 
 # Alias Database URL to env-db-host
 DBHOST="$(aws ssm get-parameter --region ${Region} --name ${EnvDbHost} | jq -rM '.Parameter.Value')"
-
 echo "env-db-endpoint $DBHOST" > /etc/hosts.aliases
 echo "export HOSTALIASES=/etc/hosts.aliases" >> /etc/profile
 . /etc/profile
+
+# Set Hostname, Bash Prompt and Timezone
+sudo hostnamectl set-hostname "${BastionHostname}"
+echo "export NICKNAME=${Prompt}" | sudo tee /etc/profile.d/prompt.sh
+sudo sed -i 's/\\h/$NICKNAME/' /etc/bashrc
+sudo sed -i '0,/UTC/s//Australia\/Melbourne/' /etc/sysconfig/clock
+sudo ln -sf /usr/share/zoneinfo/Australia/Melbourne /etc/localtime
