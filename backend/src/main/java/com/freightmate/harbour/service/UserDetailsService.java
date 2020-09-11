@@ -1,5 +1,6 @@
 package com.freightmate.harbour.service;
 
+import com.freightmate.harbour.helper.ListHelper;
 import com.freightmate.harbour.model.User;
 import com.freightmate.harbour.model.UserClient;
 import com.freightmate.harbour.model.UserLoginAttempt;
@@ -76,5 +77,13 @@ public class UserDetailsService {
 
     public List<User> getUsers(List<Long> userIds) {
         return userRepository.findUsersByIds(userIds);
+    }
+
+    public User getFirst(long userId) {
+        return ListHelper.getFirst(
+                this.getUsers(
+                        Collections.singletonList(userId)
+                )
+        );
     }
 }

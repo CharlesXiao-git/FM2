@@ -23,7 +23,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-
 @TypeDef(name = "json", typeClass = JsonStringType.class)
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 public class BaseEntity<U> {

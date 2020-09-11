@@ -3,7 +3,6 @@ package com.freightmate.harbour.repository;
 import com.freightmate.harbour.model.Suburb;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
-
 import java.util.List;
 
 public interface SuburbRepository extends PagingAndSortingRepository<Suburb, Long>  {

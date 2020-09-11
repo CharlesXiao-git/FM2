@@ -36,25 +36,35 @@ public class ConsignmentDTO {
     private OfferDTO selectedOffer;
 
     public static Consignment toConsignment(ConsignmentDTO dto) {
-        return Consignment.builder()
-            .id(dto.id)
-            .userClientId(dto.ownerId)
-            .senderAddressId(dto.senderAddressId)
-            .deliveryAddressId(dto.deliveryAddressId)
-            .connoteNumber(dto.connoteNumber)
-            .dispatchedAt(dto.dispatchedAt)
-            .deliveryWindowBegin(dto.deliveryWindowBegin)
-            .deliveryWindowEnd(dto.deliveryWindowEnd)
-            .deliveryAddressClass(dto.deliveryAddressClass)
-            .authorityToLeave(dto.authorityToLeave)
-            .isTailgateRequired(dto.isTailgateRequired)
-            .consignmentType(dto.consignmentType)
-            .items(dto.items.stream()
-                    .map(ItemDTO::toItem)
-                    .collect(Collectors.toList())
-            )
-            .selectedOffer(Collections.singletonList(OfferDTO.toOffer(dto.selectedOffer)))
-            .build();
+        Consignment.ConsignmentBuilder<?, ?> builder = Consignment.builder();
+
+        if(Objects.nonNull(dto.selectedOffer)) {
+            builder.selectedOffer(
+                    Collections.singletonList(
+                            OfferDTO.toOffer(dto.selectedOffer)
+                    )
+            );
+        }
+
+        return builder
+                .id(dto.id)
+                .userClientId(dto.ownerId)
+                .senderAddressId(dto.senderAddressId)
+                .deliveryAddressId(dto.deliveryAddressId)
+                .connoteNumber(dto.connoteNumber)
+                .dispatchedAt(dto.dispatchedAt)
+                .deliveryWindowBegin(dto.deliveryWindowBegin)
+                .deliveryWindowEnd(dto.deliveryWindowEnd)
+                .deliveryAddressClass(dto.deliveryAddressClass)
+                .authorityToLeave(dto.authorityToLeave)
+                .isTailgateRequired(dto.isTailgateRequired)
+                .consignmentType(dto.consignmentType)
+                .items(dto.items.stream()
+                        .map(ItemDTO::toItem)
+                        .collect(Collectors.toList())
+                )
+                .isDeleted(false)
+                .build();
     }
 
     public static ConsignmentDTO fromConsignment(Consignment con) {

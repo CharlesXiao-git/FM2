@@ -23,6 +23,15 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
+    /**
+     * This is the login controller to validate the user's credential
+     * @param request           The JSON request body that will be passed into the controller that contains the user's
+     *                          credentials
+     * @param servletRequest    This is required to retrieve the IP address of the user to log the attempt. Not required
+     *                          to be passed in via the API
+     * @return This controller will return a JWT if the credential is successfully validated or it will return an error
+     * message
+     */
     @RequestMapping(path="/login", method = RequestMethod.POST)
     public ResponseEntity<String> createJWT(@Valid @RequestBody LoginRequest request, HttpServletRequest servletRequest){
 

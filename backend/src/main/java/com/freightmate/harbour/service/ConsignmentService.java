@@ -3,6 +3,7 @@ package com.freightmate.harbour.service;
 import com.freightmate.harbour.exception.AddressNotFoundException;
 import com.freightmate.harbour.exception.BadRequestException;
 import com.freightmate.harbour.exception.ForbiddenException;
+import com.freightmate.harbour.helper.ListHelper;
 import com.freightmate.harbour.model.*;
 import com.freightmate.harbour.model.dto.AddressDTO;
 import com.freightmate.harbour.model.dto.ConsignmentDTO;
@@ -52,31 +53,21 @@ public class ConsignmentService {
 
     // Create
     public Consignment createConsignment(Consignment newConsignment, long userId) {
-        // Get user details from username
-        Optional<User> user = userDetailsService.getUsers(
-                Collections.singletonList(userId)
-        ).stream().findFirst();
-
-        if(user.isEmpty()) {
-            throw new BadRequestException("Unable to find user");
-        }
+        // Get user details from user ID
+        User user = userDetailsService.getFirst(userId);
 
         // Get delivery address details
-        Optional<Address> delivery = addressService.getAddresses(
-                Collections.singletonList(
-                        newConsignment.getDeliveryAddressId()
-                )
-        ).stream().findFirst();
+        Address delivery = addressService.getFirst(
+                newConsignment.getDeliveryAddressId()
+        );
 
         // Get sender address details
-        Optional<Address> sender = addressService.getAddresses(
-                Collections.singletonList(
-                        newConsignment.getSenderAddressId()
-                )
-        ).stream().findFirst();
+        Address sender = addressService.getFirst(
+                newConsignment.getSenderAddressId()
+        );
 
         // Validate that the delivery & sender addresses are valid
-        if(delivery.isEmpty() || sender.isEmpty()) {
+        if(Objects.isNull(delivery) || Objects.isNull(sender)) {
             LOG.error("Unable to find delivery and/or sender address for the consignment.");
             throw new AddressNotFoundException("Delivery, sender or both addresses are not valid");
         }
@@ -88,10 +79,10 @@ public class ConsignmentService {
         }
 
         // Set the delivery & sender address details to consignment
-        setConsignmentAddresses(delivery.get(), sender.get(), newConsignment);
+        setConsignmentAddresses(delivery, sender, newConsignment);
 
         // Save consignment after the user id has been assigned
-        setConsignmentUser(user.get(), newConsignment);
+        setConsignmentUser(user, newConsignment);
 
         // For each item we need to get the actual item type object by querying the DB using all item's itemTypeId
         // First we get all the itemTypeId from the request
@@ -122,24 +113,16 @@ public class ConsignmentService {
     // Update
     public void updateConsignment(ConsignmentDTO consignmentRequest, UserRole userRole, long userId) {
         // Validate the consignment to be updated exists
-        Optional<Consignment> currentConsignment = this.getConsignments(
-                Collections.singletonList(consignmentRequest.getId())
-        ).stream().findFirst();
+        Consignment currentConsignment = this.getFirst(consignmentRequest.getId());
 
-        if (currentConsignment.isEmpty()) {
-            throw new BadRequestException("Unable to find consignment");
-        }
-
-        Consignment con = currentConsignment.get();
-
-        // Validate that the updated consignment has the same Owner ID as the current consignment Owner ID
-        if (consignmentRequest.getOwnerId() != con.getUserClient().getUserId()) {
+        // Validate that the updated consignment has the same Owner ID as the current consignemt Owner ID
+        if (consignmentRequest.getOwnerId() != currentConsignment.getUserClient().getUserId()) {
             throw new ForbiddenException("Owner ID of existing consignment cannot be changed");
         }
 
         // Validate if user has permission to update
         // Return 403 if the requestor is a client and the consignment does not belong to the user
-        if(userRole.equals(UserRole.CLIENT) && userId != currentConsignment.get().getUserClient().getUserId()) {
+        if(userRole.equals(UserRole.CLIENT) && userId != currentConsignment.getUserClient().getUserId()) {
             throw new ForbiddenException("User does not have permission to update this consignment");
         }
 
@@ -147,33 +130,31 @@ public class ConsignmentService {
         boolean userOwnsOrIsParent = userService
                 .getChildren(userId,true)
                 .stream()
-                .anyMatch(child -> child.getId() == con.getUserClient().getUserId());
+                .anyMatch(child -> child.getId() == currentConsignment.getUserClient().getUserId());
 
         if(!userOwnsOrIsParent) {
             throw new ForbiddenException("User does not have permission to update this consignment");
         }
 
         // Validate delivery and sender addresses are valid
-        Optional<Address> delivery = addressService.getAddresses(
-                Collections.singletonList(
-                        consignmentRequest.getDeliveryAddressId()
-                )
-        ).stream().findFirst();
+        // Get delivery address details
+        Address delivery = addressService.getFirst(
+                consignmentRequest.getDeliveryAddressId()
+        );
 
-        Optional<Address> sender = addressService.getAddresses(
-                Collections.singletonList(
-                        consignmentRequest.getSenderAddressId()
-                )
-        ).stream().findFirst();
+        // Get sender address details
+        Address sender = addressService.getFirst(
+                consignmentRequest.getSenderAddressId()
+        );
 
-        if(delivery.isEmpty() || sender.isEmpty()) {
+        if(Objects.isNull(delivery) || Objects.isNull(sender)) {
             LOG.error("Unable to find delivery and/or sender address for the consignment.");
             throw new AddressNotFoundException("Delivery, sender or both addresses are not valid");
         }
 
         // Set the delivery & sender address details to consignment
-        setConsignmentAddresses(delivery.get(),
-                sender.get(),
+        setConsignmentAddresses(delivery,
+                sender,
                 consignmentRequest);
 
         // Filter the existing consignment items to get the items as per the request
@@ -183,7 +164,7 @@ public class ConsignmentService {
                 .stream()
                 .map(ItemDTO::getId)
                 .collect(Collectors.toList());
-        List<Item> requestItems = con
+        List<Item> requestItems = currentConsignment
                 .getItems()
                 .stream()
                 .filter(item -> requestItemIds.contains(item.getId()))
@@ -201,32 +182,32 @@ public class ConsignmentService {
         Map<Long, ItemType> itemTypes = this.getConsignmentItemTypes(itemTypeIds);
 
         // Set the filtered items as the existing consignment items
-        con.setItems(requestItems);
+        currentConsignment.setItems(requestItems);
 
         // Clear existing consignment entity from persistence context
         // This tells Spring to forget about any existing address details so that we can ensure that spring
         // set the right addresses instead of thinking that we are trying to change the address ID
-        this.entityManager.detach(con);
-        this.entityManager.detach(con.getSenderAddress());
-        this.entityManager.detach(con.getDeliveryAddress());
-        this.entityManager.detach(con.getSenderAddress().getSuburb());
-        this.entityManager.detach(con.getDeliveryAddress().getSuburb());
+        this.entityManager.detach(currentConsignment);
+        this.entityManager.detach(currentConsignment.getSenderAddress());
+        this.entityManager.detach(currentConsignment.getDeliveryAddress());
+        this.entityManager.detach(currentConsignment.getSenderAddress().getSuburb());
+        this.entityManager.detach(currentConsignment.getDeliveryAddress().getSuburb());
         // Uncomment below to clear all persistence object which is not recommended
         // clear() will force spring to query all related objects and set it into persistence context which will add more processing time
 //        this.entityManager.clear();
 
         // Map the updated values into the existing consignment object
         // Null will be ignored and treated as no update
-        modelMapper.map(consignmentRequest, con);
+        modelMapper.map(consignmentRequest, currentConsignment);
 
         // Make sure that every item in the consignment knows their parent consignment and set the ItemType
-        for(Item item : con.getItems()) {
-            item.setConsignment(con);
+        for(Item item : currentConsignment.getItems()) {
+            item.setConsignment(currentConsignment);
             item.setItemType(itemTypes.get(item.getItemTypeId()));
         }
 
         // Save updated consignment
-        consignmentRepository.save(con);
+        consignmentRepository.save(currentConsignment);
     }
 
     // Delete
@@ -259,6 +240,14 @@ public class ConsignmentService {
 
     public List<Consignment> getConsignments(List<Long> ids) {
         return consignmentRepository.findConsignments(ids);
+    }
+
+    public Consignment getFirst(long consignmentId) {
+        return ListHelper.getFirst(
+                this.getConsignments(
+                        Collections.singletonList(consignmentId)
+                )
+        );
     }
 
     private void setConsignmentUser(User user, Consignment consignment) {
