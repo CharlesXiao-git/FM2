@@ -28,7 +28,7 @@
       </template>
       <template v-slot:cell(dispatchedAt)="data">
         <template v-if="data.item.dispatchedAt">
-          {{ data.item.dispatchedAt[3] }}/{{ data.item.dispatchedAt[1] }}/{{ data.item.dispatchedAt[0] }}
+          {{ data.item.dispatchedAt[2] }}/{{ data.item.dispatchedAt[1] }}/{{ data.item.dispatchedAt[0] }}
         </template>
       </template>
       <template v-slot:cell(carrier.trackingUrl)="data">

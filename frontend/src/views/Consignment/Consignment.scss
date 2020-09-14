@@ -1,3 +1,8 @@
+.consignment {
+  height: 100%;
+  margin: 0;
+}
+
 .consignment-content {
   background-color: $content-background-color;
 }
@@ -31,4 +36,12 @@
   font-weight: 300;
   line-height: 1.3em;
   color: #999999
+}
+
+.consignment-alert {
+  width: 100%;
+  text-align: center;
+  z-index: 1020;
+  position: sticky;
+  top: 3.5em;
 }

@@ -115,7 +115,7 @@ export default class AddressBook extends Vue {
     const params = new URLSearchParams()
 
     addresses.forEach(address => {
-      params.append('ids', address.id)
+      params.append('ids', address.id.toString())
     })
 
     return {

@@ -47,15 +47,15 @@ public class ConsignmentController {
      * @return This endpoint will return a view of the created Consignment object in JSON
      */
     @PostMapping
-    public ResponseEntity<ConsignmentDTO> createConsignment(@RequestBody ConsignmentDTO consignmentRequest,
+    public ResponseEntity<ConsignmentDTO> createConsignment(@RequestBody Consignment consignmentRequest,
                                                             Authentication authentication) {
         // Get the username of the requestor
         long userId = ((AuthToken) authentication.getPrincipal()).getUserId();
 
         // Check that the consignment Owner ID belongs to the logged in user
-        if(consignmentRequest.getOwnerId() != 0 &&
-                userId != consignmentRequest.getOwnerId() &&
-                !userService.isChildOf(userId, consignmentRequest.getOwnerId())
+        if(consignmentRequest.getUserClientId() != 0 &&
+                userId != consignmentRequest.getUserClientId() &&
+                !userService.isChildOf(userId, consignmentRequest.getUserClientId())
         ) {
             throw new ForbiddenException("User does not have permission to create a consignment for the provided owner");
         }
@@ -64,8 +64,8 @@ public class ConsignmentController {
             return ResponseEntity.ok(
                     ConsignmentDTO.fromConsignment(
                             consignmentService.createConsignment(
-                                    ConsignmentDTO.toConsignment(consignmentRequest),
-                                    (consignmentRequest.getOwnerId() != 0 ? consignmentRequest.getOwnerId() : userId)
+                                    consignmentRequest,
+                                    (consignmentRequest.getUserClientId() != 0 ? consignmentRequest.getUserClientId() : userId)
                             )
                     )
             );
@@ -219,6 +219,24 @@ public class ConsignmentController {
             return ResponseEntity.ok(
                     offerRepository.getOffers()
             );
+        } catch (DataAccessException e) {
+            LOG.error("Unable to retrieve offers: ", e);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .build();
+        }
+    }
+
+    // This is just a mock for selecting the offer for the consignment. This is to be removed.
+    @PostMapping(path = "/offers")
+    public ResponseEntity setSelectedOffer(long offerId, long consignmentId) {
+
+        try {
+            consignmentService.createOffer(offerId, consignmentId);
+            return ResponseEntity
+                    .status(HttpStatus.NO_CONTENT)
+                    .build();
+
         } catch (DataAccessException e) {
             LOG.error("Unable to retrieve offers: ", e);
             return ResponseEntity

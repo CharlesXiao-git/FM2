@@ -9,6 +9,7 @@ import com.freightmate.harbour.model.dto.AddressDTO;
 import com.freightmate.harbour.model.dto.ConsignmentDTO;
 import com.freightmate.harbour.model.dto.ItemDTO;
 import com.freightmate.harbour.repository.ConsignmentRepository;
+import com.freightmate.harbour.repository.OfferRepository;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,7 @@ public class ConsignmentService {
     private final UserService userService;
     private final ItemTypeService itemTypeService;
     private final ModelMapper modelMapper;
+    private final OfferRepository offerRepository;
     @PersistenceContext private final EntityManager entityManager;
     private static final Logger LOG = LoggerFactory.getLogger(ConsignmentService.class);
 
@@ -41,6 +43,7 @@ public class ConsignmentService {
                    @Autowired UserService userService,
                    @Autowired ItemTypeService itemTypeService,
                    @Autowired ModelMapper modelMapper,
+                   @Autowired OfferRepository offerRepository,
                    @Autowired EntityManagerFactory emf) {
         this.consignmentRepository = consignmentRepository;
         this.addressService = addressService;
@@ -48,6 +51,7 @@ public class ConsignmentService {
         this.userService = userService;
         this.itemTypeService = itemTypeService;
         this.modelMapper = modelMapper;
+        this.offerRepository = offerRepository;
         this.entityManager = emf.createEntityManager();
     }
 
@@ -248,6 +252,17 @@ public class ConsignmentService {
                         Collections.singletonList(consignmentId)
                 )
         );
+    }
+
+    public void createOffer(long offerId, long consignmentId) {
+        Offer offer = ListHelper.getFirst(offerRepository.getOffersByIds(Collections.singletonList(offerId)));
+
+        Consignment consignment = ListHelper.getFirst(this.getConsignments(Collections.singletonList(consignmentId)));
+        this.entityManager.detach(offer);
+        offer.setId(0);
+        offer.setConsignment(consignment);
+        offer.setSelected(true);
+        offerRepository.save(offer);
     }
 
     private void setConsignmentUser(User user, Consignment consignment) {

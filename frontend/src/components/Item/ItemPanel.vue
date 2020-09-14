@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import ItemForm from '@/components/Item/ItemForm.vue'
 import { Item } from '@/model/Item'
 import { getAuthenticatedToken } from '@/helpers/auth/RequestHelpers'
@@ -70,6 +70,11 @@ export default class ItemPanel extends Vue {
       }, error => {
         this.$log.error(error.response.data)
       })
+  }
+
+  @Watch('items', { immediate: true, deep: true })
+  onChangeItems () {
+    this.$emit('emitted-items', this.items)
   }
 }
 </script>

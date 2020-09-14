@@ -1,4 +1,3 @@
-import { ItemType } from '@/model/ItemType'
 import { DangerousGood } from '@/model/DangerousGood'
 
 export class Item {
@@ -12,10 +11,10 @@ export class Item {
   totalWeight: number
   volume: number
   isHazardous: boolean
-  type: ItemType
+  itemTypeId: number
   dangerousGoods: DangerousGood []
 
-  constructor (id: number = null, consignmentId: string = null, quantity: number = null, length: number = null, width: number = null, height: number = null, weight: number = null, totalWeight: number = null, volume: number = null, isHazardous: boolean = null, type: ItemType = null, dangerousGoods: DangerousGood [] = null) {
+  constructor (id: number = null, consignmentId: string = null, quantity: number = null, length: number = null, width: number = null, height: number = null, weight: number = null, totalWeight: number = null, volume: number = null, isHazardous: boolean = null, itemTypeId: number = null, dangerousGoods: DangerousGood [] = null) {
     this.id = id
     this.consignmentId = consignmentId
     this.quantity = quantity
@@ -26,7 +25,7 @@ export class Item {
     this.totalWeight = totalWeight
     this.volume = volume
     this.isHazardous = isHazardous
-    this.type = type
+    this.itemTypeId = itemTypeId
     this.dangerousGoods = dangerousGoods
   }
 }

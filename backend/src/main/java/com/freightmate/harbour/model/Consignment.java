@@ -128,7 +128,7 @@ public class Consignment extends BaseEntity<Long> {
     private List<Offer> selectedOffer;
 
     public Offer getSelectedOffer () {
-        if (Objects.isNull(this.selectedOffer)) {
+        if (Objects.isNull(this.selectedOffer) || this.selectedOffer.isEmpty()) {
             return null;
         }
         return this.selectedOffer.get(0);

@@ -274,6 +274,8 @@ export default class ItemForm extends Vue {
   }
 
   getItem () {
+    const selectedItemTypeId = this.selectedItemType && this.selectedItemType.id ? this.selectedItemType.id : null
+
     return new Item(
       this.item.id,
       null,
@@ -285,7 +287,7 @@ export default class ItemForm extends Vue {
       this.totalWeight,
       convertFromPreferredUnits(this.volume),
       this.isHazardous,
-      this.selectedItemType,
+      selectedItemTypeId,
       this.dangerousGoods
     )
   }

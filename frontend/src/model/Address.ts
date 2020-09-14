@@ -2,7 +2,7 @@ import { Suburb } from '@/model/Suburb'
 
 export class Address {
   addressType: string
-  id: string
+  id: number
   referenceId: string
   company: string
   addressLine1: string
@@ -14,7 +14,7 @@ export class Address {
   specialInstructions: string
   userClientId: number = null
 
-  constructor (id: string, referenceId: string, company: string, addressLine1: string, addressLine2: string, suburb: Suburb, contactName: string, phoneNumber: string, email: string, specialInstructions: string, userClientId: number = null, addressType: string) {
+  constructor (id: number, referenceId: string, company: string, addressLine1: string, addressLine2: string, suburb: Suburb, contactName: string, phoneNumber: string, email: string, specialInstructions: string, userClientId: number = null, addressType: string) {
     this.id = id
     this.referenceId = referenceId
     this.company = company
