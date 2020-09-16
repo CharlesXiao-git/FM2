@@ -1,0 +1,27 @@
+.dangerous-good-form-container {
+  & {
+    background: #495057;
+    color: #ffffff;
+
+    &:before {
+      position: absolute;
+      content: "";
+      border-left: 0.875rem solid transparent;
+      border-right: 0.875rem solid transparent;
+      border-top: 1rem solid #fafafa;
+      left: 3.5em;
+    }
+  }
+
+  h5 {
+    text-transform: uppercase;
+    font-weight: 700;
+    font-size: 0.8rem !important;
+  }
+
+  h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    border-bottom: 0.0625rem solid #495463;
+  }
+}

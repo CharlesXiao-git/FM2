@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -28,11 +29,9 @@ public class Consignment extends BaseEntity<Long> {
 
     // todo Quote model
     // @Column(name = "quote_id", insertable = false, updatable = false)
-     private Long quoteId;
+    private Long quoteId;
 
-    // todo Manifest model
-    // @Column(name = "manifest_id", insertable = false, updatable = false)
-     private Long manifestId;
+    private Long manifestId;
 
     // TODO remove the notfound action once good data is ensured
     @ManyToOne(targetEntity = Address.class, fetch = FetchType.LAZY)
@@ -112,7 +111,30 @@ public class Consignment extends BaseEntity<Long> {
             orphanRemoval = true)
     private List<Item> items;
 
+    @OneToMany(targetEntity = Offer.class,
+            mappedBy = "consignment",
+            fetch = FetchType.LAZY
+    )
+    private List<Offer> offers;
+
+    @OneToMany(
+            targetEntity = Offer.class,
+            mappedBy = "consignment",
+            fetch = FetchType.EAGER
+    )
+    @Where(clause = "selected = true")
+    private List<Offer> selectedOffer;
+
+    public Offer getSelectedOffer () {
+        if (Objects.isNull(this.selectedOffer) || this.selectedOffer.isEmpty()) {
+            return null;
+        }
+        return this.selectedOffer.get(0);
+    }
+
     public Consignment() {
+        this.authorityToLeave = false;
+        this.isTailgateRequired = false;
         this.isDeleted = false;
     }
 

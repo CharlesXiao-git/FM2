@@ -1,11 +1,8 @@
 package com.freightmate.harbour.service;
 
-import com.freightmate.harbour.exception.BadRequestException;
 import com.freightmate.harbour.exception.ForbiddenException;
-import com.freightmate.harbour.model.Address;
-import com.freightmate.harbour.model.AddressType;
-import com.freightmate.harbour.model.User;
-import com.freightmate.harbour.model.UserRole;
+import com.freightmate.harbour.helper.ListHelper;
+import com.freightmate.harbour.model.*;
 import com.freightmate.harbour.model.dto.AddressDTO;
 import com.freightmate.harbour.repository.AddressRepository;
 import org.modelmapper.ModelMapper;
@@ -51,15 +48,9 @@ public class AddressService {
     // Create
     public Address createAddress(Address newAddress, long userId) {
         // Get user details from the user ID
-        Optional<User> user = userDetailsService.getUsers(
-                Collections.singletonList(userId)
-        ).stream().findFirst();
+        User user = userDetailsService.getFirst(userId);
 
-        if (user.isEmpty()) {
-            throw new BadRequestException("Unable to find user");
-        }
-
-        if (user.get().getUserRole().equals(UserRole.BROKER)) {
+        if (user.getUserRole().equals(UserRole.BROKER)) {
             throw new ForbiddenException("Addresses cannot be created for a BROKER, please provide a customer or client ID");
         }
 
@@ -67,7 +58,7 @@ public class AddressService {
         suburbService.updateSuburb(newAddress.getSuburb());
 
         // Save address after the user id has been assigned
-        setUserIdToAddress(user.get(), newAddress);
+        setUserIdToAddress(user, newAddress);
         return addressRepository.save(newAddress);
     }
 
@@ -150,6 +141,14 @@ public class AddressService {
 
     public List<Address> getAddresses(List<Long> addressIds) {
         return addressRepository.findAddresses(addressIds);
+    }
+
+    public Address getFirst(long addressId) {
+        return ListHelper.getFirst(
+                this.getAddresses(
+                        Collections.singletonList(addressId)
+                )
+        );
     }
 
     // User ID will need to be assigned to the address

@@ -3,13 +3,13 @@
         <div v-for="item in items" :key="item.id">
             <ItemForm :item="item" :item-types="itemTypes" @delete-item="deleteItem" @emitted-item="emittedItem"></ItemForm>
         </div>
-        <b-button class="primary-button m-3">Calculate</b-button>
+        <b-button class="primary-button m-3" v-on:click="calculate">Calculate</b-button>
         <b-button class="secondary-button ml-2" v-on:click="addItem" :disabled="disableAdd"><i class="fas mr-2 fa-plus" />Add Item</b-button>
     </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import ItemForm from '@/components/Item/ItemForm.vue'
 import { Item } from '@/model/Item'
 import { getAuthenticatedToken } from '@/helpers/auth/RequestHelpers'
@@ -55,6 +55,10 @@ export default class ItemPanel extends Vue {
     this.$forceUpdate()
   }
 
+  calculate () {
+    this.$emit('calculate', true)
+  }
+
   created () {
     const config = {
       headers: getAuthenticatedToken()
@@ -66,6 +70,11 @@ export default class ItemPanel extends Vue {
       }, error => {
         this.$log.error(error.response.data)
       })
+  }
+
+  @Watch('items', { immediate: true, deep: true })
+  onChangeItems () {
+    this.$emit('emitted-items', this.items)
   }
 }
 </script>

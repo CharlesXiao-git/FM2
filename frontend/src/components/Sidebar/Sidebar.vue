@@ -47,7 +47,7 @@
                         </b-button>
                     </b-nav-item>
                     <b-nav-item>
-                        <b-button>
+                        <b-button to="/manifest/list">
                             <i class="fas mr-1 fa-book-open"></i>
                             Manifests
                         </b-button>

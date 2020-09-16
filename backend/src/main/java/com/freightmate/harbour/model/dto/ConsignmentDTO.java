@@ -8,6 +8,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 @Data
@@ -21,6 +22,7 @@ public class ConsignmentDTO {
     private long ownerId;
     private long senderAddressId;
     private long deliveryAddressId;
+    private long manifestId;
     private String connoteNumber;
     private AddressDTO senderAddress;
     private AddressDTO deliveryAddress;
@@ -32,13 +34,25 @@ public class ConsignmentDTO {
     private Boolean isTailgateRequired;
     private ConsignmentType consignmentType;
     private List<ItemDTO> items;
+    private OfferDTO selectedOffer;
 
     public static Consignment toConsignment(ConsignmentDTO dto) {
-        return Consignment.builder()
+        Consignment.ConsignmentBuilder<?, ?> builder = Consignment.builder();
+
+        if (Objects.nonNull(dto.selectedOffer)) {
+            builder.selectedOffer(
+                    Collections.singletonList(
+                            OfferDTO.toOffer(dto.selectedOffer)
+                    )
+            );
+        }
+
+        return builder
                 .id(dto.id)
                 .userClientId(dto.ownerId)
                 .senderAddressId(dto.senderAddressId)
                 .deliveryAddressId(dto.deliveryAddressId)
+                .manifestId(dto.manifestId)
                 .connoteNumber(dto.connoteNumber)
                 .dispatchedAt(dto.dispatchedAt)
                 .deliveryWindowBegin(dto.deliveryWindowBegin)
@@ -51,6 +65,7 @@ public class ConsignmentDTO {
                         .map(ItemDTO::toItem)
                         .collect(Collectors.toList())
                 )
+                .isDeleted(false)
                 .build();
     }
 
@@ -60,7 +75,19 @@ public class ConsignmentDTO {
             return null;
         }
 
-        return ConsignmentDTO.builder()
+        ConsignmentDTOBuilder builder = ConsignmentDTO.builder();
+
+        // Set the selectedOffer to the ConsignmentDTO if exists
+        if (Objects.nonNull(con.getSelectedOffer())) {
+            builder.selectedOffer(OfferDTO.fromOffer(con.getSelectedOffer()));
+        }
+
+        // Set the manifestId if exists
+        if (Objects.nonNull(con.getManifestId())) {
+            builder.manifestId(con.getManifestId());
+        }
+
+        return builder
                 .id(con.getId())
                 .ownerId(con.getUserClient().getUserId())
                 .senderAddressId(con.getSenderAddressId())

@@ -7,6 +7,7 @@ import ConsignmentList from '@/views/Consignment/ConsignmentList.vue'
 import DefaultConsignment from '@/views/Consignment/DefaultConsignment.vue'
 import ThirdPartyConsignment from '@/views/Consignment/ThirdPartyConsignment.vue'
 import ReturnConsignment from '@/views/Consignment/ReturnConsignment.vue'
+import ManifestList from '@/views/Manifest/ManifestList.vue'
 
 Vue.use(VueRouter)
 
@@ -61,6 +62,13 @@ const routes: Array<RouteConfig> = [
     name: 'ConsignmentList',
     meta: { layout: 'home' },
     component: ConsignmentList,
+    props: true
+  },
+  {
+    path: '/manifest/list',
+    name: 'ManifestList',
+    meta: { layout: 'home' },
+    component: ManifestList,
     props: true
   }
 ]

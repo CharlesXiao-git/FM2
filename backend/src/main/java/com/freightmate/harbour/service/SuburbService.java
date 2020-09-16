@@ -1,16 +1,16 @@
 package com.freightmate.harbour.service;
 
 import com.freightmate.harbour.exception.BadRequestException;
-import com.freightmate.harbour.helper.ListHelper;
 import com.freightmate.harbour.model.AuspostLocality;
 import com.freightmate.harbour.model.Suburb;
 import com.freightmate.harbour.repository.SuburbRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import com.freightmate.harbour.helper.ListHelper;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;

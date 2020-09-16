@@ -57,7 +57,8 @@ $header-background-color: #495463;
   color: #dc3545;
 }
 
-.delete-btn, .delete-btn:hover, .delete-btn:focus {
+.delete-btn, .delete-btn:hover, .delete-btn:focus, .delete-btn:active,
+.icon-btn, .icon-btn:hover, .icon-btn:focus, .icon-btn:active {
   color: $secondary;
   background: none;
   border: none;

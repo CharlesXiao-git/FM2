@@ -208,8 +208,6 @@ public class AddressController {
         }
     }
 
-
-
     /**
      * Address book controller to update existing address. Any non-null fields provided by the update request
      * will update the existing data. Null fields will be ignored.
@@ -223,28 +221,9 @@ public class AddressController {
         // Get user details from the logged in user
         AuthToken authToken = (AuthToken) authentication.getPrincipal();
 
-        // Get the user
-        Optional<User> user = detailsService.getUsers(
-                Collections.singletonList(authToken.getUserId())
-        ).stream().findFirst();
-
-        if (user.isEmpty()) {
-            throw new ForbiddenException("User is not permitted to update the address");
-        }
-
         // validate if the address id exists
         //Address currentAddress = addressService.getAddressById(addressRequest.getId());
-        Address currentAddress = addressService.getAddresses(
-                Collections.singletonList(
-                        addressDto.getId()
-                )
-        ).get(0);
-
-        if(Objects.isNull(currentAddress)) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .build();
-        }
+        Address currentAddress = addressService.getFirst(addressDto.getId());
 
         // validate postcode
         if(suburbService.isInvalidPostcode(
@@ -259,16 +238,15 @@ public class AddressController {
                     .build();
         }
         // Get the owner
-        // todo: maybe write a wrapper function to do all this optional thingy
-        Optional<User> owner = detailsService.getUsers(
-                Collections.singletonList(addressDto.getUserClientId())
-        ).stream().findFirst();
+        User owner = detailsService.getFirst(
+                Objects.nonNull(addressDto.getUserClientId()) ?  addressDto.getUserClientId() : authToken.getUserId()
+        );
 
         // validate suburb (town) name
         List<AuspostLocality> matchingLocals = postCodeService.getMatchingLocalitiesBySuburb(
                 AddressDTO.toAddress(
                         addressDto,
-                        (owner.orElseGet(user::get))
+                        owner
                 )
         );
 
@@ -286,7 +264,11 @@ public class AddressController {
             addressDto.setSuburb(SuburbDTO.fromSuburb(suburb));
 
             // perform update address
-            Address result = addressService.updateAddress(addressDto, currentAddress, authToken.getUserId());
+            Address result = addressService.updateAddress(
+                    addressDto,
+                    currentAddress,
+                    authToken.getUserId()
+            );
 
             if(Objects.isNull(result)) {
                 // return bad request if address service is unable to create the record
@@ -340,6 +322,18 @@ public class AddressController {
         }
     }
 
+    /**
+     * Address book controller to search addresses with criterie
+     *
+     * @param addressType       This is an optional field. The value can either be DELIVERY, SENDER, or ANY
+     * @param clientId          This is an optional field. When provided, it will perform a search to that user's
+     *                          address list
+     * @param criteria          This is the search criteria where it will be used by the controller to locate the matching
+     *                          address details. The lookup is performed to a concatenation of multiple address fields
+     * @param authentication    Spring security authentication object to get the current session user info. Not needed
+     *                          to pass in the API URL
+     * @return a list of addresses that matched to the search criteria
+     */
     @RequestMapping(path="/search", method = RequestMethod.POST)
     public ResponseEntity<List<AddressDTO>> searchAddress(@RequestParam Optional<AddressType> addressType,
                                                           @RequestParam Optional<Long> clientId,

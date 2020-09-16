@@ -28,7 +28,17 @@
       </template>
       <template v-slot:cell(dispatchedAt)="data">
         <template v-if="data.item.dispatchedAt">
-          {{ data.item.dispatchedAt[3] }}/{{ data.item.dispatchedAt[1] }}/{{ data.item.dispatchedAt[0] }}
+          {{ data.item.dispatchedAt[2] }}/{{ data.item.dispatchedAt[1] }}/{{ data.item.dispatchedAt[0] }}
+        </template>
+      </template>
+      <template v-slot:cell(carrier.trackingUrl)="data">
+       <template v-if="data.value">
+          <b-link :href="data.value" target="_blank" class="icon-btn">
+            <i class="fas fa-truck fa-lg"/>
+          </b-link>
+        </template>
+        <template v-else>
+          Not available
         </template>
       </template>
     </b-table>
@@ -42,6 +52,7 @@
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import { Consignment } from '@/model/Consignment'
 import ConfirmActionModal from '@/components/ConfirmActionModal/ConfirmActionModal.vue'
+import { getTrackingUrl } from '@/helpers/TrackingHelpers'
 
 @Component({
   components: { ConfirmActionModal }
@@ -75,6 +86,13 @@ export default class ConsignmentDataTable extends Vue {
       { key: 'connoteNumber', label: 'Connote Number' },
       { key: 'dispatchedAt', label: 'Dispatch Date' },
       { key: 'carrier', label: 'Carrier' },
+      {
+        key: 'carrier.trackingUrl',
+        label: 'Tracking',
+        formatter: (_value: string, _key: string, item: Consignment) => {
+          return getTrackingUrl(item)
+        }
+      },
       { key: 'serviceType', label: 'Service Type' },
       { key: 'senderAddress.company', label: 'Sender Company Name' },
       { key: 'deliveryAddress.company', label: 'Receiver Company Name' },

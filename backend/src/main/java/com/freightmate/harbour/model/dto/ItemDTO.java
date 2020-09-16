@@ -36,6 +36,7 @@ public class ItemDTO {
                 .totalWeight(dto.totalWeight)
                 .volume(dto.volume)
                 .isHazardous(dto.isHazardous)
+                .isDeleted(false)
                 .build();
     }
 

@@ -1,8 +1,9 @@
-import { Address } from '@/model/Address'
+import { Offer } from '@/model/Offer'
 import { Item } from '@/model/Item'
 
 export class Consignment {
   id: string = null
+  userClientId: number = null
   connoteNumber: string = null
   dispatchedAt: Date = null
   deliveryWindowBegin: Date = null
@@ -10,15 +11,18 @@ export class Consignment {
   deliveryAddressClass: string = null
   authorityToLeave: boolean = null
   isTailgateRequired: boolean = null
-  ownerId: number = null
-  senderAddress: Address
-  deliveryAddress: Address
+  senderAddressId: number = null
+  deliveryAddressId: number = null
   items: Item[]
+  status: string
+  selectedOffer: Offer
 
-  constructor (id: string = null, connoteNumber: string = null, dispatchedAt: Date = null, deliveryWindowBegin: Date | null,
-               deliveryWindowEnd: Date | null, deliveryAddressClass: string, authorityToLeave: boolean, isTailgateRequired: boolean,
-               ownerId: number, senderAddress: Address, deliveryAddress: Address, items: Item[]) {
+  constructor (id: string = null, userClientId: number = null, connoteNumber: string = null, dispatchedAt: Date = null, deliveryWindowBegin: Date = null,
+    deliveryWindowEnd: Date = null, deliveryAddressClass: string = null, authorityToLeave: boolean = null, isTailgateRequired: boolean = null,
+    senderAddressId: number = null, deliveryAddressId: number = null, items: Item[] = null, status: string = null,
+    selectedOffer: Offer = null) {
     this.id = id
+    this.userClientId = userClientId
     this.connoteNumber = connoteNumber
     this.dispatchedAt = dispatchedAt
     this.deliveryWindowBegin = deliveryWindowBegin
@@ -26,9 +30,10 @@ export class Consignment {
     this.deliveryAddressClass = deliveryAddressClass
     this.authorityToLeave = authorityToLeave
     this.isTailgateRequired = isTailgateRequired
-    this.ownerId = ownerId
-    this.senderAddress = senderAddress
-    this.deliveryAddress = deliveryAddress
+    this.senderAddressId = senderAddressId
+    this.deliveryAddressId = deliveryAddressId
     this.items = items
+    this.status = status
+    this.selectedOffer = selectedOffer
   }
 }
