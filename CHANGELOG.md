@@ -5,13 +5,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 ### Added
- - BACKEND | Application CLI to call webserver
- - BACKEND | Suburb importer process
- - BACKEND | Zone importer process
 ### Changed
 ### Removed
 ### Fixed
 ### Security
+
+## [0.5.0]
+### Added
+ - BACKEND | Application CLI to call webserver
+ - BACKEND | Suburb importer process
+ - BACKEND | Zone importer process
+ - FRONTEND & BACKEND | Create Consignment
+ - FRONTEND & BACKEND | View Manifested Consignment
+ - FRONTEND & BACKEND | External Tracking
+ - FRONTEND & BACKEND | Carrier CRUD and selecting carrier when creating a consignment
+ - FRONTEND & BACKEND | Implementing Freightmate data model version 2
 
 ## [0.4.0] 2020-09-03 (Unreleased to production)
 ### Added
@@ -83,8 +91,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 `Beginning of changelog`
 
-[Unreleased]: https://github.com/Freightmate/harbour/compare/0.4.0...HEAD
+[Unreleased]: https://github.com/Freightmate/harbour/compare/0.5.0...HEAD
 [0.2.0]: https://github.com/Freightmate/harbour/compare/0.0.0...0.2.0
 [0.2.1]: https://github.com/Freightmate/harbour/compare/0.2.0...0.2.1
 [0.3.0]: https://github.com/Freightmate/harbour/compare/0.2.1...0.3.0
 [0.4.0]: https://github.com/Freightmate/harbour/compare/0.3.0...0.4.0
+[0.5.0]: https://github.com/Freightmate/harbour/compare/0.4.0...0.5.0
