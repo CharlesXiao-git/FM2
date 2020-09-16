@@ -22,6 +22,7 @@ public class ConsignmentDTO {
     private long ownerId;
     private long senderAddressId;
     private long deliveryAddressId;
+    private long manifestId;
     private String connoteNumber;
     private AddressDTO senderAddress;
     private AddressDTO deliveryAddress;
@@ -38,7 +39,7 @@ public class ConsignmentDTO {
     public static Consignment toConsignment(ConsignmentDTO dto) {
         Consignment.ConsignmentBuilder<?, ?> builder = Consignment.builder();
 
-        if(Objects.nonNull(dto.selectedOffer)) {
+        if (Objects.nonNull(dto.selectedOffer)) {
             builder.selectedOffer(
                     Collections.singletonList(
                             OfferDTO.toOffer(dto.selectedOffer)
@@ -51,6 +52,7 @@ public class ConsignmentDTO {
                 .userClientId(dto.ownerId)
                 .senderAddressId(dto.senderAddressId)
                 .deliveryAddressId(dto.deliveryAddressId)
+                .manifestId(dto.manifestId)
                 .connoteNumber(dto.connoteNumber)
                 .dispatchedAt(dto.dispatchedAt)
                 .deliveryWindowBegin(dto.deliveryWindowBegin)
@@ -80,26 +82,31 @@ public class ConsignmentDTO {
             builder.selectedOffer(OfferDTO.fromOffer(con.getSelectedOffer()));
         }
 
+        // Set the manifestId if exists
+        if (Objects.nonNull(con.getManifestId())) {
+            builder.manifestId(con.getManifestId());
+        }
+
         return builder
-            .id(con.getId())
-            .ownerId(con.getUserClient().getUserId())
-            .senderAddressId(con.getSenderAddressId())
-            .deliveryAddressId(con.getDeliveryAddressId())
-            .connoteNumber(con.getConnoteNumber())
-            .senderAddress(AddressDTO.fromAddress(con.getSenderAddress()))
-            .deliveryAddress(AddressDTO.fromAddress(con.getDeliveryAddress()))
-            .dispatchedAt(con.getDispatchedAt())
-            .deliveryWindowBegin(con.getDeliveryWindowBegin())
-            .deliveryWindowEnd(con.getDeliveryWindowEnd())
-            .deliveryAddressClass(con.getDeliveryAddressClass())
-            .authorityToLeave(con.getAuthorityToLeave())
-            .isTailgateRequired(con.getIsTailgateRequired())
-            .consignmentType(con.getConsignmentType())
-            .items(con.getItems().stream()
-                    .map(ItemDTO::fromItem)
-                    .collect(Collectors.toList())
-            )
-            .build();
+                .id(con.getId())
+                .ownerId(con.getUserClient().getUserId())
+                .senderAddressId(con.getSenderAddressId())
+                .deliveryAddressId(con.getDeliveryAddressId())
+                .connoteNumber(con.getConnoteNumber())
+                .senderAddress(AddressDTO.fromAddress(con.getSenderAddress()))
+                .deliveryAddress(AddressDTO.fromAddress(con.getDeliveryAddress()))
+                .dispatchedAt(con.getDispatchedAt())
+                .deliveryWindowBegin(con.getDeliveryWindowBegin())
+                .deliveryWindowEnd(con.getDeliveryWindowEnd())
+                .deliveryAddressClass(con.getDeliveryAddressClass())
+                .authorityToLeave(con.getAuthorityToLeave())
+                .isTailgateRequired(con.getIsTailgateRequired())
+                .consignmentType(con.getConsignmentType())
+                .items(con.getItems().stream()
+                        .map(ItemDTO::fromItem)
+                        .collect(Collectors.toList())
+                )
+                .build();
     }
 }
 

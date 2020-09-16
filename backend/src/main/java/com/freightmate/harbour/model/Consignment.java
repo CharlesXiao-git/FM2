@@ -29,11 +29,9 @@ public class Consignment extends BaseEntity<Long> {
 
     // todo Quote model
     // @Column(name = "quote_id", insertable = false, updatable = false)
-     private Long quoteId;
+    private Long quoteId;
 
-    // todo Manifest model
-    // @Column(name = "manifest_id", insertable = false, updatable = false)
-     private Long manifestId;
+    private Long manifestId;
 
     // TODO remove the notfound action once good data is ensured
     @ManyToOne(targetEntity = Address.class, fetch = FetchType.LAZY)
