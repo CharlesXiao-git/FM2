@@ -144,3 +144,13 @@ Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class 
 2020-06-30 17:42:59.234  INFO 56448 --- [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8098 (http) with context path ''
 2020-06-30 17:42:59.238  INFO 56448 --- [  restartedMain] com.freightmate.harbour.Harbour          : Started Harbour in 4.415 seconds (JVM running for 4.884)
 ```
+
+docker-compose -f docker-compose.local.yml up database
+
+export HARBOUR_USER=tuco
+
+export HARBOUR_PASSWORD=Slalom01
+
+UPDATE user set password = '$2y$12$PD9NqjjhkemdzQqFBdkkceoQkiH5ajKG/mw0uvsUC8tdu2MZgcEUu' WHERE username in ('kurtis', 'michelle','tuco', 'tucotest');
+
+Slalom01
